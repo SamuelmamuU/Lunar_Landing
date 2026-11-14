@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Header } from './Header';
+// Header oculto por ahora; descomentar junto con <Header /> abajo.
+// import { Header } from './Header';
 import { MainContent } from './MainContent';
 import { Sidebar } from './Sidebar';
 
@@ -16,8 +17,8 @@ interface Props {
  */
 export function AppLayout({ sidebar, children }: Props) {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-200 text-slate-900 lg:h-screen">
-      <Header />
+    <div className="flex min-h-screen flex-col bg-white text-slate-900 lg:h-screen">
+      {/* <Header /> */}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <Sidebar>{sidebar}</Sidebar>
         <MainContent>{children}</MainContent>
