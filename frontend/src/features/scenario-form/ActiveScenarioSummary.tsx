@@ -1,6 +1,7 @@
-import { formatLat, formatLon, lunarRegion, REGION_LABEL } from '../../shared/lib/coords';
 import { useAppStore } from '../../app/store';
+import { Coordinates } from '../../shared/ui/Coordinates';
 import { DataField } from '../../shared/ui/DataField';
+import { RegionBadge } from '../../shared/ui/RegionBadge';
 
 const dateFormatter = new Intl.DateTimeFormat('es-MX', {
   dateStyle: 'medium',
@@ -24,21 +25,30 @@ export function ActiveScenarioSummary() {
   }
 
   const { site } = scenario;
+  const hasMissionData = Boolean(site.mission || site.agency || site.landedAt);
+
   return (
-    <article className="rounded-lg border border-slate-300 bg-white p-5">
-      <p className="text-sm text-slate-500">{REGION_LABEL[lunarRegion(site.lat, site.lon)]}</p>
-      <h2 className="mt-0.5 text-2xl font-bold text-slate-900">{site.name}</h2>
-      <p className="mt-1 text-sm tabular-nums text-slate-700">
-        {formatLat(site.lat, 3)}, {formatLon(site.lon, 3)}
-      </p>
+    <article className="rounded-lg border border-slate-200 bg-white p-5">
+      <RegionBadge lat={site.lat} lon={site.lon} size="md" />
+      <h2 className="mt-2 text-2xl text-slate-900">{site.name}</h2>
+      <div className="mt-2">
+        <Coordinates lat={site.lat} lon={site.lon} digits={3} variant="chip" />
+      </div>
 
       {site.description && <p className="mt-3 max-w-prose text-sm text-slate-700">{site.description}</p>}
 
-      <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
-        {site.mission && <DataField label="Mision" value={site.mission} />}
-        {site.agency && <DataField label="Agencia" value={site.agency} />}
-        {site.landedAt && <DataField label="Alunizo" value={dateFormatter.format(new Date(site.landedAt))} />}
-        <DataField label="Inicio" value={`${dateFormatter.format(new Date(scenario.start))} (UTC)`} />
+      {hasMissionData && (
+        <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 rounded-md border-l-4 border-teal-500 bg-teal-50/60 px-4 py-3 text-sm sm:grid-cols-3">
+          {site.mission && <DataField label="Mision" value={site.mission} tone="accent" />}
+          {site.agency && <DataField label="Agencia" value={site.agency} tone="accent" />}
+          {site.landedAt && (
+            <DataField label="Alunizo" value={dateFormatter.format(new Date(site.landedAt))} tone="accent" />
+          )}
+        </dl>
+      )}
+
+      <dl className="mt-4 grid grid-cols-3 gap-x-6 gap-y-3 text-sm">
+        <DataField label="Inicio (UTC)" value={dateFormatter.format(new Date(scenario.start))} />
         <DataField label="Duracion" value={`${scenario.durationDays} dias`} />
         <DataField label="Paso" value={`${scenario.stepMinutes} min`} />
       </dl>

@@ -107,7 +107,8 @@ src/
   shared/
     types/lunar.ts         Contrato de datos con backend.
     lib/                   Funciones puras sin React (coords.ts, metricas, ventanas...).
-    ui/                    Componentes genericos sin logica de negocio (TextField, DataField, DataSourceBadge...).
+    ui/                    Componentes genericos sin logica de negocio (Button, TextField, DataField, Coordinates, RegionBadge, DataSourceBadge...).
+      icons/               Iconos SVG como componentes (CompassIcon...), siempre con aria-hidden.
 ```
 
 | # | Slice | Listo cuando... | Tiempo aprox |
@@ -181,10 +182,19 @@ app  ->  features  ->  shared
 
 ### Estilos
 
-- **Solo Tailwind.** No crear archivos `.css` nuevos ni `style={{}}` salvo valores calculados (posiciones del SVG).
-- Paleta: superficies `slate`, acento `orange-600` (marca del equipo), texto `slate-900` / `slate-500`.
-- **Rojo, ambar y verde estan reservados** para errores, avisos y el semaforo de metricas. No usarlos para
-  series ni decoracion.
+- **Solo Tailwind.** No crear archivos `.css` nuevos ni `style={{}}` salvo valores calculados (posiciones del SVG,
+  retrasos de animacion). Estilos globales (como `cursor: pointer` en botones) van en `@layer base` de `index.css`.
+- **Botones: siempre `<Button variant="primary|ghost|link">`** de `shared/ui`. No estilizar `<button>` a mano: el
+  color de las acciones vive solo en `Button.tsx`. Unica excepcion: items seleccionables de una lista
+  (como `SiteOption`), que son un `<button>` con `aria-pressed` y su propio estilo.
+- **Iconos:** un componente por icono en `shared/ui/icons/`. Nada de `<svg>` pegado dentro de un componente.
+- **Animaciones** (`tailwindcss-animated`): siempre con `motion-reduce:animate-none` y duraciones cortas
+  (`animate-duration-300` a `500`). Solo en entradas y como respuesta a acciones, no decorativas en loop.
+- Paleta: superficies `slate`, acento `blue-600` (marca del equipo), texto `slate-900` / `slate-500`.
+- **Datos (coordenadas, datos de mision): `teal`** (`text-teal-700`, chips `bg-teal-50`), peso normal, sin bold.
+  Usar `<Coordinates>` y `<DataField tone="accent">` en vez de repetir clases.
+- **Rojo, ambar y `green` estan reservados** para errores, avisos y el semaforo de metricas. No usarlos para
+  series ni decoracion. (`teal` no es `green`: el semaforo usa `green-*`, los datos `teal-*`.)
 - Sol y Tierra tienen **un color fijo cada uno en toda la app** (panorama, timeline, comparador). Se definen
   una sola vez en `shared/lib/` en el slice 3 y todos lo importan de ahi.
 - Para graficas seguir la skill `dataviz`: un solo eje Y, leyenda + etiqueta directa, nunca solo color.

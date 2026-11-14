@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useAppStore } from '../../app/store';
 import { formatLat, formatLon, parseCoordinate, validateLat, validateLon } from '../../shared/lib/coords';
+import { Button } from '../../shared/ui/Button';
 import { TextField } from '../../shared/ui/TextField';
 
 interface Props {
@@ -33,7 +34,7 @@ export function CustomSiteForm({ onDone }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-lg border border-slate-300 bg-slate-50 p-3">
+    <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
       <TextField label="Nombre" hint="opcional" value={name} onChange={setName} placeholder="Mi sitio candidato" />
 
       <div className="grid grid-cols-2 gap-3">
@@ -64,19 +65,10 @@ export function CustomSiteForm({ onDone }: Props) {
       <p className="text-xs text-slate-500">Sur y oeste son negativos.</p>
 
       <div className="flex gap-2">
-        <button
-          type="submit"
-          className="rounded-md bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600/40 focus-visible:ring-offset-2"
-        >
-          Usar este punto
-        </button>
-        <button
-          type="button"
-          onClick={onDone}
-          className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600/40"
-        >
+        <Button type="submit">Usar este punto</Button>
+        <Button variant="ghost" onClick={onDone}>
           Cancelar
-        </button>
+        </Button>
       </div>
     </form>
   );

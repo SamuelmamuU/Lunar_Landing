@@ -1,6 +1,8 @@
 import { useId, useMemo, useState } from 'react';
 import { useAppStore } from '../../app/store';
 import type { LandingSite } from '../../shared/types/lunar';
+import { Button } from '../../shared/ui/Button';
+import { CompassIcon } from '../../shared/ui/icons/CompassIcon';
 import { CustomSiteForm } from './CustomSiteForm';
 import { SiteList } from './SiteList';
 import { SiteSearch } from './SiteSearch';
@@ -30,18 +32,15 @@ export function SitePicker() {
 
   return (
     <section aria-labelledby={titleId} className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex items-baseline justify-between gap-2">
-        <h2 id={titleId} className="text-lg font-semibold text-slate-900">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h2 id={titleId} className="whitespace-nowrap text-lg font-semibold text-slate-900">
           Sitio de alunizaje
         </h2>
         {!showCustomForm && (
-          <button
-            type="button"
-            onClick={() => setShowCustomForm(true)}
-            className="text-sm font-medium text-orange-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600/40"
-          >
-            + Coordenadas propias
-          </button>
+          <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="Introducir coordenadas">
+            <CompassIcon />
+            Coordenadas
+          </Button>
         )}
       </div>
 
