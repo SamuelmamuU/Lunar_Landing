@@ -1,15 +1,15 @@
+import LunarMap from "./components/LunarMap"
+
 function App() {
   return (
-    <main className="flex flex-col min-h-screen items-center justify-center bg-slate-200 text-orange-600 ">
-      <h1 className="text-4xl font-bold">Bosón de Quásar</h1>
-      <span className="text-black text-sm font-semibold">Lunar Landing</span>
-
-      <div className="max-w-5xl mx-auto">
-        <img 
-        src="/moon/MOON_lroc_color_2k.jpg" 
-        alt="Superficie lunar" 
-        className="w-full rounded-lg"/>
-      </div>
+    <main className="min-h-screen bg-gray-950 text-white p-8">
+      <h1 className="text-3xl font-bold mb-2">
+        Lunar Landing Site Navigator
+      </h1>
+      <p className="text-slate-400 mb-8">
+        Navegador lunar de la superficie de la Luna (NASA LRO WAC)
+      </p>
+      <LunarMap />
     </main>
   )
 }
