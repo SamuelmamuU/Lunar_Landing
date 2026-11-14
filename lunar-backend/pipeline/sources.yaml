@@ -1,0 +1,28 @@
+naif_base: "https://naif.jpl.nasa.gov/pub/naif/generic_kernels"
+kernels:
+  - id: lsk
+    path: "lsk/naif0012.tls"
+  - id: spk_planets
+    path: "spk/planets/de440s.bsp"
+  - id: pck_text
+    path: "pck/pck00011.tpc"
+  - id: pck_moon
+    path: "pck/moon_pa_de440_200625.bpc"
+  - id: fk_moon
+    dir: "fk/satellites"
+    pattern: "^moon_de440_\\d{6}\\.tf$"
+    fallback: "fk/satellites/a_old_versions/moon_de440_220930.tf"
+  - id: fk_moon_assoc
+    path: "fk/satellites/moon_assoc_me.tf"
+
+dem:
+  base: "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp"
+  primary:
+    - LDEM_80S_20MPP_ADJ.TIF
+  optional:
+    - LDEC_80S_20MPP_ADJ.TIF
+    - LDEM_80S_20MPP_ADJ_ERR.TIF
+    - LDEM_80S_20MPP_ADJ_HILL.TIF
+  high_res_optional:
+    - LDEM_83S_10MPP_ADJ.TIF
+  citation: "Barker et al. 2023, PSJ 4:183, doi:10.3847/PSJ/acf3e1; data doi:10.60903/gsfcpgda-lola-spole"

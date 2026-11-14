@@ -1,0 +1,17 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.example
+    volumes:
+      - ./data:/app/data:ro
+      - ./data/cache:/app/data/cache:rw
+
+  pipeline:
+    build: .
+    profiles: ["tools"]
+    command: ["uv", "run", "--no-sync", "python", "-m", "pipeline", "all", "--dem-mode", "window"]
+    volumes:
+      - ./data:/app/data:rw

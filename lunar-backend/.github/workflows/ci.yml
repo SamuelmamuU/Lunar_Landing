@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "backendsamu"]
+    paths:
+      - "lunar-backend/**"
+  pull_request:
+    paths:
+      - "lunar-backend/**"
+  workflow_dispatch:
+    inputs:
+      run_data_smoke:
+        description: "Ejecutar smoke test de descarga y pruebas -m data"
+        required: false
+        default: "false"
+
+defaults:
+  run:
+    working-directory: lunar-backend
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy app pipeline
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run pytest -m "not network and not data and not slow"
+
+  data-smoke:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_data_smoke == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - uses: actions/cache@v4
+        with:
+          path: lunar-backend/data/kernels
+          key: kernels-${{ hashFiles('lunar-backend/pipeline/sources.yaml') }}
+      - run: uv sync --frozen
+      - run: uv run python -m pipeline all --dem-mode window --radius-km 25
+      - run: uv run pytest -m data --cov-fail-under=0
