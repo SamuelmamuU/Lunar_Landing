@@ -1,12 +1,7 @@
-import { useId, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useAppStore } from '../../app/store';
-import {
-  formatLat,
-  formatLon,
-  parseCoordinate,
-  validateLat,
-  validateLon,
-} from '../../shared/lib/coords';
+import { formatLat, formatLon, parseCoordinate, validateLat, validateLon } from '../../shared/lib/coords';
+import { TextField } from '../../shared/ui/TextField';
 
 interface Props {
   onDone: () => void;
@@ -22,7 +17,6 @@ export function CustomSiteForm({ onDone }: Props) {
 
   const latError = validateLat(lat);
   const lonError = validateLon(lon);
-  const ids = { name: useId(), lat: useId(), lon: useId(), latErr: useId(), lonErr: useId() };
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -35,53 +29,35 @@ export function CustomSiteForm({ onDone }: Props) {
       lat: latValue,
       lon: lonValue,
     });
-    setName('');
-    setLat('');
-    setLon('');
-    setTouched({ lat: false, lon: false });
     onDone();
   }
 
-  const showLatError = touched.lat && latError;
-  const showLonError = touched.lon && lonError;
-
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-lg border border-slate-300 bg-slate-50 p-3">
-      <div>
-        <label htmlFor={ids.name} className="block text-sm font-medium text-slate-700">
-          Nombre <span className="font-normal text-slate-500">(opcional)</span>
-        </label>
-        <input
-          id={ids.name}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Mi sitio candidato"
-          className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600/40"
-        />
-      </div>
+      <TextField label="Nombre" hint="opcional" value={name} onChange={setName} placeholder="Mi sitio candidato" />
 
       <div className="grid grid-cols-2 gap-3">
-        <CoordinateInput
-          id={ids.lat}
-          errorId={ids.latErr}
+        <TextField
           label="Latitud"
           hint="-90 a 90"
-          placeholder="-89.45"
           value={lat}
-          error={showLatError || null}
           onChange={setLat}
           onBlur={() => setTouched((t) => ({ ...t, lat: true }))}
+          error={touched.lat ? latError : null}
+          placeholder="-89.45"
+          inputMode="decimal"
+          autoComplete="off"
         />
-        <CoordinateInput
-          id={ids.lon}
-          errorId={ids.lonErr}
+        <TextField
           label="Longitud"
           hint="-180 a 180"
-          placeholder="-137.3"
           value={lon}
-          error={showLonError || null}
           onChange={setLon}
           onBlur={() => setTouched((t) => ({ ...t, lon: true }))}
+          error={touched.lon ? lonError : null}
+          placeholder="-137.3"
+          inputMode="decimal"
+          autoComplete="off"
         />
       </div>
 
@@ -103,48 +79,5 @@ export function CustomSiteForm({ onDone }: Props) {
         </button>
       </div>
     </form>
-  );
-}
-
-interface CoordinateInputProps {
-  id: string;
-  errorId: string;
-  label: string;
-  hint: string;
-  placeholder: string;
-  value: string;
-  error: string | null;
-  onChange: (value: string) => void;
-  onBlur: () => void;
-}
-
-function CoordinateInput({ id, errorId, label, hint, placeholder, value, error, onChange, onBlur }: CoordinateInputProps) {
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
-        {label} <span className="font-normal text-slate-500">({hint})</span>
-      </label>
-      <input
-        id={id}
-        inputMode="decimal"
-        autoComplete="off"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        placeholder={placeholder}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        className={`mt-1 w-full rounded-md border bg-white px-2.5 py-1.5 text-sm tabular-nums text-slate-900 placeholder:text-slate-400 focus:outline-none focus-visible:ring-2 ${
-          error
-            ? 'border-red-600 focus-visible:ring-red-600/40'
-            : 'border-slate-300 focus:border-orange-600 focus-visible:ring-orange-600/40'
-        }`}
-      />
-      {error && (
-        <p id={errorId} className="mt-1 text-xs text-red-700">
-          {error}
-        </p>
-      )}
-    </div>
   );
 }

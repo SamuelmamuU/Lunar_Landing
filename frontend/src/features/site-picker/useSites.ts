@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getSites } from '../../services/lunarApi';
 import type { LandingSite } from '../../shared/types/lunar';
 
-type SitesState =
+export type SitesState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
   | { status: 'ready'; sites: LandingSite[] };
