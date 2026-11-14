@@ -10,7 +10,7 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 // El color de las acciones vive SOLO aqui. Para cambiar el acento de la app, cambiar 'primary'.
 const VARIANT_CLASS: Record<Variant, string> = {
-  primary: 'bg-blue-600 font-semibold text-white hover:bg-blue-700',
+  primary: 'bg-blue-600 text-white hover:bg-blue-700',
   ghost: 'font-medium text-slate-600 hover:bg-slate-200',
   /** Boton con aspecto de enlace (hereda el color del texto). Ignora `size`. */
   link: 'font-semibold underline underline-offset-2 text-sm',
