@@ -30,7 +30,7 @@ export function TextField({ label, hint, value, onChange, error, className = '',
         className={`mt-1 w-full rounded-md border bg-white px-2.5 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus-visible:ring-2 ${
           error
             ? 'border-red-600 focus-visible:ring-red-600/40'
-            : 'border-slate-300 focus:border-orange-600 focus-visible:ring-orange-600/40'
+            : 'border-slate-200 focus:border-blue-600 focus-visible:ring-blue-600/40'
         }`}
       />
       {error && (
