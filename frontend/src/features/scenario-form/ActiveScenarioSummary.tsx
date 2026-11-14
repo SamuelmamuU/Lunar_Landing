@@ -1,5 +1,6 @@
-import { formatLat, formatLon, lunarRegion, REGION_LABEL } from '../shared/lib/coords';
-import { useAppStore } from './store';
+import { formatLat, formatLon, lunarRegion, REGION_LABEL } from '../../shared/lib/coords';
+import { useAppStore } from '../../app/store';
+import { DataField } from '../../shared/ui/DataField';
 
 const dateFormatter = new Intl.DateTimeFormat('es-MX', {
   dateStyle: 'medium',
@@ -34,22 +35,13 @@ export function ActiveScenarioSummary() {
       {site.description && <p className="mt-3 max-w-prose text-sm text-slate-700">{site.description}</p>}
 
       <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
-        {site.mission && <Field label="Mision" value={site.mission} />}
-        {site.agency && <Field label="Agencia" value={site.agency} />}
-        {site.landedAt && <Field label="Alunizo" value={dateFormatter.format(new Date(site.landedAt))} />}
-        <Field label="Inicio" value={`${dateFormatter.format(new Date(scenario.start))} (UTC)`} />
-        <Field label="Duracion" value={`${scenario.durationDays} dias`} />
-        <Field label="Paso" value={`${scenario.stepMinutes} min`} />
+        {site.mission && <DataField label="Mision" value={site.mission} />}
+        {site.agency && <DataField label="Agencia" value={site.agency} />}
+        {site.landedAt && <DataField label="Alunizo" value={dateFormatter.format(new Date(site.landedAt))} />}
+        <DataField label="Inicio" value={`${dateFormatter.format(new Date(scenario.start))} (UTC)`} />
+        <DataField label="Duracion" value={`${scenario.durationDays} dias`} />
+        <DataField label="Paso" value={`${scenario.stepMinutes} min`} />
       </dl>
     </article>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-900">{value}</dd>
-    </div>
   );
 }
