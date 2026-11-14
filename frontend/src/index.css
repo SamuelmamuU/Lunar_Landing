@@ -1,1 +1,10 @@
 @import "tailwindcss";
+@import "tailwindcss-animated";
+
+/* Tailwind v4 ya no pone cursor: pointer a los botones; se restaura para toda la app. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
