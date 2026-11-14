@@ -1,7 +1,8 @@
 function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-      <h1 className="text-4xl font-bold">Lunar Landing</h1>
+    <main className="flex flex-col min-h-screen items-center justify-center bg-slate-200 text-orange-600 ">
+      <h1 className="text-4xl font-bold">Bosón de Quásar</h1>
+      <span className="text-black text-sm font-semibold">Lunar Landing</span>
     </main>
   )
 }
