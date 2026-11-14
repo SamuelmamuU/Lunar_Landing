@@ -8,15 +8,15 @@ Estados: `☐` Pendiente · `☑` Cubierto y verificado en verde
 
 | Requisito | Prioridad | Prueba(s) | Estado |
 |-----------|-----------|-----------|--------|
-| RF-DATA-01 | M | UT-DATA-01, UT-DATA-02 | ☐ |
-| RF-DATA-02 | M | UT-DATA-03, UT-DATA-04 | ☐ |
-| RF-DATA-03 | M | UT-DATA-10 | ☐ |
-| RF-DATA-04 | M | UT-DATA-08 | ☐ |
-| RF-DATA-05 | M | UT-DATA-05, UT-DATA-06 | ☐ |
-| RF-DATA-06 | M | UT-DATA-07 | ☐ |
-| RF-DATA-07 | M | UT-DATA-09 | ☐ |
-| RF-DATA-08 | M | UT-SITE-01..04 | ☐ |
-| RF-DATA-09 | S | precompute_horizons (Fase 1/3) | ☐ |
+| RF-DATA-01 | M | UT-DATA-01, UT-DATA-02 | ☑ |
+| RF-DATA-02 | M | UT-DATA-03, UT-DATA-04 | ☑ |
+| RF-DATA-03 | M | UT-DATA-10 | ☑ |
+| RF-DATA-04 | M | UT-DATA-08 | ☑ |
+| RF-DATA-05 | M | UT-DATA-05, UT-DATA-06 | ☑ |
+| RF-DATA-06 | M | UT-DATA-07 | ☑ |
+| RF-DATA-07 | M | UT-DATA-09 | ☑ |
+| RF-DATA-08 | M | UT-SITE-01..04 | ☑ |
+| RF-DATA-09 | S | precompute_horizons (pipeline listo; cálculo en Fase 3) | ☐ |
 | RF-DATA-10 | C | Configuración `DEM_HIRES_PATH` (`test_core.py`) | ☐ |
 | RF-COORD-01..06 | M | UT-COORD-01..10 | ☐ |
 | RF-EPH-01..07 | M/S | UT-EPH-01..14, VAL-HZ-01 | ☐ |
