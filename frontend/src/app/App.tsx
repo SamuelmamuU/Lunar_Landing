@@ -4,12 +4,14 @@ import { SitePicker } from '../features/site-picker';
 // import { USING_MOCK } from '../services/lunarApi';
 // import { DataSourceBadge } from '../shared/ui/DataSourceBadge';
 import { AppLayout } from './layout/AppLayout';
+import LunarMap from '../components/LunarMap';
 
 function App() {
   return (
     <AppLayout sidebar={<SitePicker />}>
       {/* {USING_MOCK && <DataSourceBadge />} */}
       <ActiveScenarioSummary />
+      <LunarMap/>
     </AppLayout>
   );
 }
