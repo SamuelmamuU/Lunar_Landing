@@ -1,7 +1,3 @@
-// Unica puerta de entrada a los datos. Los componentes SOLO llaman a estas funciones.
-// Cuando el backend este listo: VITE_USE_MOCK=false y VITE_API_URL=<url> en .env
-// y ajustar las rutas de abajo a las que definan con backend.
-
 import type {
   EphemerisRequest,
   EphemerisResponse,
@@ -11,7 +7,7 @@ import { MOCK_SITES } from '../mocks/sites.mock';
 import { generateEphemeris } from '../mocks/ephemeris.mock';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
-/** Para mostrar el aviso de "datos sinteticos" en la UI. */
+
 export const USING_MOCK = USE_MOCK;
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 const MOCK_DELAY_MS = 400; // para ver los estados de carga
