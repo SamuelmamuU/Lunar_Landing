@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Documentos de handoff entre sesiones de Claude (locales, no se versionan)
+/handoff/
