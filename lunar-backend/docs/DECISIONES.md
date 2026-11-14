@@ -52,3 +52,10 @@ Este documento registra las decisiones de diseño, resolución de conflictos ent
 - **Opción elegida:** Mantener el fixture `block_external_network` en `tests/conftest.py` (permitiendo loopback `127.0.0.1`/`::1` para `asyncio`, bloqueando toda IP/host externo salvo `@pytest.mark.network`), y ejecutar `make lint`/`make typecheck` dentro del sandbox y `make test` / pruebas de servidor local fuera del aislamiento estricto de sockets de Windows (`BypassSandbox: true`).
 - **Alternativas consideradas:** Reescribir las pruebas de integración sin `asyncio` (rompería `01` §5 DoD de usar `httpx.AsyncClient` + `ASGITransport`).
 - **Motivo:** Cumplir al 100 % con `04_PRUEBAS_UNITARIAS.md` (`httpx.AsyncClient` + `ASGITransport`) y `terminal_sandbox` regla 8 en Windows.
+
+## DEC-008 — Reemplazo de Docker por despliegue nativo reproducible con `uv` (Opción A)
+- **Fecha:** 2026-11-14
+- **Contexto:** El usuario solicitó explícitamente no utilizar Docker en el proyecto y actualizar la planeación y los documentos pertinentes. Tras evaluar opciones de despliegue nativo, seleccionó la **Opción A**: entorno nativo gestionado con `uv` (`uv sync --frozen --no-dev`) y scripts de producción/healthcheck multiplataforma.
+- **Opción elegida:** Eliminar `Dockerfile` y `docker-compose.yml`; añadir `scripts/start_prod.ps1`, `scripts/start_prod.sh`, `scripts/healthcheck.py` y los objetivos `prod` y `healthcheck` en `Makefile`/`make.bat`; actualizar `01_PLANEACION_BACKEND.md`, `02_TECNOLOGIAS.md` y `03_REQUERIMIENTOS.md` para reflejar el despliegue nativo sin Docker.
+- **Alternativas consideradas:** Paquete wheel distribuible con servicios del SO (`systemd`/Windows Service), `Procfile`/`honcho` o `Caddyfile` con proxy inverso.
+- **Motivo:** Instrucción directa del usuario y selección explícita de la Opción A por su portabilidad directa en Windows, Linux y macOS usando únicamente `uv`.

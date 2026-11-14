@@ -33,7 +33,7 @@ Este documento inventaria las herramientas y skills disponibles en el entorno de
 - `mypy`: Verificación estricta de tipos en `app/` y `pipeline/` (`pydantic.mypy`).
 - `pre-commit`: Hooks locales de calidad (`ruff`, `mypy`, validación YAML, tamaño máximo de archivos).
 - `git`: Control de versiones y commits atómicos por fase (`fase N: ...`).
-- `docker` / `docker compose`: Construcción de la imagen multi-stage y verificación de despliegue en Fase 6.
+- `docker` / `docker compose`: No aplica por decisión explícita del usuario (reemplazado en Fase 6 por despliegue nativo con `uv` y scripts `scripts/start_prod.*` + `scripts/healthcheck.py`).
 
 ## 3. Skills disponibles en el entorno
 
@@ -50,7 +50,7 @@ Este documento inventaria las herramientas y skills disponibles en el entorno de
 - `automation` / `agy-customizations` / `antigravity-guide` / `migrate-agent-settings` / `migrate-workflows` / `plugin` / `ui-plugin-navigation`: Herramientas de configuración y automatización del IDE Antigravity; no aplican al código del proyecto.
 
 ### 3.3 Skills de otros dominios (no aplican)
-- **Vercel (`vercel-plugin/skills/*`):** 35 skills (`ai-gateway`, `ai-sdk`, `auth`, `bootstrap`, `build-agents`, `cdn-caching`, `chat-sdk`, `create-a-backend`, `custom-metrics`, `daemons`, `deployments-cicd`, `domains`, `env-vars`, `eve`, `flags-sdk`, `is-agentic`, `knowledge-update`, `marketplace`, `microfrontends`, `offload-to-sandbox`, `queues`, `react-best-practices`, `routing-middleware`, `runtime-cache`, `vercel-agent`, `vercel-cli`, `vercel-connect`, `vercel-firewall`, `vercel-flags`, `vercel-functions`, `vercel-sandbox`, `vercel-services`, `vercel-storage`, `vercel-tracing`, `workflow`) — No aplican (el backend es FastAPI/Docker Python, no Next.js/Vercel).
+- **Vercel (`vercel-plugin/skills/*`):** 35 skills (`ai-gateway`, `ai-sdk`, `auth`, `bootstrap`, `build-agents`, `cdn-caching`, `chat-sdk`, `create-a-backend`, `custom-metrics`, `daemons`, `deployments-cicd`, `domains`, `env-vars`, `eve`, `flags-sdk`, `is-agentic`, `knowledge-update`, `marketplace`, `microfrontends`, `offload-to-sandbox`, `queues`, `react-best-practices`, `routing-middleware`, `runtime-cache`, `vercel-agent`, `vercel-cli`, `vercel-connect`, `vercel-firewall`, `vercel-flags`, `vercel-functions`, `vercel-sandbox`, `vercel-services`, `vercel-storage`, `vercel-tracing`, `workflow`) — No aplican (el backend es FastAPI/Python nativo gestionado con `uv`, no Next.js/Vercel).
 - **Unity (`unity/skills/*`):** 31 skills (`2d-pixel-perfect`, `asset-transformer-toolkit`, `audio-setup-mixers`, `build-gtk`, `build-live-game`, `craft-game-floors`, `create-2d-physics`, `create-tile-palette-or-rule-tiles`, `generate-editor-search-query`, `implement-in-app-purchases`, `initialize-ai-navigation`, `levelplay-unity-integration`, `localization`, `manage-sprite-atlas`, `migrate-birp-to-urp`, `new-unity-project`, `optimize-audio`, `optimize-text-mesh-pro`, `optimize-web`, `physics-3d-collision`, `setup-multiplayer-services`, `setup-vivox-voice-chat`, `shader-graph-create-custom-node`, `sprite-editor`, `sprite-segment-3x3grid`, `ui`, `ui-imgui`, `ui-ugui`, `ui-uitk`, `unity-cli`, `unity-package-management`, `urp-postprocessing`, `validate-urp-render-graph-renderer-feature`) — No aplican (motor de videojuegos Unity).
 - **Android (`android-cli-plugin/skills/*`):** 3 skills (`android-cli`, `android-device-hub`, `compose-preview`) — No aplican.
 - **Three.js (`threejs-animations`):** No aplica al backend (pertenece al frontend 3D).

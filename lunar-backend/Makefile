@@ -1,4 +1,4 @@
-.PHONY: setup data data-dev precompute run test test-all lint typecheck
+.PHONY: setup data data-dev precompute run prod healthcheck test test-all lint typecheck
 
 setup:
 	uv sync && uv run pre-commit install
@@ -15,6 +15,12 @@ precompute:
 run:
 	uv run uvicorn app.main:app --reload --port 8000
 
+prod:
+	uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+
+healthcheck:
+	uv run --no-sync python scripts/healthcheck.py
+
 test:
 	uv run pytest
 
@@ -25,4 +31,4 @@ lint:
 	uv run ruff check . && uv run ruff format --check .
 
 typecheck:
-	uv run mypy app pipeline
+	uv run mypy app pipeline scripts
