@@ -75,21 +75,39 @@ Mostrar un aviso "datos sinteticos" en la UI cuando `source === 'mock'`.
 
 ## Vertical slices (cada una termina en algo que se ve y se puede demostrar)
 
-Estructura por feature:
+Estructura por feature (ver reglas completas en **Buenas practicas** abajo):
 
 ```
 src/
-  app/            App.tsx, layout, store global (escenarios, escenario activo, instante actual)
+  main.tsx                 Punto de entrada. No tocar salvo providers globales.
+  index.css                Solo @import "tailwindcss" (+ @theme si hace falta).
+  app/
+    App.tsx                Solo compone: que feature va en el sidebar y cual en el main.
+    store.ts               Store global (zustand): escenarios, escenario activo, instante actual.
+    layout/
+      AppLayout.tsx        Armazon: Header + Sidebar + MainContent.
+      Header.tsx
+      Sidebar.tsx          El <aside>. Recibe children.
+      MainContent.tsx      El <main> (ventana principal). Recibe children.
   features/
-    site-picker/      slice 1
-    scenario-form/    slice 2
-    sky-panorama/     slice 3
-    metrics/          slice 4
-    compare/          slice 5
-    timeline/         slice 6
-  services/       lunarApi.ts
-  mocks/
-  shared/         types/, lib/ (calculos puros), ui/ (botones, cards)
+    site-picker/           slice 1
+      index.ts             API publica del feature (lo unico que se importa desde fuera).
+      SitePicker.tsx       Contenedor: datos + store. Delega la UI a los hijos.
+      SiteList.tsx, SiteOption.tsx, SiteSearch.tsx, SiteListSkeleton.tsx, CustomSiteForm.tsx
+      useSites.ts          Hook de datos del feature.
+      siteFilters.ts       Funciones puras del feature.
+    scenario-form/         slice 2
+    sky-panorama/          slice 3
+    metrics/               slice 4
+    compare/               slice 5
+    timeline/              slice 6
+  services/
+    lunarApi.ts            Unica puerta a los datos (mock o backend).
+  mocks/                   Solo los importa services/.
+  shared/
+    types/lunar.ts         Contrato de datos con backend.
+    lib/                   Funciones puras sin React (coords.ts, metricas, ventanas...).
+    ui/                    Componentes genericos sin logica de negocio (TextField, DataField, DataSourceBadge...).
 ```
 
 | # | Slice | Listo cuando... | Tiempo aprox |
@@ -107,3 +125,91 @@ src/
 
 Sin tests por tiempo, pero: los calculos (metricas, ventanas) como **funciones puras en `shared/lib`**,
 fuera de los componentes. Si algo sale raro, se revisa ahi y no en el JSX.
+
+## Buenas practicas (obligatorias, para no tener todo regado)
+
+### Donde va cada cosa
+
+| Si vas a crear... | Va en... | Ejemplo |
+|---|---|---|
+| Una region de la pantalla (header, aside, main, footer) | `app/layout/` | `Sidebar.tsx` |
+| Algo que pertenece a un slice | `features/<slice>/` | `features/metrics/MetricCard.tsx` |
+| Un componente que usan 2+ features y no sabe de negocio | `shared/ui/` | `TextField.tsx`, `Button.tsx` |
+| Un calculo (metricas, ventanas, formato, validacion) | `shared/lib/` si lo usan varios; `features/<slice>/<algo>.ts` si es solo de ese slice | `coords.ts`, `siteFilters.ts` |
+| Un hook de datos o de logica | `features/<slice>/useAlgo.ts` (o `shared/lib/` si es generico) | `useSites.ts`, `useEphemeris.ts` |
+| Una llamada al backend | `services/lunarApi.ts`. **En ningun otro lado se hace `fetch`.** | `getEphemeris()` |
+| Un tipo del contrato con backend | `shared/types/lunar.ts` | `EphemerisSample` |
+| Estado que comparten varios features | `app/store.ts` | `activeScenario` |
+
+Si no sabes donde va, preguntalo antes de crear una carpeta nueva.
+
+### Direccion de los imports
+
+```
+app  ->  features  ->  shared
+  \         |
+   \        v
+    ---> services  ->  mocks
+```
+
+- `app/` puede importar de `features/` (solo su `index.ts`), `shared/` y `services/`.
+- `features/` importa de `shared/`, `services/` y `app/store`. **Nunca** de los archivos internos de otro
+  feature: solo de su `index.ts` (`import { SitePicker } from '../features/site-picker'`).
+- `app/layout/` **no importa features**. Recibe el contenido por `children` o props, para poder mover
+  piezas cambiando solo `App.tsx`.
+- `shared/` **nunca** importa de `app/`, `features/` ni `services/`. `shared/lib/` no importa React.
+- Los componentes **nunca** importan de `mocks/`. Todo pasa por `services/lunarApi.ts`.
+
+### Componentes
+
+- **Un componente por archivo.** El archivo se llama igual que el componente, en PascalCase (`SiteOption.tsx`).
+  Nada de subcomponentes escondidos al final del archivo.
+- **Contenedor vs presentacional.** El contenedor del feature (`SitePicker`) lee store/hooks y pasa props.
+  Los hijos (`SiteList`, `SiteOption`) solo reciben props y no tocan el store ni hacen fetch.
+- Exports **con nombre** (`export function SiteOption`). Solo `App` es default.
+- Props tipadas con `interface Props` arriba del componente.
+- Si un componente pasa de ~150 lineas o hace mas de una cosa, se divide.
+- Cada feature tiene un `index.ts` que exporta solo lo que usa `App.tsx`.
+
+### Estado
+
+- **Store global (zustand)** solo para lo que comparten varios features: escenarios, escenario activo,
+  instante actual. Todo lo demas es `useState` local.
+- Leer el store con selector: `useAppStore((s) => s.activeScenario)`, nunca `useAppStore()` completo
+  (re-renderiza todo).
+- Las acciones del store (`selectSite`, `addCustomSite`...) viven en `store.ts`, no en los componentes.
+
+### Estilos
+
+- **Solo Tailwind.** No crear archivos `.css` nuevos ni `style={{}}` salvo valores calculados (posiciones del SVG).
+- Paleta: superficies `slate`, acento `orange-600` (marca del equipo), texto `slate-900` / `slate-500`.
+- **Rojo, ambar y verde estan reservados** para errores, avisos y el semaforo de metricas. No usarlos para
+  series ni decoracion.
+- Sol y Tierra tienen **un color fijo cada uno en toda la app** (panorama, timeline, comparador). Se definen
+  una sola vez en `shared/lib/` en el slice 3 y todos lo importan de ahi.
+- Para graficas seguir la skill `dataviz`: un solo eje Y, leyenda + etiqueta directa, nunca solo color.
+
+### Nombres e idioma
+
+- Codigo (variables, funciones, tipos, archivos) en **ingles**. Textos de la UI y comentarios en **espanol**.
+- Componentes `PascalCase.tsx`, hooks `useAlgo.ts`, utilidades `camelCase.ts`.
+
+### Accesibilidad minima
+
+- Todo input con `<label>`. Errores con `aria-invalid` + `aria-describedby` (ya lo hace `TextField`).
+- Botones son `<button>`, no `<div onClick>`. Foco visible (`focus-visible:ring-*`).
+- Nunca comunicar algo solo con color: va con texto o icono.
+
+### Git
+
+- Una rama por slice: `UI/vertical-slice-N`. PR hacia `develop`, nunca directo a `main`.
+- Commits chicos, uno por responsabilidad, con Conventional Commits en espanol:
+  `feat(site-picker): ...`, `fix(store): ...`, `refactor(layout): ...`, `docs: ...`, `chore(deps): ...`.
+- **Cada commit debe compilar** (`npm run build`).
+
+### Antes de abrir un PR
+
+1. `npm run build` sin errores.
+2. `npm run lint` sin warnings.
+3. La app corre y la consola del navegador no tiene errores.
+4. Ningun archivo fuera de la estructura de arriba y ningun `fetch` fuera de `services/`.
