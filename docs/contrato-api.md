@@ -75,8 +75,8 @@ Petición:
 ```
 
 - Sitio del catálogo: mandar **solo `site_id`**. Sitio personalizado: mandar **solo `x` (lon) y `y` (lat)**.
-  **No mandar ambos:** si vienen `x`/`y`, el backend ignora `site_id` y no usa el horizonte precalculado
-  (se pierde el relieve real).
+  Si llegan ambos, **gana `site_id`**: se usa el sitio del catálogo (con su horizonte precalculado) y se
+  ignoran `x`/`y`. Lo mismo aplica a `POST /api/mission`.
 - Opcionales: `eps_sun_deg`, `eps_earth_deg` (0.5), `min_light_hours` (72), `min_comm_hours` (24), `h_obs_m` (2).
 - Límites: rango máximo 366 días; `step_min` entre 1 y 360; sin `step_min` el backend elige el paso
   (mínimo 10 min, máximo ~6000 muestras). El frontend usa siempre 60 min.
@@ -114,7 +114,7 @@ Respuesta (resumen; completo en `docs/ejemplos/evaluate-im2-1dia.json`):
   "events":  [ { "utc": "2025-03-19T04:06:39Z", "type": "earthset" } ],
   "series":  { "start_utc": "...", "step_min": 60, "count": 721, "t_utc": ["..."],
                "sun_az": [], "sun_el": [], "sun_frac": [], "sun_clearance": [], "sun_interference": [], "sun_clear": [],
-               "earth_az": [], "earth_el": [], "earth_clearance": [], "earth_visible": [], "earth_interference": [],
+               "earth_az": [], "earth_el": [], "earth_frac": [], "earth_clearance": [], "earth_visible": [], "earth_interference": [],
                "earth_clear": [], "candidate": [] }
 }
 ```
@@ -125,7 +125,8 @@ Notas:
 - `next.*` es `null` si no hay cambio en los próximos 60 días (p. ej. Sol continuo, o lado oculto sin Tierra).
 - `events[].type`: `sunrise | sunset | earthrise | earthset`, con precisión de ~1 s.
 - `horizon.terrain: false` = no hay relieve para ese punto (esfera lisa). **El front debe avisarlo.**
-- Pendiente (slice B2): agregar `earth_frac` a la serie. Mientras no exista, el front usa 1 / 0 según `earth_visible`.
+- `earth_frac[i]` (slice B4): fracción visible del disco de la Tierra (0..1), igual que `sun_frac`.
+  `earth_visible[i]` sigue siendo "el centro está sobre el terreno", que equivale a `earth_frac[i] > 0.5`.
 
 ### 3.3 `POST /api/mission` — "aterrizo en esta fecha y opero N días" (extra F7)
 

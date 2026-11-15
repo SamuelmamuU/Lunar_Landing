@@ -77,15 +77,15 @@ class EvaluateIn(BaseModel):
 
 
 def _site(body) -> Site:
-    # Si vienen coordenadas se usan siempre (ignora site_id)
-    if body.x is not None and body.y is not None:
-        lat = max(-89.995, min(89.995, body.y))
-        lon = ((body.x + 180) % 360) - 180
-        return Site(id=f"custom_{lat:.4f}_{lon:.4f}", name="Punto del usuario", lat=lat, lon=lon)
-    for s in load_sites():
-        if s.id == body.site_id:
-            return s
-    raise HTTPException(404, f"Sitio '{body.site_id}' no existe. Usa GET /api/sites para ver los IDs.")
+    # Si viene site_id gana: se usa el sitio del catálogo (y su horizonte precalculado) y se ignoran x/y
+    if body.site_id is not None:
+        for s in load_sites():
+            if s.id == body.site_id:
+                return s
+        raise HTTPException(404, f"Sitio '{body.site_id}' no existe. Usa GET /api/sites para ver los IDs.")
+    lat = max(-89.995, min(89.995, body.y))
+    lon = ((body.x + 180) % 360) - 180
+    return Site(id=f"custom_{lat:.4f}_{lon:.4f}", name="Punto del usuario", lat=lat, lon=lon)
 
 
 def _run(body: EvaluateIn) -> dict:

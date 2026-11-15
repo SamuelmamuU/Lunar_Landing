@@ -82,8 +82,8 @@ def test_azimut_im2_valores_documentados(client):
 
 # ------------------------------------------------------------------ 2. forma de las respuestas
 SERIES_LISTAS = ["t_utc", "sun_az", "sun_el", "sun_frac", "sun_clearance", "sun_interference", "sun_clear",
-                 "earth_az", "earth_el", "earth_clearance", "earth_visible", "earth_interference", "earth_clear",
-                 "candidate"]
+                 "earth_az", "earth_el", "earth_frac", "earth_clearance", "earth_visible", "earth_interference",
+                 "earth_clear", "candidate"]
 METRICS = ["pct_sun_energy", "pct_sun_visible", "pct_sun_full_disk", "pct_earth_visible", "pct_sun_and_earth",
            "longest_light_h", "longest_dark_h", "longest_earth_gap_h", "pct_sun_blocked_by_terrain",
            "pct_earth_blocked_by_terrain", "max_sun_elevation_deg", "min_sun_elevation_deg", "pct_time_candidate"]
