@@ -1,4 +1,4 @@
-
+import { useId } from 'react';
 import { formatDegrees } from '../../shared/lib/angles';
 import { formatDuration, formatPercent } from '../../shared/lib/format';
 import type { ScenarioMetrics } from '../../shared/types/lunar';
@@ -9,6 +9,8 @@ interface Props {
 }
 
 export function MetricsGrid({ metrics }: Props) {
+  // id unico: en el comparador puede haber varias rejillas en la misma pagina.
+  const titleId = useId();
   const items = [
     {
       label: 'Visibilidad del Sol',
@@ -73,9 +75,9 @@ export function MetricsGrid({ metrics }: Props) {
   ];
 
   return (
-    <section aria-labelledby="metrics-title">
+    <section aria-labelledby={titleId}>
       <h2
-        id="metrics-title"
+        id={titleId}
         className="mb-3 text-lg font-semibold text-slate-900"
       >
         Métricas del escenario

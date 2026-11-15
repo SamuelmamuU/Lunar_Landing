@@ -1,4 +1,4 @@
-
+import { useId } from 'react';
 import { formatUtcDateTime } from '../../shared/lib/dates';
 import { formatDuration } from '../../shared/lib/format';
 import type { Verdict } from '../../shared/types/lunar';
@@ -9,13 +9,15 @@ interface Props {
 
 export function VerdictCard({ verdict }: Props) {
   const { isCandidate, reasons, bestWindow } = verdict;
+  // id unico: en el comparador puede haber varios veredictos en la misma pagina.
+  const titleId = useId();
 
   return (
     <section
-      aria-labelledby="verdict-title"
+      aria-labelledby={titleId}
       className={`rounded-xl border p-5 ${
         isCandidate
-          ? 'border-emerald-200 bg-emerald-50'
+          ? 'border-green-200 bg-green-50'
           : 'border-red-200 bg-red-50'
       }`}
     >
@@ -25,9 +27,9 @@ export function VerdictCard({ verdict }: Props) {
             Evaluación del sitio
           </p>
           <h2
-            id="verdict-title"
+            id={titleId}
             className={`mt-1 text-2xl font-bold ${
-              isCandidate ? 'text-emerald-800' : 'text-red-800'
+              isCandidate ? 'text-green-800' : 'text-red-800'
             }`}
           >
             {isCandidate ? 'CANDIDATO' : 'NO CANDIDATO'}
