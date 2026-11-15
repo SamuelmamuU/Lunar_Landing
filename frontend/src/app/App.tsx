@@ -1,5 +1,6 @@
 import { EphemerisStatus, ScenarioHeader } from '../features/scenario-form';
 import { SitePicker } from '../features/site-picker';
+import { SkyPanorama } from '../features/sky-panorama';
 import { AppLayout } from './layout/AppLayout';
 
 function App() {
@@ -7,6 +8,7 @@ function App() {
     <AppLayout sidebar={<SitePicker />}>
       <ScenarioHeader />
       <EphemerisStatus />
+      <SkyPanorama />
     </AppLayout>
   );
 }
