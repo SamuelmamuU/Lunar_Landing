@@ -17,7 +17,7 @@ interface Props {
  */
 export function AppLayout({ sidebar, children }: Props) {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-slate-900 lg:h-screen">
+    <div className="flex min-h-screen flex-col bg-white text-slate-900 dark:text-slate-400 dark:bg-slate-900 dark:text-slate-400 lg:h-screen">
       {/* <Header /> */}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <Sidebar>{sidebar}</Sidebar>

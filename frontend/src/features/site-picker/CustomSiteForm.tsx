@@ -33,7 +33,7 @@ export function CustomSiteForm({ onDone }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 p-3">
       <TextField label="Nombre" hint="opcional" value={name} onChange={setName} placeholder="Mi sitio candidato" />
 
       <div className="grid grid-cols-2 gap-3">

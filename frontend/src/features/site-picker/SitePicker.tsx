@@ -33,7 +33,7 @@ export function SitePicker() {
   return (
     <section aria-labelledby={titleId} className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        <h2 id={titleId} className="whitespace-nowrap text-lg font-semibold text-slate-900">
+        <h2 id={titleId} className="whitespace-nowrap text-lg font-semibold text-slate-900 dark:text-slate-400">
           Sitio de alunizaje
         </h2>
         {!showCustomForm && (

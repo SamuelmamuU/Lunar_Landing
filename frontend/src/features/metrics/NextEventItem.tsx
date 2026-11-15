@@ -16,7 +16,7 @@ export function NextEventItem({ body, event, time, hours }: Props) {
   const label = eventLabel(event);
 
   return (
-    <article className="rounded-lg border border-slate-200 bg-white p-3">
+    <article className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white p-3">
       <p className="flex items-center gap-2 text-sm text-slate-500">
         <BodySwatch body={body} className="size-4" />
         {BODIES[body].label}
@@ -24,7 +24,7 @@ export function NextEventItem({ body, event, time, hours }: Props) {
 
       {label ? (
         <>
-          <p className="mt-1 text-lg font-semibold text-slate-900">
+          <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-400">
             {label}
             {hours !== null && <span className="font-normal text-slate-700"> en {formatDuration(hours)}</span>}
           </p>
