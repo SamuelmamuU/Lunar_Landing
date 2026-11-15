@@ -2,7 +2,7 @@ import { useId, useMemo, useState } from 'react';
 import { useAppStore } from '../../app/store';
 import type { LandingSite } from '../../shared/types/lunar';
 import { Button } from '../../shared/ui/Button';
-import { CompassIcon } from '../../shared/ui/icons/CompassIcon';
+import { AddIcon } from '../../shared/ui/icons/AddIcon';
 import { CustomSiteForm } from './CustomSiteForm';
 import { SiteList } from './SiteList';
 import { SiteSearch } from './SiteSearch';
@@ -38,7 +38,7 @@ export function SitePicker() {
         </h2>
         {!showCustomForm && (
           <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="Nuevo punto por coordenadas">
-            <CompassIcon />
+            <AddIcon />
             Nuevo punto
           </Button>
         )}

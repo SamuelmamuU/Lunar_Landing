@@ -9,7 +9,7 @@ interface Props {
 export function DurationPicker({ value, onChange }: Props) {
   return (
     <fieldset>
-      <legend className="block text-sm font-medium text-slate-700">Duracion</legend>
+      <legend className="block text-xs font-medium text-slate-700">Duracion</legend>
       <div className="mt-1 inline-flex rounded-md border border-slate-200 bg-slate-50 p-0.5">
         {DURATION_OPTIONS.map((days) => {
           const active = days === value;

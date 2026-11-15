@@ -1,6 +1,7 @@
 import { MAX_COMPARED_SCENARIOS, useAppStore } from '../../app/store';
 import { scenarioKey } from '../../shared/lib/scenario';
 import { Button } from '../../shared/ui/Button';
+import { CompareIcon } from '../../shared/ui/icons/CompareIcon';
 
 /** Agrega el escenario activo (sitio + fechas) al comparador. Dice por que no se puede cuando no se puede. */
 export function AddToCompareButton() {
@@ -20,6 +21,7 @@ export function AddToCompareButton() {
 
   return (
     <Button size="sm" onClick={addScenario} disabled={isAdded || isFull}>
+      <CompareIcon />
       {label}
     </Button>
   );

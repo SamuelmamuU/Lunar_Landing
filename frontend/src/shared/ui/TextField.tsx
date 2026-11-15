@@ -17,7 +17,7 @@ export function TextField({ label, hint, value, onChange, error, className = '',
 
   return (
     <div className={className}>
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="block text-xs font-medium text-slate-700">
         {label} {hint && <span className="font-normal text-slate-500">({hint})</span>}
       </label>
       <input
