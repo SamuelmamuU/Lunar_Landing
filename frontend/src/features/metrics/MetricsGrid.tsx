@@ -1,7 +1,7 @@
 import { useId } from 'react';
+import { EXTRA_METRICS, MAIN_METRICS, metricItems } from '../../shared/lib/metrics';
 import type { ScenarioMetrics } from '../../shared/types/lunar';
 import { MetricCard } from './MetricCard';
-import { extraMetrics, mainMetrics } from './metricItems';
 
 interface Props {
   metrics: ScenarioMetrics;
@@ -24,7 +24,7 @@ export function MetricsGrid({ metrics, windowText }: Props) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        {mainMetrics(metrics).map((item) => (
+        {metricItems(MAIN_METRICS, metrics).map((item) => (
           <MetricCard key={item.label} {...item} />
         ))}
       </div>
@@ -34,7 +34,7 @@ export function MetricsGrid({ metrics, windowText }: Props) {
           Más métricas
         </summary>
         <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-          {extraMetrics(metrics).map((item) => (
+          {metricItems(EXTRA_METRICS, metrics).map((item) => (
             <MetricCard key={item.label} {...item} />
           ))}
         </div>
