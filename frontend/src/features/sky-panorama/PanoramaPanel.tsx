@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { EphemerisSample, HorizonProfile } from '../../shared/types/lunar';
 import { PanoramaChart } from './PanoramaChart';
 import { createScale } from './panoramaScale';
-import { useElementSize } from './useElementSize';
+import { useElementSize } from '../../shared/lib/useElementSize';
 
 interface Props {
   horizon: HorizonProfile;
