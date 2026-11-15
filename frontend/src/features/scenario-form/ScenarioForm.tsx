@@ -28,7 +28,7 @@ export function ScenarioForm() {
   }
 
   return (
-    <div role="group" aria-label="Fechas del escenario" className="flex flex-wrap items-start gap-x-6 gap-y-3">
+    <div role="group" aria-label="Fechas del escenario" className="flex shrink-0 flex-wrap items-start gap-x-6 gap-y-3">
       <div className="w-56">
         <TextField
           type="datetime-local"
@@ -41,7 +41,7 @@ export function ScenarioForm() {
         {/* Con fecha de alunizaje: boton para usarla, o confirmacion si ya es el inicio (mismo alto, nada salta). */}
         {landedAt &&
           (sameMinute(landedAt, scenario.start) ? (
-            <p className="mt-1.5 text-sm text-slate-500">Es la fecha de alunizaje</p>
+            <p className="mt-1.5 text-xs text-slate-500">Es la fecha de alunizaje</p>
           ) : (
             <Button variant="link" className="mt-1.5 text-blue-700" onClick={() => updateScenario({ start: landedAt })}>
               Usar alunizaje ({formatUtcDate(landedAt)})

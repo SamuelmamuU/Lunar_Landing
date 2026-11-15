@@ -60,6 +60,7 @@ def _runs(flags: np.ndarray, t_utc: list[str], step_h: float) -> list[dict]:
     return windows
 
 
+@kernels.serialized
 def evaluate(site: Site, start_utc: str, end_utc: str, s: Settings,
              step_min: float | None = None, include_series: bool = False, include_events: bool = True) -> dict:
     kernels.load()
@@ -77,7 +78,8 @@ def evaluate(site: Site, start_utc: str, end_utc: str, s: Settings,
     # Se calcula un poco más allá del fin para saber cuánta luz/comunicación queda en las últimas horas
     look_h = max(s.min_light_hours, s.min_comm_hours)
     sr = calc.series(et0, et1 + look_h * HOUR, step)
-    n_range = int(round((et1 - et0) / (step * 60))) + 1
+    # Muestras t0, t0+paso, ... hasta la última que no pasa de `end` (antes se redondeaba y podía pasarse)
+    n_range = int(np.floor((et1 - et0) / (step * 60) + 1e-9)) + 1
 
     lit = np.array(sr["sun_frac"]) > 0
     earth = np.array(sr["earth_visible"])

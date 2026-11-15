@@ -70,7 +70,7 @@ Rama por slice: `UI/vertical-slice-N` → PR a `develop`.
 | F4 | **Veredicto y métricas** (pasos 2 y 3) | F3a | `features/metrics/`: CANDIDATO / NO CANDIDATO con motivos (`verdict`), "se pone en…" (`next`), tarjetas (`metrics`): % Sol, % Tierra, % ambos, noche más larga, apagón más largo, elevación solar máxima | Los números coinciden con `/docs` del backend para el mismo sitio y fecha | 1–1.5 h |
 | F5 | **Comparador** (paso 4) | F4 | `features/compare/`: 2–4 escenarios lado a lado (una llamada a `getEphemeris` por escenario, en paralelo), mejor valor resaltado, "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo con 3 sitios | 2 h |
 | F6 | **Línea de tiempo** (paso 5) | F3 | `features/timeline/`: elevación de Sol y Tierra vs tiempo, bandas de visibilidad, marcas de `events`, slider que mueve `currentTime`, play | Arrastrar el slider anima el panorama | 1.5–2 h |
-| F7a | Extra: fechas alternativas | F4 | `getMission()` en `lunarApi.ts` contra `/api/mission`; botones "probar 3 días antes / después" con `alternatives` | Un clic aplica la fecha sugerida | 1 h |
+| F7a | Extra: fechas alternativas | F4 | `getMission()` en `lunarApi.ts` contra `/api/mission` con **fechas** `landing` y `departure` (ya no `duration_days`); botones "probar 3 días antes / después" con `alternatives` (`landing_utc` / `departure_utc`) | Un clic aplica la fecha sugerida | 1 h |
 | F7b | Extra: 3D, modo educativo, URL compartible | F6 | Vista Three.js con `vectors_3d` (guía en `docs/archivo/api-output-3d.md`) | — | lo que sobre |
 
 ## 6. Orden y reparto sugerido (4 personas)

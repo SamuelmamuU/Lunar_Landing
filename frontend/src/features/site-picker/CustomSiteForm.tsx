@@ -33,7 +33,7 @@ export function CustomSiteForm({ onDone }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-lg border border-blue-600 bg-blue-50 p-3">
       <TextField label="Nombre" hint="opcional" value={name} onChange={setName} placeholder="Mi sitio candidato" />
 
       <div className="grid grid-cols-2 gap-3">
@@ -65,7 +65,8 @@ export function CustomSiteForm({ onDone }: Props) {
 
       <div className="flex gap-2">
         <Button type="submit">Usar este punto</Button>
-        <Button variant="ghost" onClick={onDone}>
+        {/* Sobre el fondo azul del formulario, ghost sin fondo parece texto suelto: blanco con borde, como los inputs. */}
+        <Button variant="ghost" className="border border-slate-300 bg-white" onClick={onDone}>
           Cancelar
         </Button>
       </div>

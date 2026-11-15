@@ -46,15 +46,20 @@ def _first_false(flags: np.ndarray) -> int | None:
     return int(idx[0]) if len(idx) else None
 
 
-def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRules,
+@kernels.serialized
+def mission(site: Site, landing_utc: str, departure_utc: str, rules: MissionRules,
             search_days: float = 15, step_min: float | None = None, include_series: bool = False) -> dict:
+    """Aterrizar en `landing_utc` y salir de la Luna en `departure_utc`. La duración se calcula sola."""
     from .report import Settings
 
     kernels.load()
-    if duration_days <= 0 or duration_days > 365:
-        raise ValueError("La duración debe estar entre 0 y 365 días")
     landing_utc = parse_utc(landing_utc)
     et_land = utc_to_et(landing_utc)
+    duration_days = (utc_to_et(parse_utc(departure_utc)) - et_land) / DAY
+    if duration_days <= 0:
+        raise ValueError("La salida de la Luna debe ser posterior al aterrizaje")
+    if duration_days > 365:
+        raise ValueError("La misión no puede durar más de 365 días (salida − aterrizaje)")
     settings = Settings(h_obs_m=rules.h_obs_m, eps_sun_deg=rules.eps_sun_deg, eps_earth_deg=rules.eps_earth_deg,
                         min_light_hours=0, min_comm_hours=0)
     calc, mask = make_calc(site, settings)
@@ -74,7 +79,7 @@ def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRu
     earth_clear = np.array(sr["earth_clear"])
     sun_blk = np.array(sr["sun_interference"])
     earth_blk = np.array(sr["earth_interference"])
-    n_dur = int(round(duration_days * DAY / step_s))
+    n_dur = int(np.floor(duration_days * DAY / step_s + 1e-9))   # la ventana no pasa de la salida
     i_land = int(round((et_land - et0) / step_s))
     step_h = step_min / 60.0
 
@@ -124,27 +129,31 @@ def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRu
         if not c["ok"]:
             reasons.append(f"{txt[c['id']]} ({c['value']} vs {c['threshold']})")
 
-    # Alternativas: fechas de aterrizaje cercanas que sí cumplen (cada hora)
+    # Alternativas: fechas de aterrizaje cercanas que sí cumplen (cada hora), con la misma duración
     # Si no hay ninguna, revisar "max_feasible_duration_days": quizá la misión es más larga de lo que el sitio permite
     alternatives = {"before": None, "after": None, "search_days": search_days}
+
+    def alternative(i: int) -> dict:
+        et_alt = et0 + i * step_s
+        return {"landing_utc": et_to_utc(et_alt), "departure_utc": et_to_utc(et_alt + duration_days * DAY),
+                "shift_days": round((i - i_land) * step_s / DAY, 2)}
+
     if not main["ok"]:
         stride = max(1, int(round(60 / step_min)))
         last = len(lit) - n_dur - 1
         for i in range(i_land - stride, -1, -stride):
             if check(i)["ok"]:
-                alternatives["before"] = {"landing_utc": et_to_utc(et0 + i * step_s),
-                                          "shift_days": round((i - i_land) * step_s / DAY, 2)}
+                alternatives["before"] = alternative(i)
                 break
         for i in range(i_land + stride, last + 1, stride):
             if check(i)["ok"]:
-                alternatives["after"] = {"landing_utc": et_to_utc(et0 + i * step_s),
-                                         "shift_days": round((i - i_land) * step_s / DAY, 2)}
+                alternatives["after"] = alternative(i)
                 break
 
     out = {
         "meta": meta(),
         "input": {"x_lon": site.lon, "y_lat": site.lat, "landing_utc": landing_utc,
-                  "duration_days": duration_days, "end_utc": et_to_utc(et_land + duration_days * DAY),
+                  "duration_days": round(duration_days, 6), "end_utc": et_to_utc(et_land + duration_days * DAY),
                   "step_min": step_min},
         "site": site.to_dict(),
         "horizon": mask.summary(),

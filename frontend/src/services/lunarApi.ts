@@ -63,7 +63,7 @@ interface ApiSite {
   lon: number;
   category: string;
   note?: string;
-  // Pendientes en backend (slice B3); se leen si existen.
+  // Opcionales (slice B2): un sitio sin el dato no trae el campo.
   category_id?: SiteCategory;
   agency?: string;
   mission?: string;
@@ -116,12 +116,13 @@ interface ApiEvaluate {
     sun_el: number[];
     sun_frac: number[];
     sun_clearance: number[];
+    sun_clear: boolean[];
     earth_az: number[];
     earth_el: number[];
     earth_clearance: number[];
     earth_visible: boolean[];
-    /** Pendiente en backend (slice B2). */
-    earth_frac?: number[];
+    earth_frac: number[];
+    earth_clear: boolean[];
   };
 }
 
@@ -168,13 +169,15 @@ function toSamples(series: ApiEvaluate['series']): EphemerisSample[] {
       horizonElevation: series.sun_el[i] - series.sun_clearance[i],
       visible: series.sun_frac[i] > 0,
       visibleFraction: series.sun_frac[i],
+      clear: series.sun_clear[i],
     };
     const earth: BodyPosition = {
       azimuth: series.earth_az[i],
       elevation: series.earth_el[i],
       horizonElevation: series.earth_el[i] - series.earth_clearance[i],
       visible: series.earth_visible[i],
-      visibleFraction: series.earth_frac?.[i] ?? (series.earth_visible[i] ? 1 : 0),
+      visibleFraction: series.earth_frac[i],
+      clear: series.earth_clear[i],
     };
     return { time, sun, earth };
   });
@@ -236,12 +239,26 @@ export async function getSites(): Promise<LandingSite[]> {
   return sites.map(toSite);
 }
 
+/**
+ * Cola de /api/evaluate: una peticion a la vez. SPICE no es thread-safe y backend atiende cada peticion en un
+ * hilo: dos calculos simultaneos (p. ej. el comparador cargando 3 escenarios) tumban el proceso con
+ * SPICE(BADSUBSCRIPT). Cada calculo tarda ~0.3 s, asi que en serie apenas se nota.
+ */
+let evaluateQueue: Promise<unknown> = Promise.resolve();
+
+function enqueueEvaluate<T>(task: () => Promise<T>): Promise<T> {
+  const result = evaluateQueue.then(task);
+  // Un error no debe frenar a las siguientes: la cola sigue con o sin exito.
+  evaluateQueue = result.catch(() => undefined);
+  return result;
+}
+
 export async function getEphemeris(req: EphemerisRequest): Promise<EphemerisResponse> {
   if (USE_MOCK) {
     await delay(MOCK_DELAY_MS);
     return generateEphemeris(req);
   }
-  const api = await request<ApiEvaluate>('/api/evaluate', {
+  const api = await enqueueEvaluate(() => request<ApiEvaluate>('/api/evaluate', {
     // Sitio del catalogo: solo site_id (asi el backend usa su horizonte precalculado con relieve real).
     // Si se mandan tambien las coordenadas, el backend ignora el site_id.
     ...(req.siteId ? { site_id: req.siteId } : { x: req.lon, y: req.lat }),
@@ -249,6 +266,6 @@ export async function getEphemeris(req: EphemerisRequest): Promise<EphemerisResp
     end: req.end,
     step_min: req.stepMinutes,
     include_series: true,
-  });
+  }));
   return toEphemeris(api);
 }

@@ -2,9 +2,42 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lunar Landing</title>
+    <!--
+      Modo claro / oscuro. Va aqui (antes de pintar) para que no parpadee. La clase .dark en <html> invierte la
+      paleta (ver src/index.css). Si el usuario eligio un modo con el boton, se usa ese (clave 'lunar-theme', la
+      misma que THEME_STORAGE_KEY en src/shared/lib/theme.ts); si no, se sigue al sistema, tambien si cambia.
+    -->
+    <script>
+      (() => {
+        const saved = () => {
+          try {
+            return localStorage.getItem('lunar-theme');
+          } catch {
+            return null;
+          }
+        };
+        const query = matchMedia('(prefers-color-scheme: dark)');
+        const apply = () => {
+          const theme = saved();
+          const dark = theme === 'dark' || (theme !== 'light' && query.matches);
+          document.documentElement.classList.toggle('dark', dark);
+        };
+        apply();
+        query.addEventListener('change', () => {
+          if (!saved()) apply();
+        });
+      })();
+    </script>
+    <!-- Fuente de la app: JetBrains Mono (Google Fonts). La familia se asigna en src/index.css (@theme). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>

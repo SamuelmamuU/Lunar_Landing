@@ -28,8 +28,8 @@ class Calc:
     def series(self, et0: float, et1: float, step_min: float = 10) -> dict:
         ets = np.arange(et0, et1 + 1e-6, step_min * 60.0)
         cols = {k: [] for k in ("sun_az", "sun_el", "sun_frac", "sun_clearance", "sun_interference", "sun_clear",
-                                "earth_az", "earth_el", "earth_clearance", "earth_visible", "earth_interference",
-                                "earth_clear")}
+                                "earth_az", "earth_el", "earth_frac", "earth_clearance", "earth_visible",
+                                "earth_interference", "earth_clear")}
         for et in ets:
             s = self.sky(et)
             cols["sun_az"].append(round(s["sun"]["azimuth_deg"], 3))
@@ -37,6 +37,7 @@ class Calc:
             cols["sun_frac"].append(round(s["sun"]["visible_fraction"], 4))
             cols["earth_az"].append(round(s["earth"]["azimuth_deg"], 3))
             cols["earth_el"].append(round(s["earth"]["elevation_deg"], 4))
+            cols["earth_frac"].append(round(s["earth"]["visible_fraction"], 4))
             cols["earth_visible"].append(bool(s["earth"]["visible"]))
             cols["sun_interference"].append(bool(s["sun"]["terrain_interference"]))
             cols["earth_interference"].append(bool(s["earth"]["terrain_interference"]))

@@ -39,8 +39,13 @@ Si el contrato cambia, se cambia primero ahi.
   `src/services/lunarApi.ts` traduce la respuesta al modelo del front (`src/shared/types/lunar.ts`, `camelCase`).
   Si backend cambia un campo, solo se toca `lunarApi.ts`.
 - Endpoints que usa el front: `GET /api/sites` y `POST /api/evaluate` (con `include_series: true`, paso 60 min).
-  Extra: `POST /api/mission` (fechas alternativas).
+  Extra: `POST /api/mission` (fechas alternativas). Recibe **fechas**, no duracion: `landing` (aterrizaje) y
+  `departure` (salida de la Luna); la duracion la calcula backend.
+- `start` y `end` de `/api/evaluate` tambien son fechas. Los botones 1/7/14/30 dias solo son una forma comoda de
+  elegir `end`: el front manda `end = start + dias` (`scenarioToRequest`), nunca un numero de dias.
 - Sitio del catalogo: se manda solo `site_id`. Sitio personalizado: solo `x` (lon) y `y` (lat). Nunca ambos.
+- **Una peticion a `/api/evaluate` a la vez.** SPICE no es thread-safe: dos calculos simultaneos tumban backend con
+  `SPICE(BADSUBSCRIPT)`. `getEphemeris` las pone en fila (`enqueueEvaluate` en `lunarApi.ts`); no saltarse esa cola.
 
 `EphemerisResponse` (lo que devuelve `getEphemeris`) trae:
 
@@ -60,7 +65,8 @@ los recalcula: los muestra. En `shared/lib` solo van calculos de presentacion (e
 duraciones, reducir puntos para graficar).
 
 Definicion de visible (igual que backend): Sol visible = asoma alguna parte del disco; Tierra visible = el centro
-esta sobre el terreno; "despejado" = margen de al menos 0.5 grados.
+esta sobre el terreno. "Despejado" lo decide backend (`sun_clear` / `earth_clear`, segun cuanto del disco tapa
+el relieve) y el front lo usa tal cual en `BodyPosition.clear`: no se reemplaza por un umbral fijo.
 
 Convenciones: grados; lat -90..90 (sur negativo); lon -180..180 (este positivo); azimut desde el norte en
 sentido horario; tiempos ISO 8601 UTC.
@@ -88,8 +94,9 @@ Casos utiles para probar la UI con backend real:
 |---|---|---|
 | `mons-mouton-im2` | 2025-03-06T17:29Z | Sol a 2.5 grados (az 66), Tierra a 11 grados (az 336), CANDIDATO; Sol se pone en ~13 dias |
 | `connecting-ridge` | 2026-11-14 | Sol visible el 100% de 30 dias, Tierra ~47% |
-| `change6` | cualquiera | Tierra nunca visible (0%), sin relieve (aviso) |
-| `apollo11` | cualquiera | Dia/noche de ~14 dias, Tierra siempre visible, sin relieve (aviso) |
+| `change6` | cualquiera | Tierra nunca visible (0%), con relieve real |
+| `apollo11` | cualquiera | Dia/noche de ~14 dias, Tierra siempre visible |
+| Coordenadas propias | cualquiera | Relieve real si la maquina tiene los DEM en `backend/data/dem/`; si no, aviso "sin relieve" |
 
 ## Vertical slices (cada una termina en algo que se ve y se puede demostrar)
 
@@ -138,7 +145,7 @@ src/
 | 3a | Efemerides al store (`ephemeris` + `loadEphemeris`); avisos de `source === 'mock'` y `terrain === false` | Un solo estado compartido | 45 min |
 | 3 | **Panorama del horizonte** (corazon del reto): SVG azimut vs elevacion, silueta del terreno, Sol y Tierra con su tamano, recorrido | Cambiar sitio/fecha mueve todo | 2-3 h |
 | 4 | Veredicto y metricas: CANDIDATO o no con motivos, "se pone en...", tarjetas con `metrics` | Los numeros coinciden con `/docs` de backend | 1-1.5 h |
-| 5 | **Comparador**: 2-4 escenarios lado a lado, mejor valor resaltado; "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo | 2 h |
+| 5 | **Comparador**: 2-4 escenarios lado a lado, mejor valor resaltado; "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo | Hecho |
 | 6 | Linea de tiempo: elevacion Sol/Tierra vs tiempo, bandas de visibilidad, `events`, slider que mueve el panorama; play | Arrastrar el slider anima el panorama | 1.5-2 h |
 | 7 | Extras: fechas alternativas (`/api/mission`), 3D, modo educativo, URL compartible | - | lo que sobre |
 
@@ -215,6 +222,11 @@ app  ->  features  ->  shared
 - **Animaciones** (`tailwindcss-animated`): siempre con `motion-reduce:animate-none` y duraciones cortas
   (`animate-duration-300` a `500`). Solo en entradas y como respuesta a acciones, no decorativas en loop.
 - Paleta: superficies `slate`, acento `blue-600` (marca del equipo), texto `slate-900` / `slate-500`.
+- **Modo oscuro: no usar `dark:` en los componentes.** Sigue al sistema hasta que el usuario elige con `ThemeToggle`
+  (se guarda en `localStorage`, `shared/lib/theme.ts`). `index.html` pone `.dark` en `<html>` antes de pintar e
+  `index.css` invierte las escalas de color (grises neutros casi negros, tintes apagados). Se escribe la clase de
+  modo claro y el oscuro sale solo. Lo que ya es oscuro por diseno (el bento del panorama) lleva `theme-fixed` y
+  conserva sus colores. Si un color nuevo no se ve bien en oscuro, se ajusta en `index.css`, no en el componente.
 - **Datos (coordenadas, datos de mision): `teal`** (`text-teal-700`, chips `bg-teal-50`), peso normal, sin bold.
   Usar `<Coordinates>` y `<DataField tone="accent">` en vez de repetir clases.
 - **Rojo, ambar y `green` estan reservados** para errores, avisos y el semaforo de metricas. No usarlos para

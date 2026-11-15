@@ -45,6 +45,11 @@ export interface BodyPosition {
   visible: boolean;
   /** 0..1, porcion del disco por encima del terreno (util para el Sol y potencia). */
   visibleFraction: number;
+  /**
+   * Despejado segun backend (sun_clear / earth_clear): visible con margen de seguridad sobre el relieve.
+   * Lo decide backend mirando cuanto del disco tapa el terreno; el front no lo recalcula.
+   */
+  clear: boolean;
 }
 
 export interface EphemerisSample {
