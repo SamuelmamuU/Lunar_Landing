@@ -3,6 +3,7 @@ import { MetricsPanel } from '../features/metrics';
 import { EphemerisStatus, ScenarioHeader } from '../features/scenario-form';
 import { SitePicker } from '../features/site-picker';
 import { SkyPanorama } from '../features/sky-panorama';
+import { Timeline } from '../features/timeline';
 import { AppLayout } from './layout/AppLayout';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
       <ScenarioHeader actions={<AddToCompareButton />} />
       <EphemerisStatus />
       <SkyPanorama />
+      <Timeline />
       <MetricsPanel />
       <ComparePanel />
     </AppLayout>

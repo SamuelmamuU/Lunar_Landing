@@ -2,14 +2,19 @@
 
 import type { EphemerisSample, HorizonProfile } from '../types/lunar';
 
-/** Muestra mas cercana a un instante (ISO). Las muestras van a paso fijo desde el inicio. */
-export function sampleAt(samples: EphemerisSample[], time: string): EphemerisSample | null {
-  if (samples.length === 0) return null;
-  if (samples.length === 1) return samples[0];
+/** Indice de la muestra mas cercana a un instante (ISO); -1 si no hay muestras. Van a paso fijo desde el inicio. */
+export function sampleIndexAt(samples: EphemerisSample[], time: string): number {
+  if (samples.length <= 1) return samples.length - 1;
   const first = Date.parse(samples[0].time);
   const step = Date.parse(samples[1].time) - first;
   const index = Math.round((Date.parse(time) - first) / step);
-  return samples[Math.min(samples.length - 1, Math.max(0, index))];
+  return Math.min(samples.length - 1, Math.max(0, index));
+}
+
+/** Muestra mas cercana a un instante (ISO). */
+export function sampleAt(samples: EphemerisSample[], time: string): EphemerisSample | null {
+  const index = sampleIndexAt(samples, time);
+  return index < 0 ? null : samples[index];
 }
 
 /**

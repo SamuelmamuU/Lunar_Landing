@@ -20,6 +20,7 @@ export function SkyPanorama() {
   const data = useAppStore((s) => s.ephemeris.data);
   const isLoading = useAppStore((s) => s.ephemeris.status === 'loading');
   const currentTime = useAppStore((s) => s.currentTime);
+  const setCurrentTime = useAppStore((s) => s.setCurrentTime);
 
   const current = data ? sampleAt(data.samples, currentTime ?? data.start) : null;
   if (!data || !current) return null;
@@ -52,6 +53,7 @@ export function SkyPanorama() {
           samples={data.samples}
           current={current}
           description={`Panorama del horizonte. ${status}.`}
+          onSelectTime={setCurrentTime}
           className="aspect-[2/1] sm:col-span-2 lg:col-span-1 lg:row-span-2 lg:aspect-auto lg:min-h-96"
         />
         <div className="mx-auto w-full max-w-60 sm:max-w-none">

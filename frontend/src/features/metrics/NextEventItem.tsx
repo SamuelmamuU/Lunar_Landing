@@ -2,7 +2,7 @@ import { BODIES, type BodyId } from '../../shared/lib/bodies';
 import { formatUtcDateTime } from '../../shared/lib/dates';
 import { formatDuration } from '../../shared/lib/format';
 import { BodySwatch } from '../../shared/ui/BodySwatch';
-import { eventLabel, type NextEventType } from './eventLabels';
+import { eventLabel, type NextEventType } from '../../shared/lib/eventLabels';
 
 interface Props {
   body: BodyId;
