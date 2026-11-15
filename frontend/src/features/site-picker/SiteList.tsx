@@ -37,8 +37,9 @@ function groupStartRows(groups: SiteGroup[]): number[] {
 export function SiteList({ state, groups, query, activeSiteId, onSelect }: Props) {
   const startRows = groupStartRows(groups);
 
+  // relative: lo absolute de adentro se queda en este scroll y no alarga la pagina (ver MainContent).
   return (
-    <div className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto pr-1">
+    <div className="scrollbar-subtle relative min-h-0 flex-1 overflow-y-auto pr-1">
       {state.status === 'loading' && <SiteListSkeleton />}
 
       {state.status === 'error' && (
