@@ -88,7 +88,8 @@ Respuesta (resumen; completo en `docs/ejemplos/evaluate-im2-1dia.json`):
   "meta":    { "schema": "1.0", "kernels": "DE421", "frame": "MOON_ME", "abcorr": "LT+S" },
   "input":   { "x_lon": 29.1957, "y_lat": -84.7906, "start_utc": "...", "end_utc": "...", "days": 30.0, "step_min": 60 },
   "site":    { "id": "mons-mouton-im2", "name": "...", "lat": -84.7906, "lon": 29.1957, "category": "CLPS" },
-  "horizon": { "terrain": true, "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)"], "z_m": 5321.5, "h_obs_m": 2.0,
+  "horizon": { "terrain": true, "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)", "LDEM_64_global.tif (~474 m/px)"],
+               "z_m": 5321.5, "h_obs_m": 2.0,
                "az_step_deg": 0.25, "max_deg": 4.061, "min_deg": -1.47, "profile_deg": [ "...1440 valores..." ] },
   "result":  { "is_candidate": true, "label": "CANDIDATO", "first_landing_utc": "...",
                "best_window": { "start_utc": "...", "end_utc": "...", "duration_h": 296.0 },
@@ -157,17 +158,20 @@ El front muestra `detail` si es texto; si es lista, une los `msg`.
 ## 5. Fuentes de datos (`source`)
 
 - Posiciones: **SPICE** (`spiceypy.azlcpo`), kernels DE421 → `meta.kernels`.
-- Terreno: **LOLA** `LDEM_80S_80MPP_ADJ.TIF` (polo sur, 80°S a 90°S, 80 m/px), rayos hasta 200 km →
-  `horizon.dem` y `horizon.terrain`.
+- Terreno: **LOLA**, rayos hasta 200 km → `horizon.dem` (lista de DEM usados, del más fino al más grueso) y
+  `horizon.terrain`. En cada punto se usa el DEM más fino que tenga dato:
+  - `LDEM_80S_80MPP_ADJ.TIF`: polo sur, 80°S a 90°S, 80 m/px.
+  - `LDEM_64_global.tif`: **toda la Luna**, ~474 m/px (LOLA LDEM_64 de la PDS, convertido con
+    `python main.py download --global-dem`; en la API al vuelo se usa a ~1.4 km/px para no ocupar 2 GB de RAM).
 - En el front: `source: 'spice'` con backend real, `source: 'mock'` con datos sintéticos (aviso visible).
 
 Cobertura del terreno:
 
 | Caso | Horizonte |
 |---|---|
-| Sitio del catálogo con horizonte precalculado en `data/horizons.json` (hoy 9, todos los del catálogo al sur de 80°S: connecting-ridge, south-pole-rim, mons-mouton-im2, mons-mouton-summit, malapert-a-im1, shackleton-floor, mons-malapert, haworth, nobile) | Relieve real, en cualquier máquina |
-| Coordenadas personalizadas al sur de 80°S **y** con el `.TIF` en `backend/data/dem/` | Relieve real, calculado al vuelo (1–3 s la primera vez) |
-| Cualquier otro caso (norte de 80°S, o sin el `.TIF`) | Esfera lisa (`terrain: false`) |
+| Sitio del catálogo (los 20 tienen horizonte precalculado en `data/horizons.json`) | Relieve real, en cualquier máquina |
+| Coordenadas personalizadas, en cualquier punto de la Luna, con los DEM en `backend/data/dem/` | Relieve real, calculado al vuelo (< 1 s) |
+| Coordenadas personalizadas en una máquina sin los DEM | Esfera lisa (`terrain: false`) |
 
 ## 6. Modelo interno del frontend (referencia)
 

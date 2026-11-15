@@ -58,13 +58,18 @@ resultados distintos.
 
 ## Terreno (LOLA)
 
-- DEM: `LDEM_80S_80MPP_ADJ.TIF` (polo sur, 80°S–90°S, 80 m/px, 189 MB). Va en `backend/data/dem/` y **nunca a git**.
-- `python main.py horizon --all --dem data/dem/LDEM_80S_80MPP_ADJ.TIF` precalcula los horizontes del catálogo en
-  `data/horizons.json`. **Ese archivo sí se commitea**: da relieve real a todo el equipo sin el `.TIF`.
+- DEM (van en `backend/data/dem/` y **nunca a git**; en cada punto se usa el más fino que tenga dato):
+  - `LDEM_80S_80MPP_ADJ.TIF`: polo sur, 80°S–90°S, 80 m/px, 189 MB.
+  - `LDEM_64_global.tif`: toda la Luna, ~474 m/px, 325 MB. Se obtiene con `python main.py download --global-dem`
+    (descarga LDEM_64 de la PDS a `data/dem/raw/` y lo convierte: longitudes −180..180, altura sin el OFFSET).
+    No poner el `.img` crudo en `data/dem/`: viene en 0..360° y con el radio sumado.
+- `python main.py horizon --all --dem data/dem/LDEM_80S_80MPP_ADJ.TIF --dem data/dem/LDEM_64_global.tif --max-px 24000`
+  precalcula los horizontes de todo el catálogo en `data/horizons.json`. **Ese archivo sí se commitea**: da relieve
+  real a todo el equipo sin los DEM.
 - El horizonte precalculado se busca por `site.id`. Si la petición trae `site_id`, gana aunque también traiga
   `x`/`y`. Si trae solo `x`/`y`, el sitio pasa a ser `custom_...` y no lo encuentra: se calcula al vuelo
-  (si está el `.TIF`) o queda esfera lisa.
-- Fuera de la cobertura del DEM (norte de 80°S) el horizonte es esfera lisa y `horizon.terrain` es `false`.
+  (si están los DEM; < 1 s) o queda esfera lisa (`horizon.terrain: false`).
+- La API precarga los DEM en segundo plano al arrancar (~5 s con los dos).
 
 ## Comandos
 

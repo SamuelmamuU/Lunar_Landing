@@ -30,7 +30,7 @@
   },
   "horizon": {
     "terrain": true,
-    "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)"],
+    "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)", "LDEM_64_global.tif (~474 m/px)"],
     "z_m": 5321.501553305148,
     "h_obs_m": 2,
     "az_step_deg": 0.25,
