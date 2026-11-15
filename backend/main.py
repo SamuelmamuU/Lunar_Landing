@@ -3,6 +3,7 @@
 Ejemplos:
   python main.py validate                      (modelo vs. 7 misiones reales)
   python main.py mission  --x 29.1957 --y -84.7906 --landing 2025-03-06T17:29:00Z --duration 10
+  python main.py mission  --site mons-mouton-im2 --landing 2025-03-06T17:29:00Z --departure 2025-03-16T05:00:00Z
   python main.py evaluate --x -136.6667 --y -89.4667 --start 2026-11-14 --end 2026-12-14
   python main.py sites
   python main.py sky      --site connecting-ridge --utc 2026-11-14T18:00:00Z
@@ -99,7 +100,8 @@ def cmd_mission(args):
     site = get_site(args.site, args.y, args.x)
     rules = MissionRules(args.eps_sun, args.eps_earth, args.battery, args.max_comm_gap, args.h_obs)
     try:
-        emit(mission(site, args.landing, args.duration, rules, args.search_days, include_series=args.series), args)
+        emit(mission(site, args.landing, args.duration, rules, args.search_days, include_series=args.series,
+                     departure_utc=args.departure), args)
     except ValueError as e:
         raise SystemExit(str(e))
 
@@ -262,7 +264,9 @@ def build_parser() -> argparse.ArgumentParser:
     mi.add_argument("--y", type=float, help="Latitud (°)")
     mi.add_argument("--site", help="Alternativa a --x/--y")
     mi.add_argument("--landing", required=True, help="Fecha de aterrizaje UTC, ej. 2025-03-06T17:29:00Z")
-    mi.add_argument("--duration", type=float, required=True, help="Duración en días")
+    fin = mi.add_mutually_exclusive_group(required=True)
+    fin.add_argument("--departure", help="Salida de la Luna UTC, ej. 2025-03-16T05:00:00Z")
+    fin.add_argument("--duration", type=float, help="Duración en días (alternativa a --departure)")
     mi.add_argument("--battery", type=float, default=12, help="Horas que aguanta sin Sol")
     mi.add_argument("--max-comm-gap", type=float, default=24, help="Horas máximas sin Tierra")
     mi.add_argument("--search-days", type=float, default=15, help="Días para buscar alternativas")

@@ -133,12 +133,19 @@ Notas:
 - `earth_frac[i]` (slice B4): fracción visible del disco de la Tierra (0..1), igual que `sun_frac`.
   `earth_visible[i]` sigue siendo "el centro está sobre el terreno", que equivale a `earth_frac[i] > 0.5`.
 
-### 3.3 `POST /api/mission` — "aterrizo en esta fecha y opero N días" (extra F7)
+### 3.3 `POST /api/mission` — "aterrizo en esta fecha y opero hasta la salida" (extra F7)
 
 ```json
-{ "site_id": "mons-mouton-im2", "landing": "2025-03-06T17:29:00Z", "duration_days": 10,
+{ "site_id": "mons-mouton-im2", "landing": "2025-03-06T17:29:00Z", "departure": "2025-03-16T05:00:00Z",
   "battery_hours": 12, "max_comm_gap_hours": 24 }
 ```
+
+- `landing`: fecha y hora de aterrizaje. Fin de la misión: **uno de los dos** (si llegan ambos o ninguno → 422):
+  - `departure`: fecha y hora en que la misión sale de la Luna (mismos formatos que `start`/`end`).
+  - `duration_days`: duración en días, admite decimales (`9.48`).
+- Con `departure`, la duración se calcula sola y `input.duration_days` la devuelve; `input.end_utc` es la salida.
+  Debe ser posterior a `landing` y como máximo 365 días después.
+- La ventana de la misión no pasa de la salida (misma regla de muestreo que `/api/evaluate`).
 
 Devuelve `result` (`label`, `reasons`, `checks`, `alternatives.before/after` con fechas cercanas que sí cumplen,
 `max_feasible_duration_days`), `at_landing` (igual que `at_start`) y `during_mission` (porcentajes, noche más larga,

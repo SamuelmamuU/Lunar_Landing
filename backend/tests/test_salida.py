@@ -1,4 +1,4 @@
-"""Fecha y hora de salida de la Luna (slice B7): la serie de /api/evaluate no pasa de `end`."""
+"""Fecha y hora de salida de la Luna (slice B7): `end` en /api/evaluate y `departure` en /api/mission."""
 from datetime import datetime, timedelta
 
 import pytest
@@ -56,3 +56,45 @@ def test_evaluate_dias_completos_igual_que_antes(client):
 def test_evaluate_formatos_de_fecha_y_hora(client, start, end, esperado):
     d = client.post("/api/evaluate", json={"site_id": IM2, "start": start, "end": end, "step_min": 360}).json()
     assert (d["input"]["start_utc"], d["input"]["end_utc"]) == esperado
+
+
+# ------------------------------------------------------------------ /api/mission: departure
+def _mission(client, **body):
+    return client.post("/api/mission", json={"site_id": IM2, "landing": LANDING, **body})
+
+
+def test_departure_equivale_a_duration_days(client):
+    a = _mission(client, departure="2025-03-16T17:29:00Z").json()
+    b = _mission(client, duration_days=10).json()
+    assert a["input"]["duration_days"] == pytest.approx(10)
+    assert a["input"]["end_utc"] == b["input"]["end_utc"] == "2025-03-16T17:29:00Z"
+    assert a["result"] == b["result"] and a["during_mission"] == b["during_mission"]
+
+
+def test_departure_con_hora_arbitraria(client):
+    d = _mission(client, departure="2025-03-16T05:00:00Z", include_series=True).json()
+    horas = (_t("2025-03-16T05:00:00Z") - _t(LANDING)).total_seconds() / 3600
+    assert d["input"]["duration_days"] == pytest.approx(horas / 24, abs=1e-6)
+    assert d["input"]["end_utc"] == "2025-03-16T05:00:00Z"
+    assert _t(d["series"]["t_utc"][-1]) <= _t("2025-03-16T05:00:00Z")
+    assert all(_t(e["utc"]) <= _t("2025-03-16T05:00:00Z") for e in d["during_mission"]["events"])
+
+
+def test_departure_por_get(client):
+    r = client.get("/api/mission", params={"x": 29.1957, "y": -84.7906, "landing": LANDING,
+                                           "departure": "2025-03-10T00:00:00Z"})
+    assert r.status_code == 200 and r.json()["input"]["end_utc"] == "2025-03-10T00:00:00Z"
+
+
+@pytest.mark.parametrize("body", [
+    {},                                                                # ni salida ni duración
+    {"departure": "2025-03-16T05:00:00Z", "duration_days": 10},       # ambas
+    {"departure": "2025-03-06T17:29:00Z"},                             # salida = aterrizaje
+    {"departure": "2025-03-01T00:00:00Z"},                             # salida antes del aterrizaje
+    {"departure": "2026-03-07T00:00:00Z"},                             # más de 365 días
+    {"departure": "no-es-fecha"},
+])
+def test_departure_invalida_da_422(client, body):
+    r = _mission(client, **body)
+    assert r.status_code == 422
+    assert r.json()["detail"]

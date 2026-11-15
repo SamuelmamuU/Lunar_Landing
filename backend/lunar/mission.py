@@ -46,15 +46,23 @@ def _first_false(flags: np.ndarray) -> int | None:
     return int(idx[0]) if len(idx) else None
 
 
-def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRules,
-            search_days: float = 15, step_min: float | None = None, include_series: bool = False) -> dict:
+def mission(site: Site, landing_utc: str, duration_days: float | None, rules: MissionRules,
+            search_days: float = 15, step_min: float | None = None, include_series: bool = False,
+            departure_utc: str | None = None) -> dict:
+    """Fin de la misión: `departure_utc` (salida de la Luna) o `duration_days`, uno de los dos."""
     from .report import Settings
 
     kernels.load()
-    if duration_days <= 0 or duration_days > 365:
-        raise ValueError("La duración debe estar entre 0 y 365 días")
+    if (duration_days is None) == (departure_utc is None):
+        raise ValueError("Indica la salida de la Luna (departure) o la duración (duration_days), solo una de las dos")
     landing_utc = parse_utc(landing_utc)
     et_land = utc_to_et(landing_utc)
+    if departure_utc is not None:
+        duration_days = (utc_to_et(parse_utc(departure_utc)) - et_land) / DAY
+        if duration_days <= 0:
+            raise ValueError("La salida de la Luna debe ser posterior al aterrizaje")
+    if duration_days <= 0 or duration_days > 365:
+        raise ValueError("La duración debe estar entre 0 y 365 días")
     settings = Settings(h_obs_m=rules.h_obs_m, eps_sun_deg=rules.eps_sun_deg, eps_earth_deg=rules.eps_earth_deg,
                         min_light_hours=0, min_comm_hours=0)
     calc, mask = make_calc(site, settings)
@@ -144,7 +152,7 @@ def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRu
     out = {
         "meta": meta(),
         "input": {"x_lon": site.lon, "y_lat": site.lat, "landing_utc": landing_utc,
-                  "duration_days": duration_days, "end_utc": et_to_utc(et_land + duration_days * DAY),
+                  "duration_days": round(duration_days, 6), "end_utc": et_to_utc(et_land + duration_days * DAY),
                   "step_min": step_min},
         "site": site.to_dict(),
         "horizon": mask.summary(),

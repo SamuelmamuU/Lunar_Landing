@@ -152,8 +152,11 @@ class MissionIn(BaseModel):
     site_id: Optional[str] = Field(None, description="Alternativa a x/y", examples=["mons-mouton-im2"])
     landing: str = Field(..., description="Fecha de aterrizaje UTC, ej. 2025-03-06 o 2025-03-06T17:29:00Z",
                          examples=["2025-03-06T17:29:00Z"])
-    duration_days: float = Field(..., gt=0, le=365, description="Duración de la misión en superficie (días)",
-                                 examples=[10])
+    departure: Optional[str] = Field(None, description="Fecha y hora UTC en que la misión sale de la Luna "
+                                     "(alternativa a duration_days), ej. 2025-03-16T05:00:00Z",
+                                     examples=["2025-03-16T05:00:00Z"])
+    duration_days: Optional[float] = Field(None, gt=0, le=365, description="Duración de la misión en superficie "
+                                           "(días, admite decimales); alternativa a departure", examples=[10])
     eps_sun_deg: float = Field(0.5, ge=0, le=10, description="ε del Sol (°)")
     eps_earth_deg: float = Field(0.5, ge=0, le=10, description="ε de la Tierra (°)")
     battery_hours: float = Field(12, ge=0, le=5000, description="Horas que aguanta sin Sol (batería)")
@@ -166,6 +169,8 @@ class MissionIn(BaseModel):
     def _where(self):
         if self.site_id is None and (self.x is None or self.y is None):
             raise ValueError("Envía x y y (coordenadas) o un site_id")
+        if (self.departure is None) == (self.duration_days is None):
+            raise ValueError("Envía la salida de la Luna (departure) o la duración (duration_days), solo una")
         return self
 
 
@@ -174,7 +179,7 @@ def _run_mission(body: MissionIn) -> dict:
                          body.h_obs_m)
     try:
         return mission(_site(body), body.landing, body.duration_days, rules, body.search_days,
-                       include_series=body.include_series)
+                       include_series=body.include_series, departure_utc=body.departure)
     except ValueError as e:
         raise HTTPException(422, str(e))
     except sp.stypes.SpiceyError as e:
@@ -183,7 +188,7 @@ def _run_mission(body: MissionIn) -> dict:
 
 @app.post("/api/mission")
 def mission_post(body: MissionIn):
-    """Aterrizar en (x, y) en la fecha `landing` y operar `duration_days`: ¿CANDIDATO? Si no, sugiere fechas."""
+    """Aterrizar en `landing` y operar hasta `departure` (o `duration_days`): ¿CANDIDATO? Si no, sugiere fechas."""
     return _run_mission(body)
 
 
@@ -191,13 +196,16 @@ def mission_post(body: MissionIn):
 def mission_get(
     x: float = Query(..., description="Longitud (°)"), y: float = Query(..., description="Latitud (°)"),
     landing: str = Query(..., description="Fecha de aterrizaje UTC, ej. 2025-03-06"),
-    duration_days: float = Query(..., description="Duración de la misión (días)"),
+    departure: Optional[str] = Query(None, description="Salida de la Luna UTC (alternativa a duration_days)"),
+    duration_days: Optional[float] = Query(None, description="Duración de la misión (días)"),
     eps_sun_deg: float = 0.5, eps_earth_deg: float = 0.5,
     battery_hours: float = 12, max_comm_gap_hours: float = 24, h_obs_m: float = 2, search_days: float = 15,
 ):
-    """Para probar en el navegador: /api/mission?x=29.1957&y=-84.7906&landing=2025-03-06T17:29:00Z&duration_days=10"""
+    """Para probar en el navegador:
+    /api/mission?x=29.1957&y=-84.7906&landing=2025-03-06T17:29:00Z&departure=2025-03-16T05:00:00Z"""
     try:
-        body = MissionIn(x=x, y=y, landing=landing, duration_days=duration_days, eps_sun_deg=eps_sun_deg,
+        body = MissionIn(x=x, y=y, landing=landing, departure=departure, duration_days=duration_days,
+                         eps_sun_deg=eps_sun_deg,
                          eps_earth_deg=eps_earth_deg, battery_hours=battery_hours,
                          max_comm_gap_hours=max_comm_gap_hours, h_obs_m=h_obs_m, search_days=search_days)
     except ValidationError as e:
