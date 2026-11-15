@@ -82,7 +82,8 @@ def _load_dems() -> "DemStack | None":
     if _dem_cache is False:
         from .config import DEM_DIR
 
-        files = sorted([*DEM_DIR.glob("*.tif"), *DEM_DIR.glob("*.TIF"), *DEM_DIR.glob("*.img"), *DEM_DIR.glob("*.IMG")])
+        # Un solo patrón por extensión: en Windows glob no distingue mayúsculas y "*.tif" + "*.TIF" duplicaba el DEM
+        files = sorted(f for f in DEM_DIR.glob("*") if f.is_file() and f.suffix.lower() in (".tif", ".img"))
         if not files:
             _dem_cache = None
         else:
