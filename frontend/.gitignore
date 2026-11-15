@@ -25,3 +25,4 @@ dist-ssr
 
 # Documentos de handoff entre sesiones de Claude (locales, no se versionan)
 /handoff/
+env
