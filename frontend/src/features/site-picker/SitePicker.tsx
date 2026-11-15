@@ -37,9 +37,9 @@ export function SitePicker() {
           Sitio de alunizaje
         </h2>
         {!showCustomForm && (
-          <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="Introducir coordenadas">
+          <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="Nuevo punto por coordenadas">
             <CompassIcon />
-            Coordenadas
+            Nuevo punto
           </Button>
         )}
       </div>
