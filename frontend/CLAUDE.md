@@ -30,48 +30,66 @@ Lo que pide el reto, ordenado por peso:
 | Earthset | Cuando la Tierra baja del horizonte del terreno | Inicio de apagon de comunicacion directa |
 | Sombra permanente (PSR) | Interiores de crater que nunca ven el Sol | Hay hielo, pero cero energia solar |
 
-## Contrato de datos (proponerlo YA a backend)
+## Contrato de datos y backend real
 
-Tipos en `src/shared/types/lunar.ts`. Ejemplo real en `src/mocks/example-ephemeris-response.json`.
+**Fuente de verdad:** `docs/contrato-api.md` (raiz del repo). Plan y slices de ambos equipos: `docs/plan-equipos.md`.
+Si el contrato cambia, se cambia primero ahi.
 
-```
-GET /api/sites                -> LandingSite[]
-GET /api/ephemeris?lat=&lon=&start=&end=&step=&siteId=  -> EphemerisResponse
-```
+- El contrato es la API que backend ya tiene (`snake_case`). El front **no** usa esos nombres en los componentes:
+  `src/services/lunarApi.ts` traduce la respuesta al modelo del front (`src/shared/types/lunar.ts`, `camelCase`).
+  Si backend cambia un campo, solo se toca `lunarApi.ts`.
+- Endpoints que usa el front: `GET /api/sites` y `POST /api/evaluate` (con `include_series: true`, paso 60 min).
+  Extra: `POST /api/mission` (fechas alternativas).
+- Sitio del catalogo: se manda solo `site_id`. Sitio personalizado: solo `x` (lon) y `y` (lat). Nunca ambos.
 
-`EphemerisResponse` trae: `horizon` (360 elevaciones del terreno, una por grado de azimut) y `samples`
-(por cada instante: azimut, elevacion, elevacion del terreno, visible y fraccion visible, para Sol y Tierra).
+`EphemerisResponse` (lo que devuelve `getEphemeris`) trae:
+
+| Campo | Que es | Quien lo usa |
+|---|---|---|
+| `horizon` | Silueta del terreno (`elevations` cada `stepDeg`; puede ser 1 o 0.25 grados) | Panorama |
+| `samples` | Por instante: azimut, elevacion, elevacion del terreno, visible y fraccion visible de Sol y Tierra | Panorama, timeline |
+| `metrics` | % Sol, % Tierra, % ambos, noche mas larga, apagon mas largo, elevacion solar max/min | Metricas, comparador |
+| `events` | Salidas y puestas de Sol y Tierra (precision ~1 s) | Timeline |
+| `next` | Proximo cambio desde el inicio: "se pone en X h" (null = no cambia en 60 dias) | Metricas |
+| `verdict` | CANDIDATO o no, motivos en texto, ventanas de aterrizaje | Metricas, comparador |
+| `terrain` | false = sin relieve real (esfera lisa): **avisar en la UI** | Panorama |
+| `source` | `'spice'` (backend real) o `'mock'` (sinteticos): **avisar en la UI** | App |
+
+**Las metricas, eventos y veredicto los calcula backend** (ya estan probados contra misiones reales). El front no
+los recalcula: los muestra. En `shared/lib` solo van calculos de presentacion (escalas del panorama, formato de
+duraciones, reducir puntos para graficar).
+
+Definicion de visible (igual que backend): Sol visible = asoma alguna parte del disco; Tierra visible = el centro
+esta sobre el terreno; "despejado" = margen de al menos 0.5 grados.
 
 Convenciones: grados; lat -90..90 (sur negativo); lon -180..180 (este positivo); azimut desde el norte en
 sentido horario; tiempos ISO 8601 UTC.
 
-**Decision propuesta:** backend entrega datos crudos (samples + horizonte); **las metricas las calcula el
-front** (porcentajes, ventanas, tiempo hasta puesta). Asi backend se concentra en que las posiciones sean
-correctas y no hay que acordar mas endpoints.
+Volumen: 30 dias con paso de 60 min = 721 muestras (~0.3 s en backend).
 
-Volumen: 30 dias con paso de 60 min = 721 muestras. Con paso de 10 min = 4321. Para graficas, reducir puntos.
+## Como correr con datos reales o con mock
 
-## Datos de prueba (mocks)
+| Modo | `.env.local` | Necesita |
+|---|---|---|
+| Backend real (recomendado) | `VITE_USE_MOCK=false` | Backend arrancado: `uvicorn api:app --reload --port 8000` dentro de `backend/` |
+| Mock | `VITE_USE_MOCK=true` (o sin archivo) | Nada |
 
-- `src/mocks/sites.mock.ts`: 14 sitios (polo sur, CLPS, Artemis, Chandrayaan-3, Chang'e en lado oculto,
-  Apollo). Coordenadas aproximadas.
-- `src/mocks/ephemeris.mock.ts`: generador **sintetico** con el comportamiento correcto (Sol rozando el
-  horizonte en el polo, estaciones, libracion, lado oculto sin Tierra, terreno que tapa). Fases inventadas:
-  **no son las posiciones reales de esas fechas.**
-- `src/services/lunarApi.ts`: unica puerta a los datos. Con `VITE_USE_MOCK=false` y `VITE_API_URL` pega al
-  backend real sin tocar componentes.
+El front llama a `/api/...` y Vite lo reenvia a `localhost:8000` (`vite.config.ts`): no importa el puerto del front.
 
-Casos utiles para probar la UI:
+- `src/services/lunarApi.ts`: unica puerta a los datos (mock o backend).
+- `src/mocks/sites.mock.ts`: 14 sitios de prueba, coordenadas aproximadas. **El catalogo real es el de backend.**
+- `src/mocks/ephemeris.mock.ts` + `summary.mock.ts`: generador **sintetico** con el comportamiento correcto (Sol
+  rozando el horizonte en el polo, libracion, lado oculto sin Tierra, terreno que tapa) y el mismo modelo que la
+  API real. Fases inventadas: **no son las posiciones reales de esas fechas.**
 
-| Sitio | Que deberia verse |
-|---|---|
-| Cresta Shackleton | Sol casi en el horizonte; mucha luz en abril, casi nada en octubre (mock) |
-| Interior Shackleton | Paredes de ~20 grados: nunca Sol ni Tierra |
-| Macizo Malapert | Cima: horizonte bajo cero, buena luz y Tierra visible la mayor parte del tiempo |
-| Chang'e 6 / 4 | Tierra nunca visible (0%) |
-| Chandrayaan-3, Apollo | Tierra siempre visible; Sol sube alto, dia/noche de ~14 dias |
+Casos utiles para probar la UI con backend real:
 
-Mostrar un aviso "datos sinteticos" en la UI cuando `source === 'mock'`.
+| Sitio (id) | Fecha | Que deberia verse |
+|---|---|---|
+| `mons-mouton-im2` | 2025-03-06T17:29Z | Sol a 2.5 grados (az 66), Tierra a 11 grados (az 336), CANDIDATO; Sol se pone en ~13 dias |
+| `connecting-ridge` | 2026-11-14 | Sol visible el 100% de 30 dias, Tierra ~47% |
+| `change6` | cualquiera | Tierra nunca visible (0%), sin relieve (aviso) |
+| `apollo11` | cualquiera | Dia/noche de ~14 dias, Tierra siempre visible, sin relieve (aviso) |
 
 ## Vertical slices (cada una termina en algo que se ve y se puede demostrar)
 
@@ -105,27 +123,31 @@ src/
     lunarApi.ts            Unica puerta a los datos (mock o backend).
   mocks/                   Solo los importa services/.
   shared/
-    types/lunar.ts         Contrato de datos con backend.
-    lib/                   Funciones puras sin React (coords.ts, metricas, ventanas...).
+    types/lunar.ts         Modelo de datos del front (el contrato con backend esta en docs/contrato-api.md).
+    lib/                   Funciones puras sin React (coords.ts, dates.ts, escalas del panorama...).
     ui/                    Componentes genericos sin logica de negocio (Button, TextField, DataField, Coordinates, RegionBadge, DataSourceBadge...).
       icons/               Iconos SVG como componentes (CompassIcon...), siempre con aria-hidden.
 ```
 
-| # | Slice | Listo cuando... | Tiempo aprox |
+| # | Slice | Listo cuando... | Estado |
 |---|---|---|---|
-| 0 | Base: Vite + Tailwind, copiar types/mocks/services, layout vacio, store | La app arranca y lista los sitios de `getSites()` | 45 min |
-| 1 | Selector de sitio: lista por categoria + buscador + lat/lon personalizadas con validacion | Elegir sitio cambia el escenario activo | 1 h |
-| 2 | Fecha y carga: inicio, duracion (1/7/14/30 dias), paso; hook `useEphemeris` con loading/error | Se ve "N muestras" y el estado de carga | 45 min |
-| 3 | **Panorama del horizonte** (corazon del reto): SVG azimut vs elevacion, silueta del terreno, Sol y Tierra con su tamano | Cambiar sitio/fecha mueve todo | 2-3 h |
-| 4 | Metricas: % Sol, % Tierra, % ambos, noche mas larga, apagon de comunicacion mas largo, elevacion solar max; horas hasta puesta de Sol y de Tierra desde el alunizaje; semaforo | Tarjetas con numeros que cambian por sitio/fecha | 1.5 h |
-| 5 | **Comparador**: 2-4 escenarios lado a lado, mejor valor resaltado; botones "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo | 2 h |
-| 6 | Linea de tiempo: elevacion Sol/Tierra vs tiempo con bandas de visibilidad; slider que mueve el instante del panorama; play | Arrastrar el slider anima el panorama | 2 h |
-| 7 | Extras: mapa polar de sitios, modo educativo ("por que?"), 3D, URL compartible, exportar | - | lo que sobre |
+| 0 | Base: Vite + Tailwind, types/mocks/services, layout, store | La app arranca y lista los sitios | Hecho |
+| 1 | Selector de sitio: lista por categoria + buscador + lat/lon personalizadas | Elegir sitio cambia el escenario activo | Hecho |
+| 2 | Fecha y carga: inicio, duracion (1/7/14/30 dias); `useEphemeris` con loading/error | Se ve el estado de carga | Hecho |
+| F-int | Conexion al backend real: adaptador en `lunarApi.ts`, proxy de Vite | Con `VITE_USE_MOCK=false` llegan catalogo y efemerides reales | Hecho |
+| 3a | Efemerides al store (`ephemeris` + `loadEphemeris`); avisos de `source === 'mock'` y `terrain === false` | Un solo estado compartido | 45 min |
+| 3 | **Panorama del horizonte** (corazon del reto): SVG azimut vs elevacion, silueta del terreno, Sol y Tierra con su tamano, recorrido | Cambiar sitio/fecha mueve todo | 2-3 h |
+| 4 | Veredicto y metricas: CANDIDATO o no con motivos, "se pone en...", tarjetas con `metrics` | Los numeros coinciden con `/docs` de backend | 1-1.5 h |
+| 5 | **Comparador**: 2-4 escenarios lado a lado, mejor valor resaltado; "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo | 2 h |
+| 6 | Linea de tiempo: elevacion Sol/Tierra vs tiempo, bandas de visibilidad, `events`, slider que mueve el panorama; play | Arrastrar el slider anima el panorama | 1.5-2 h |
+| 7 | Extras: fechas alternativas (`/api/mission`), 3D, modo educativo, URL compartible | - | lo que sobre |
+
+Detalle, dependencias y guion de la demo: `docs/plan-equipos.md`.
 
 **Demo minima viable: slices 0 a 5.** El comparador es lo que mas responde al reto; no dejarlo al final.
 
-Sin tests por tiempo, pero: los calculos (metricas, ventanas) como **funciones puras en `shared/lib`**,
-fuera de los componentes. Si algo sale raro, se revisa ahi y no en el JSX.
+Sin tests por tiempo, pero: los calculos de presentacion (escalas, formato) como **funciones puras en
+`shared/lib`**, fuera de los componentes. Si algo sale raro, se revisa ahi y no en el JSX.
 
 ## Buenas practicas (obligatorias, para no tener todo regado)
 
@@ -136,10 +158,11 @@ fuera de los componentes. Si algo sale raro, se revisa ahi y no en el JSX.
 | Una region de la pantalla (header, aside, main, footer) | `app/layout/` | `Sidebar.tsx` |
 | Algo que pertenece a un slice | `features/<slice>/` | `features/metrics/MetricCard.tsx` |
 | Un componente que usan 2+ features y no sabe de negocio | `shared/ui/` | `TextField.tsx`, `Button.tsx` |
-| Un calculo (metricas, ventanas, formato, validacion) | `shared/lib/` si lo usan varios; `features/<slice>/<algo>.ts` si es solo de ese slice | `coords.ts`, `siteFilters.ts` |
+| Un calculo de presentacion (escalas, formato, validacion) | `shared/lib/` si lo usan varios; `features/<slice>/<algo>.ts` si es solo de ese slice | `coords.ts`, `siteFilters.ts` |
 | Un hook de datos o de logica | `features/<slice>/useAlgo.ts` (o `shared/lib/` si es generico) | `useSites.ts`, `useEphemeris.ts` |
 | Una llamada al backend | `services/lunarApi.ts`. **En ningun otro lado se hace `fetch`.** | `getEphemeris()` |
-| Un tipo del contrato con backend | `shared/types/lunar.ts` | `EphemerisSample` |
+| Un tipo del modelo de datos | `shared/types/lunar.ts` | `EphemerisSample` |
+| La forma cruda de una respuesta de backend | Dentro de `services/lunarApi.ts` (no se exporta) | `ApiEvaluate` |
 | Estado que comparten varios features | `app/store.ts` | `activeScenario` |
 
 Si no sabes donde va, preguntalo antes de crear una carpeta nueva.

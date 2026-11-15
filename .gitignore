@@ -13,12 +13,12 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Salidas y datos pesados
-output/
-data/dem/*.TIF
-data/dem/*.tif
-data/dem/*.img
-data/dem/*.IMG
+# Backend: salidas y datos pesados (el DEM de LOLA pesa 189 MB: nunca va a git)
+backend/output/
+backend/data/dem/
+
+# Node (el detalle esta en frontend/.gitignore)
+node_modules/
 
 # IDEs
 .idea/
@@ -29,5 +29,3 @@ data/dem/*.IMG
 # Sistema operativo
 .DS_Store
 Thumbs.db
-
-backend/data/dem/

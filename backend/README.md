@@ -4,20 +4,22 @@ Calcula, para cualquier sitio lunar y fecha, dónde están el Sol y la Tierra re
 cuánto falta para el ocaso o Earthset, los % de luz y comunicación, y el semáforo de viabilidad.
 Todo sale como JSON por la terminal o a un archivo.
 
-## 1. Copiar al proyecto
+> **Contrato con el frontend:** `docs/contrato-api.md` (fuente de verdad). Convenciones y slices: `backend/CLAUDE.md`
+> y `docs/plan-equipos.md`. Todos los comandos de este documento se ejecutan **dentro de `backend/`**.
 
-Copien a la raíz del proyecto (donde están `frontend/` y `pyproject.toml`):
+## 1. Estructura
 
-```[README_BACKEND.md](README_BACKEND.md)
-main.py          ← reemplaza el main.py vacío
-lunar/           ← paquete de cálculos
-kernels/         ← kernels SPICE (DE421 incluidos, ~18 MB)
-data/sites.json  ← catálogo de sitios
-tests/
-requirements.txt
 ```
-
-Agreguen a `.gitignore`: `output/`, `data/dem/` y, si no quieren versionar 18 MB, `kernels/*.bsp`.
+backend/
+  api.py           API FastAPI (uvicorn api:app --reload --port 8000)
+  main.py          CLI
+  lunar/           paquete de cálculos
+  kernels/         kernels SPICE (DE421 incluidos, ~18 MB)
+  data/sites.json      catálogo de sitios (fuente de verdad del catálogo)
+  data/horizons.json   horizontes precalculados con LOLA (sí se versiona)
+  data/dem/            DEMs de LOLA (NO se versiona: 189 MB)
+  tests/
+```
 
 ## 2. Instalar dependencias (en la terminal de PyCharm, con el .venv activo)
 
@@ -189,7 +191,8 @@ const data = await res.json();
 console.log(data.result.label, data.result.landing_windows);
 ```
 
-El CORS ya permite `http://localhost:5173` (Vite). Si cambian de puerto, edítenlo en `api.py`.
+En desarrollo el frontend llama a `/api/...` y Vite lo reenvía a `localhost:8000` (proxy en `frontend/vite.config.ts`),
+así que el puerto del front no importa. El CORS de `api.py` solo hace falta si se llama sin proxy.
 
 Si hay DEMs de LOLA en `data/dem/`, cualquier coordenada nueva usa relieve real automáticamente
 (se calcula al vuelo, ~1–3 s la primera vez por punto).

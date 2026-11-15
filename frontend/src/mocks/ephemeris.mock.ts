@@ -19,6 +19,7 @@ import type {
   HorizonProfile,
 } from '../shared/types/lunar';
 import { MOCK_TERRAIN, type MockTerrain } from './sites.mock';
+import { summarize } from './summary.mock';
 
 const DEG = Math.PI / 180;
 const DAY_MS = 86_400_000;
@@ -214,6 +215,8 @@ export function generateEphemeris(req: EphemerisRequest): EphemerisResponse {
     stepMinutes: req.stepMinutes,
     horizon,
     samples,
+    ...summarize(samples, req.stepMinutes),
+    terrain: true,
     source: 'mock',
   };
 }

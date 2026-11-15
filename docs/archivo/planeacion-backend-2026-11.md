@@ -1,3 +1,6 @@
+> **Archivo.** Planeacion original del equipo de backend. El estado del frontend que describe (10 %) ya no es
+> el actual. Plan vigente: `docs/plan-equipos.md`. Contrato vigente: `docs/contrato-api.md`.
+
 # 🚀 Planeación y Estado del Proyecto: Lunar Landing Site Navigator
 **Equipo / Proyecto:** Bosón de Quásar · Lunar Landing  
 **Fecha de corte:** Noviembre 2026  
