@@ -15,17 +15,26 @@ class Site:
     verified: bool = True
     source: str = ""
     note: str = ""
+    # Opcionales (el frontend los lee solo si existen): se omiten de la respuesta cuando no hay dato
+    category_id: str | None = None   # artemis | clps | international | apollo | reference
+    agency: str | None = None
+    mission: str | None = None
+    landed_utc: str | None = None    # ISO 8601 UTC con Z; solo sitios de misiones que ya aterrizaron
     extra: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         d = asdict(self)
         d.pop("extra")
+        for k in ("category_id", "agency", "mission", "landed_utc"):
+            if d[k] is None:
+                d.pop(k)
         return d
 
 
 def load_sites() -> list[Site]:
     raw = json.loads(SITES_FILE.read_text(encoding="utf-8"))
-    known = {"id", "name", "lat", "lon", "category", "verified", "source", "note"}
+    known = {"id", "name", "lat", "lon", "category", "verified", "source", "note",
+             "category_id", "agency", "mission", "landed_utc"}
     return [Site(**{k: v for k, v in s.items() if k in known}) for s in raw]
 
 
