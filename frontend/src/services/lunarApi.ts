@@ -8,12 +8,16 @@ import type {
   EphemerisSample,
   LandingSite,
   LandingWindow,
+  LocalDemPatch,
+  OrbitalVectors3D,
   MissionAlternative,
   MissionAlternatives,
   MissionRequest,
   SiteCategory,
   SkyEventType,
+  Vec3,
 } from '../shared/types/lunar';
+import { azElToSkyVector } from '../shared/lib/skyVector';
 import { MOCK_SITES } from '../mocks/sites.mock';
 import { generateEphemeris } from '../mocks/ephemeris.mock';
 
@@ -79,9 +83,32 @@ interface ApiWindow {
   duration_h: number;
 }
 
+interface ApiLocalDem {
+  size: number;
+  extent_m: number;
+  step_m: number;
+  center_z_m: number;
+  min_z_m: number;
+  max_z_m: number;
+  heights_m: number[][];
+}
+
+interface ApiVectors3D {
+  frame: string;
+  moon_radius_km: number;
+  positions_km: { site: Vec3; earth: Vec3; sun: Vec3 };
+  unit_directions: { site: Vec3; earth: Vec3; sun: Vec3; site_to_earth: Vec3; site_to_sun: Vec3 };
+}
+
 interface ApiEvaluate {
   input: { x_lon: number; y_lat: number; start_utc: string; end_utc: string; step_min: number };
-  horizon: { terrain: boolean; az_step_deg: number; profile_deg: number[] };
+  horizon: {
+    terrain: boolean;
+    z_m?: number | null;
+    az_step_deg: number;
+    profile_deg: number[];
+    local_dem?: ApiLocalDem | null;
+  };
   result: {
     is_candidate: boolean;
     reasons: string[];
@@ -89,6 +116,7 @@ interface ApiEvaluate {
     best_window: ApiWindow | null;
   };
   at_start: {
+    vectors_3d?: ApiVectors3D | null;
     next: {
       sun_event: 'sunset' | 'sunrise' | null;
       sun_event_utc: string | null;
@@ -119,12 +147,14 @@ interface ApiEvaluate {
     sun_el: number[];
     sun_frac: number[];
     sun_clearance: number[];
+    sun_interference?: boolean[];
     sun_clear: boolean[];
     earth_az: number[];
     earth_el: number[];
     earth_clearance: number[];
     earth_visible: boolean[];
     earth_frac: number[];
+    earth_interference?: boolean[];
     earth_clear: boolean[];
   };
 }
@@ -164,23 +194,57 @@ const toWindow = (w: ApiWindow): LandingWindow => ({
   durationHours: w.duration_h,
 });
 
+function toLocalDem(raw?: ApiLocalDem | null): LocalDemPatch | null {
+  if (!raw) return null;
+  return {
+    size: raw.size,
+    extentMeters: raw.extent_m,
+    stepMeters: raw.step_m,
+    centerElevationMeters: raw.center_z_m,
+    minElevationMeters: raw.min_z_m,
+    maxElevationMeters: raw.max_z_m,
+    heightsMeters: raw.heights_m,
+  };
+}
+
+function toVectors3D(raw?: ApiVectors3D | null): OrbitalVectors3D | null {
+  if (!raw) return null;
+  return {
+    frame: raw.frame,
+    moonRadiusKm: raw.moon_radius_km,
+    sitePositionKm: raw.positions_km.site,
+    sunDirection: raw.unit_directions.sun,
+    earthDirection: raw.unit_directions.earth,
+  };
+}
+
 function toSamples(series: ApiEvaluate['series']): EphemerisSample[] {
   return series.t_utc.map((time, i) => {
+    const sunAz = series.sun_az[i];
+    const sunEl = series.sun_el[i];
+    const sunVisible = series.sun_frac[i] > 0;
     const sun: BodyPosition = {
-      azimuth: series.sun_az[i],
-      elevation: series.sun_el[i],
-      horizonElevation: series.sun_el[i] - series.sun_clearance[i],
-      visible: series.sun_frac[i] > 0,
+      azimuth: sunAz,
+      elevation: sunEl,
+      horizonElevation: sunEl - series.sun_clearance[i],
+      visible: sunVisible,
       visibleFraction: series.sun_frac[i],
       clear: series.sun_clear[i],
+      interference: series.sun_interference ? Boolean(series.sun_interference[i]) : !sunVisible && sunEl > -0.1,
+      skyVector: azElToSkyVector(sunAz, sunEl),
     };
+    const earthAz = series.earth_az[i];
+    const earthEl = series.earth_el[i];
+    const earthVisible = series.earth_visible[i];
     const earth: BodyPosition = {
-      azimuth: series.earth_az[i],
-      elevation: series.earth_el[i],
-      horizonElevation: series.earth_el[i] - series.earth_clearance[i],
-      visible: series.earth_visible[i],
+      azimuth: earthAz,
+      elevation: earthEl,
+      horizonElevation: earthEl - series.earth_clearance[i],
+      visible: earthVisible,
       visibleFraction: series.earth_frac[i],
       clear: series.earth_clear[i],
+      interference: series.earth_interference ? Boolean(series.earth_interference[i]) : !earthVisible && earthEl > -0.1,
+      skyVector: azElToSkyVector(earthAz, earthEl),
     };
     return { time, sun, earth };
   });
@@ -195,7 +259,12 @@ function toEphemeris(api: ApiEvaluate): EphemerisResponse {
     start: api.input.start_utc,
     end: api.input.end_utc,
     stepMinutes: api.input.step_min,
-    horizon: { stepDeg: api.horizon.az_step_deg, elevations: api.horizon.profile_deg },
+    horizon: {
+      stepDeg: api.horizon.az_step_deg,
+      elevations: api.horizon.profile_deg,
+      altitudeMeters: api.horizon.z_m ?? null,
+      localDem: toLocalDem(api.horizon.local_dem),
+    },
     samples: toSamples(api.series),
     metrics: {
       sunVisiblePct: m.pct_sun_visible,
@@ -226,6 +295,7 @@ function toEphemeris(api: ApiEvaluate): EphemerisResponse {
       landingWindows: api.result.landing_windows.map(toWindow),
       bestWindow: api.result.best_window ? toWindow(api.result.best_window) : null,
     },
+    vectors3d: toVectors3D(api.at_start.vectors_3d),
     terrain: api.horizon.terrain,
     source: 'spice',
   };
