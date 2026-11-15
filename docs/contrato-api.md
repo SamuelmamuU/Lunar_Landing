@@ -54,7 +54,7 @@ Base en desarrollo: `http://localhost:8000`. El frontend usa rutas relativas `/a
                "category": "CLPS", "verified": true, "source": "https://...", "note": "..." } ] }
 ```
 
-Campos que el backend va a agregar (slice B3; el front ya los lee si existen):
+Campos opcionales (agregados en el slice B2; si un sitio no tiene el dato, el campo no aparece):
 `category_id` (`artemis | clps | international | apollo | reference`), `agency`, `mission`, `landed_utc`.
 
 ### 3.2 `POST /api/evaluate` — **endpoint principal del frontend**

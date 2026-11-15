@@ -22,7 +22,11 @@
     "category": "CLPS",
     "verified": true,
     "source": "https://en.wikipedia.org/wiki/IM-2",
-    "note": "Punto de aterrizaje real del 6 de marzo de 2025."
+    "note": "Punto de aterrizaje real del 6 de marzo de 2025.",
+    "category_id": "clps",
+    "agency": "Intuitive Machines / NASA CLPS",
+    "mission": "IM-2",
+    "landed_utc": "2025-03-06T17:28:50Z"
   },
   "horizon": {
     "terrain": true,
