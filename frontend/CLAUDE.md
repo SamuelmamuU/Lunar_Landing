@@ -39,7 +39,10 @@ Si el contrato cambia, se cambia primero ahi.
   `src/services/lunarApi.ts` traduce la respuesta al modelo del front (`src/shared/types/lunar.ts`, `camelCase`).
   Si backend cambia un campo, solo se toca `lunarApi.ts`.
 - Endpoints que usa el front: `GET /api/sites` y `POST /api/evaluate` (con `include_series: true`, paso 60 min).
-  Extra: `POST /api/mission` (fechas alternativas).
+  Extra: `POST /api/mission` (fechas alternativas). Recibe **fechas**, no duracion: `landing` (aterrizaje) y
+  `departure` (salida de la Luna); la duracion la calcula backend.
+- `start` y `end` de `/api/evaluate` tambien son fechas. Los botones 1/7/14/30 dias solo son una forma comoda de
+  elegir `end`: el front manda `end = start + dias` (`scenarioToRequest`), nunca un numero de dias.
 - Sitio del catalogo: se manda solo `site_id`. Sitio personalizado: solo `x` (lon) y `y` (lat). Nunca ambos.
 
 `EphemerisResponse` (lo que devuelve `getEphemeris`) trae:
@@ -60,7 +63,8 @@ los recalcula: los muestra. En `shared/lib` solo van calculos de presentacion (e
 duraciones, reducir puntos para graficar).
 
 Definicion de visible (igual que backend): Sol visible = asoma alguna parte del disco; Tierra visible = el centro
-esta sobre el terreno; "despejado" = margen de al menos 0.5 grados.
+esta sobre el terreno. "Despejado" lo decide backend (`sun_clear` / `earth_clear`, segun cuanto del disco tapa
+el relieve) y el front lo usa tal cual en `BodyPosition.clear`: no se reemplaza por un umbral fijo.
 
 Convenciones: grados; lat -90..90 (sur negativo); lon -180..180 (este positivo); azimut desde el norte en
 sentido horario; tiempos ISO 8601 UTC.
@@ -88,8 +92,9 @@ Casos utiles para probar la UI con backend real:
 |---|---|---|
 | `mons-mouton-im2` | 2025-03-06T17:29Z | Sol a 2.5 grados (az 66), Tierra a 11 grados (az 336), CANDIDATO; Sol se pone en ~13 dias |
 | `connecting-ridge` | 2026-11-14 | Sol visible el 100% de 30 dias, Tierra ~47% |
-| `change6` | cualquiera | Tierra nunca visible (0%), sin relieve (aviso) |
-| `apollo11` | cualquiera | Dia/noche de ~14 dias, Tierra siempre visible, sin relieve (aviso) |
+| `change6` | cualquiera | Tierra nunca visible (0%), con relieve real |
+| `apollo11` | cualquiera | Dia/noche de ~14 dias, Tierra siempre visible |
+| Coordenadas propias | cualquiera | Relieve real si la maquina tiene los DEM en `backend/data/dem/`; si no, aviso "sin relieve" |
 
 ## Vertical slices (cada una termina en algo que se ve y se puede demostrar)
 
