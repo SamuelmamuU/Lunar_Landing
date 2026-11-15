@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAppStore } from '../../app/store';
 import { compassPoint } from '../../shared/lib/angles';
 import { BODIES, BODY_IDS } from '../../shared/lib/bodies';
@@ -14,6 +14,14 @@ import { describeVisibility } from './bodyStatus';
 
 const DESCENT_DURATION_MS = 14_000;
 
+interface Props {
+  /**
+   * Contenido de la pestana "Metricas" (las metricas de la ventana). Lo pasa App: un feature no importa a otro.
+   * Sin el, la pestana no aparece.
+   */
+  metrics?: ReactNode;
+}
+
 /**
  * Slice 3: donde estan el Sol y la Tierra respecto al terreno en el instante elegido (currentTime, o
  * el inicio de la ventana si no se ha movido la linea de tiempo).
@@ -22,7 +30,7 @@ const DESCENT_DURATION_MS = 14_000;
  * que: alturas y relieve) y a la derecha la vista desde arriba y el estado de cada cuerpo (el que: hay luz
  * y enlace?). El alto lo pone la columna derecha y el panorama lo llena.
  */
-export function SkyPanorama() {
+export function SkyPanorama({ metrics }: Props) {
   const data = useAppStore((s) => s.ephemeris.data);
   const isLoading = useAppStore((s) => s.ephemeris.status === 'loading');
   const currentTime = useAppStore((s) => s.currentTime);
@@ -93,7 +101,7 @@ export function SkyPanorama() {
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-sm text-slate-500">Sol y Tierra sobre el horizonte</h2>
-          <ViewModeSwitch value={viewMode} onChange={setViewMode} />
+          <ViewModeSwitch value={viewMode} onChange={setViewMode} showMetrics={metrics !== undefined} />
         </div>
         <p className="text-sm text-slate-500">{formatUtcDateTime(current.time)} UTC</p>
       </div>
@@ -101,7 +109,10 @@ export function SkyPanorama() {
       {/*
         theme-fixed: el bento ya es oscuro por diseno; en modo oscuro conserva sus colores (ver index.css).
       */}
-      {viewMode === 'dual3d' ? (
+      {viewMode === 'metrics' && metrics !== undefined ? (
+        // Las metricas son de toda la ventana, no del instante: van sin el bento oscuro.
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">{metrics}</div>
+      ) : viewMode === 'dual3d' ? (
         <div className="theme-fixed space-y-2">
           <div className="grid gap-2 lg:grid-cols-2">
             <OrbitalView3D

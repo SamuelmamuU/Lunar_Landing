@@ -11,7 +11,8 @@ interface Props {
 
 /**
  * CANDIDATO o NO CANDIDATO para aterrizar en la ventana, con sus motivos (texto de backend) y la mejor
- * ventana de aterrizaje. Verde y rojo son el semaforo; el veredicto siempre va tambien en texto.
+ * ventana de aterrizaje. Verde y rojo son el semaforo; el veredicto siempre va tambien en texto. El recuadro de
+ * color lo pone MetricsPanel, que encierra veredicto y proximos eventos juntos.
  */
 export function VerdictCard({ verdict, children }: Props) {
   const { isCandidate, reasons, landingWindows, bestWindow } = verdict;
@@ -20,10 +21,7 @@ export function VerdictCard({ verdict, children }: Props) {
   const windowCount = landingWindows.length;
 
   return (
-    <section
-      aria-labelledby={titleId}
-      className={`rounded-lg border p-4 ${isCandidate ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
-    >
+    <section aria-labelledby={titleId}>
       <h2 id={titleId} className={`text-2xl font-bold ${isCandidate ? 'text-green-800' : 'text-red-800'}`}>
         {isCandidate ? 'CANDIDATO' : 'NO CANDIDATO'}
       </h2>

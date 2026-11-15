@@ -11,12 +11,15 @@ interface Props {
   hours: number | null;
 }
 
-/** Proximo cambio de un cuerpo: que pasa, en cuanto tiempo y cuando (UTC). */
+/**
+ * Proximo cambio de un cuerpo: que pasa, en cuanto tiempo y cuando (UTC). Sin tarjeta: va dentro del recuadro del
+ * veredicto y una tarjeta ahi seria caja dentro de caja.
+ */
 export function NextEventItem({ body, event, time, hours }: Props) {
   const label = eventLabel(event);
 
   return (
-    <article className="rounded-lg border border-slate-200 bg-white p-3">
+    <article>
       <p className="flex items-center gap-2 text-sm text-slate-500">
         <BodySwatch body={body} className="size-4" />
         {BODIES[body].label}
@@ -24,14 +27,17 @@ export function NextEventItem({ body, event, time, hours }: Props) {
 
       {label ? (
         <>
-          <p className="mt-1 text-lg font-semibold text-slate-900">
-            {label}
-            {hours !== null && <span className="font-normal text-slate-700"> en {formatDuration(hours)}</span>}
-          </p>
+          {/* El evento y el "en cuanto" en lineas aparte: asi Sol y Tierra miden lo mismo aunque un texto sea mas largo. */}
+          <p className="mt-1 text-base font-semibold text-slate-900">{label}</p>
+          {hours !== null && <p className="text-sm text-slate-700">en {formatDuration(hours)}</p>}
           {time && <p className="mt-0.5 text-sm text-slate-500">{formatUtcDateTime(time)} UTC</p>}
         </>
       ) : (
-        <p className="mt-1 text-sm text-slate-600">Sin cambios en los próximos 60 días.</p>
+        // Mismas lineas y tamanos que un evento, para que Sol y Tierra se vean parejos.
+        <>
+          <p className="mt-1 text-base font-semibold text-slate-900">Sin cambios</p>
+          <p className="text-sm text-slate-700">en los próximos 60 días</p>
+        </>
       )}
     </article>
   );

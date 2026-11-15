@@ -23,7 +23,7 @@ export function NextEvents({ next, from }: Props) {
         <p className="text-sm text-slate-500">desde el {formatUtcDateTime(from)} UTC</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
         <NextEventItem body="sun" event={next.sunEvent} time={next.sunEventTime} hours={next.hoursToSunEvent} />
         <NextEventItem
           body="earth"

@@ -9,7 +9,7 @@ interface Props {
   windowText: string;
 }
 
-/** Las 6 metricas principales a la vista y el resto en un desplegable. */
+/** Todas las metricas de la ventana: primero las 6 principales, luego el resto. */
 export function MetricsGrid({ metrics, windowText }: Props) {
   // id unico: en el comparador puede haber varias rejillas en la misma pagina.
   const titleId = useId();
@@ -23,22 +23,12 @@ export function MetricsGrid({ metrics, windowText }: Props) {
         <p className="text-sm text-slate-500">{windowText}</p>
       </div>
 
+      {/* Las 12 a la vista: con 6 por fila quedan las principales arriba y las demas abajo. */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        {metricItems(MAIN_METRICS, metrics).map((item) => (
+        {metricItems([...MAIN_METRICS, ...EXTRA_METRICS], metrics).map((item) => (
           <MetricCard key={item.label} {...item} />
         ))}
       </div>
-
-      <details className="group">
-        <summary className="w-fit cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40">
-          Más métricas
-        </summary>
-        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-          {metricItems(EXTRA_METRICS, metrics).map((item) => (
-            <MetricCard key={item.label} {...item} />
-          ))}
-        </div>
-      </details>
     </section>
   );
 }
