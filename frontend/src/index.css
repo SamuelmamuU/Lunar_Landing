@@ -1,1 +1,44 @@
 @import "tailwindcss";
+@import "tailwindcss-animated";
+
+/*
+ * Scrollbar delgado y discreto. Uso: className="overflow-y-auto scrollbar-subtle".
+ * Chrome/Edge/Safari usan ::-webkit-scrollbar (control total: redondeado, sin flechas).
+ * Firefox no lo soporta y usa las propiedades estandar.
+ */
+@utility scrollbar-subtle {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-slate-300);
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: content-box;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: var(--color-slate-400);
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-slate-500);
+  }
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-slate-400) transparent;
+  }
+}
+
+/* Tailwind v4 ya no pone cursor: pointer a los botones; se restaura para toda la app. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
