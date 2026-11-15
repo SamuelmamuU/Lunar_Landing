@@ -28,12 +28,40 @@ export interface LandingSite {
   description?: string;
 }
 
+/** Vector 3D [x, y, z]. */
+export type Vec3 = [number, number, number];
+
+/** Grilla topocentrica NxN de elevaciones en metros alrededor del punto de aterrizaje. */
+export interface LocalDemPatch {
+  size: number;
+  extentMeters: number;
+  stepMeters: number;
+  centerElevationMeters: number;
+  minElevationMeters: number;
+  maxElevationMeters: number;
+  /** Filas Norte->Sur, columnas Oeste->Este (elevacion absoluta en metros respecto a R_MOON). */
+  heightsMeters: number[][];
+}
+
+/** Posiciones y direcciones unitarias en marco selenocentrico MOON_ME para t_start. */
+export interface OrbitalVectors3D {
+  frame: string;
+  moonRadiusKm: number;
+  sitePositionKm: Vec3;
+  sunDirection: Vec3;
+  earthDirection: Vec3;
+}
+
 /** Perfil del horizonte por terreno: que tan alto se ve el terreno en cada direccion. */
 export interface HorizonProfile {
   /** Separacion entre muestras en grados de azimut (ej. 1 => 360 valores). */
   stepDeg: number;
   /** elevations[i] = elevacion del terreno (grados) en azimut i * stepDeg. */
   elevations: number[];
+  /** Altitud absoluta del sitio (z_m) o null si no hay DEM. */
+  altitudeMeters: number | null;
+  /** Grilla local 64x64 m alrededor del sitio o null en modo esfera lisa. */
+  localDem: LocalDemPatch | null;
 }
 
 export interface BodyPosition {
@@ -50,6 +78,10 @@ export interface BodyPosition {
    * Lo decide backend mirando cuanto del disco tapa el terreno; el front no lo recalcula.
    */
   clear: boolean;
+  /** Encima del horizonte ideal esferico pero bloqueado por el relieve lunar. */
+  interference: boolean;
+  /** Vector unitario topocentrico Three.js (+X=Este, +Y=Zenit, -Z=Norte). */
+  skyVector: Vec3;
 }
 
 export interface EphemerisSample {
@@ -131,6 +163,8 @@ export interface EphemerisResponse {
   events: SkyEvent[];
   next: NextEvents;
   verdict: Verdict;
+  /** Vectores 3D iniciales en marco MOON_ME para el simulador orbital. */
+  vectors3d: OrbitalVectors3D | null;
   /** false = sin relieve real para este punto (esfera lisa): avisar en la UI. */
   terrain: boolean;
   /** De donde salen los datos. 'mock' = sinteticos, NO usar para decisiones reales. */
