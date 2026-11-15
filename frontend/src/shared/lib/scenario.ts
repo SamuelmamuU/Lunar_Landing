@@ -32,3 +32,11 @@ export function scenarioToRequest(scenario: Scenario): EphemerisRequest {
     ...(site.category === 'custom' ? {} : { siteId: site.id }),
   };
 }
+
+/**
+ * Clave de un escenario: dos escenarios con la misma clave piden exactamente lo mismo a backend (mismo sitio y
+ * ventana), aunque tengan distinto id.
+ */
+export function scenarioKey(scenario: Scenario): string {
+  return JSON.stringify(scenarioToRequest(scenario));
+}
