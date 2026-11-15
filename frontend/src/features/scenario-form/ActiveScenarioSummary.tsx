@@ -1,14 +1,11 @@
 import { useAppStore } from '../../app/store';
+import { regionSummary } from '../../shared/lib/coords';
 import { Coordinates } from '../../shared/ui/Coordinates';
-import { DataField } from '../../shared/ui/DataField';
-import { RegionBadge } from '../../shared/ui/RegionBadge';
 
-const dateFormatter = new Intl.DateTimeFormat('es-MX', {
-  dateStyle: 'medium',
-  timeZone: 'UTC',
-});
-
-/** Muestra el escenario activo. Fecha/duracion/paso se vuelven editables en el slice 2. */
+/**
+ * Sitio seleccionado: nombre, coordenadas y agencia, y que significa su region para Sol y Tierra.
+ * Es contexto, no el foco: el protagonista del main es la grafica del horizonte (slice 3).
+ */
 export function ActiveScenarioSummary() {
   const scenario = useAppStore((s) => s.activeScenario);
 
@@ -25,33 +22,19 @@ export function ActiveScenarioSummary() {
   }
 
   const { site } = scenario;
-  const hasMissionData = Boolean(site.mission || site.agency || site.landedAt);
 
   return (
-    <article className="rounded-lg border border-slate-200 bg-white p-5">
-      <RegionBadge lat={site.lat} lon={site.lon} size="md" />
-      <h2 className="mt-2 text-2xl text-slate-900">{site.name}</h2>
-      <div className="mt-2">
-        <Coordinates lat={site.lat} lon={site.lon} digits={3} variant="chip" />
-      </div>
-
-      {site.description && <p className="mt-3 max-w-prose text-sm text-slate-700">{site.description}</p>}
-
-      {hasMissionData && (
-        <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 rounded-md border-l-4 border-teal-500 bg-teal-50/60 px-4 py-3 text-sm sm:grid-cols-3">
-          {site.mission && <DataField label="Mision" value={site.mission} tone="accent" />}
-          {site.agency && <DataField label="Agencia" value={site.agency} tone="accent" />}
-          {site.landedAt && (
-            <DataField label="Alunizo" value={dateFormatter.format(new Date(site.landedAt))} tone="accent" />
-          )}
-        </dl>
-      )}
-
-      <dl className="mt-4 grid grid-cols-3 gap-x-6 gap-y-3 text-sm">
-        <DataField label="Inicio (UTC)" value={dateFormatter.format(new Date(scenario.start))} />
-        <DataField label="Duracion" value={`${scenario.durationDays} dias`} />
-        <DataField label="Paso" value={`${scenario.stepMinutes} min`} />
-      </dl>
-    </article>
+    <section aria-label="Sitio seleccionado" className="min-w-0">
+      {/* La descripcion queda como tooltip: es contexto para quien la busque. */}
+      <h2 className="truncate text-xl font-medium text-slate-900" title={site.description ?? site.name}>
+        {site.name}
+      </h2>
+      <p className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
+        <Coordinates lat={site.lat} lon={site.lon} />
+        {/* La agencia es contexto: gris, para que el ojo vaya primero a las coordenadas. */}
+        {site.agency && <span className="text-slate-500">{site.agency}</span>}
+      </p>
+      <p className="mt-1 text-sm text-slate-500">{regionSummary(site.lat, site.lon)}</p>
+    </section>
   );
 }
