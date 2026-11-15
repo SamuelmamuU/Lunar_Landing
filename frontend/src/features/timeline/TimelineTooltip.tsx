@@ -4,6 +4,7 @@ import { formatUtcDateTime } from '../../shared/lib/dates';
 import { linkState } from '../../shared/lib/visibility';
 import type { EphemerisSample } from '../../shared/types/lunar';
 import { BodySwatch } from '../../shared/ui/BodySwatch';
+import { ChartTooltip } from '../../shared/ui/ChartTooltip';
 import { BAND_LABEL } from './bandStyle';
 import { offsetLabel, type TimelineScale } from './timelineScale';
 
@@ -16,19 +17,9 @@ interface Props {
 
 /** Datos bajo el cursor: fecha, tiempo desde el inicio y elevacion y estado de cada cuerpo. */
 export function TimelineTooltip({ sample, x, scale }: Props) {
-  const onRightHalf = x > (scale.left + scale.right) / 2;
-
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute z-10 w-max rounded-md border border-slate-700 bg-slate-900/95 px-2.5 py-1.5 text-xs text-slate-100 tabular-nums"
-      // Se abre hacia el lado con mas espacio para no salirse del panel.
-      style={{
-        left: x,
-        top: scale.top,
-        transform: onRightHalf ? 'translateX(calc(-100% - 10px))' : 'translateX(10px)',
-      }}
-    >
+    // Arriba de la grafica; se abre hacia el lado con mas espacio.
+    <ChartTooltip x={x} y={scale.top - 12} flipX={x > (scale.left + scale.right) / 2}>
       <p>{formatUtcDateTime(sample.time)} UTC</p>
       <p className="text-slate-400">{offsetLabel(sample.time, scale.startMs)}</p>
       <ul className="mt-1 space-y-0.5">
@@ -40,6 +31,6 @@ export function TimelineTooltip({ sample, x, scale }: Props) {
           </li>
         ))}
       </ul>
-    </div>
+    </ChartTooltip>
   );
 }
