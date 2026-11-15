@@ -41,7 +41,7 @@ export function PanoramaChart({ horizon, samples, current, scale, description }:
       height={scale.height}
       role="img"
       aria-label={description}
-      className="absolute inset-0 block touch-pan-y"
+      className="absolute inset-0 block touch-pan-y "
       onPointerMove={handlePointerMove}
       onPointerLeave={() => setHoverAzimuth(null)}
     >

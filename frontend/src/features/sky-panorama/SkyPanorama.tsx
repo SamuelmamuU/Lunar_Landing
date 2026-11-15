@@ -37,7 +37,7 @@ export function SkyPanorama() {
       className={`space-y-2 transition-opacity ${isLoading ? 'opacity-50' : ''}`}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 className="text-lg font-semibold text-slate-900">Sol y Tierra sobre el horizonte</h2>
+        <h2 className="text-sm text-slate-500">Sol y Tierra sobre el horizonte</h2>
         <p className="text-sm text-slate-500">{formatUtcDateTime(current.time)} UTC</p>
       </div>
 
@@ -59,10 +59,10 @@ export function SkyPanorama() {
         <BodyStatusPanel current={current} />
       </div>
 
-      <p className="max-w-prose text-xs text-slate-500">
+      {/* <p className="max-w-prose text-xs text-slate-500">
         La línea tenue del panorama es el recorrido de cada cuerpo en la ventana elegida. En la vista desde arriba
         solo cuenta la dirección: la distancia al centro no significa nada.
-      </p>
+      </p> */}
     </section>
   );
 }

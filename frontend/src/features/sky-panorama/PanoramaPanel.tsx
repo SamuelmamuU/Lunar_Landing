@@ -24,7 +24,7 @@ export function PanoramaPanel({ horizon, samples, current, description, classNam
   );
 
   return (
-    <div ref={ref} className={`relative overflow-hidden rounded-lg bg-slate-950 ${className}`}>
+    <div ref={ref} className={`relative overflow-hidden rounded-lg bg-black ${className}`}>
       {scale && (
         <PanoramaChart horizon={horizon} samples={samples} current={current} scale={scale} description={description} />
       )}
