@@ -39,7 +39,11 @@ export function SkyPanorama() {
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 className="text-sm text-slate-500">Sol y Tierra sobre el horizonte</h2>
-        <p className="text-sm text-slate-500">{formatUtcDateTime(current.time)} UTC</p>
+        {/* Ancho fijo (23ch = "28 sept 2025, 23:28 UTC"): si cambiara con la fecha, a ciertos anchos el titulo
+            bajaria de linea y la pagina brincaria al arrastrar la linea de tiempo. */}
+        <p className="min-w-[23ch] whitespace-nowrap text-right text-sm text-slate-500">
+          {formatUtcDateTime(current.time)} UTC
+        </p>
       </div>
 
       {/*
