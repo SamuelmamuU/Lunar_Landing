@@ -9,6 +9,7 @@ Entrada principal (POST /api/evaluate):
 Salida: CANDIDATO / NO CANDIDATO con ε, interferencia del terreno, ventanas de aterrizaje y métricas.
 """
 import sys
+import threading
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -27,6 +28,7 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from lunar import kernels
 from lunar.evaluate import evaluate
+from lunar.horizon import auto_dems
 from lunar.mission import MissionRules, mission
 from lunar.report import Settings, meta
 from lunar.sites import Site, load_sites
@@ -34,6 +36,8 @@ from lunar.sites import Site, load_sites
 @asynccontextmanager
 async def lifespan(_app):
     kernels.load()  # cargar SPICE una sola vez al arrancar
+    # Precargar el DEM (~4 s) en segundo plano: la primera coordenada personalizada ya no paga esa espera
+    threading.Thread(target=auto_dems, name="precarga-dem", daemon=True).start()
     yield
 
 
