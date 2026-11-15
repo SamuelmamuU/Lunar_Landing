@@ -17,7 +17,10 @@ interface Options<T> {
   count: number;
   /** Muestra actual. */
   index: number;
-  /** true detiene la reproduccion (p. ej. mientras carga otro escenario). */
+  /**
+   * true mientras carga otro escenario: no se avanza. Si se pide play en ese momento, arranca solo en cuanto
+   * llegan los datos nuevos (antes el clic se perdia y habia que darle otra vez).
+   */
   paused: boolean;
   /** Se llama con cada muestra nueva. */
   onStep: (index: number) => void;
@@ -29,7 +32,16 @@ interface Options<T> {
  */
 export function usePlayback<T>({ session, count, index, paused, onStep }: Options<T>) {
   const [playingSession, setPlayingSession] = useState<T | null>(null);
+  /** Play pedido mientras cargaba: espera a los datos nuevos. */
+  const [startWhenReady, setStartWhenReady] = useState(false);
   const playing = playingSession !== null && playingSession === session && !paused && count > 1;
+
+  // Ya cargo: el play pedido arranca con estos datos (o se descarta si la carga fallo). Ajustar estado durante
+  // el render es el patron de React para reaccionar a un cambio de props sin un efecto extra.
+  if (startWhenReady && !paused) {
+    setStartWhenReady(false);
+    if (session !== null) setPlayingSession(session);
+  }
 
   // El bucle lee siempre lo ultimo sin reiniciarse en cada paso.
   const indexRef = useRef(index);
@@ -84,9 +96,19 @@ export function usePlayback<T>({ session, count, index, paused, onStep }: Option
     };
   }, [playing, count]);
 
+  const stop = () => {
+    setPlayingSession(null);
+    setStartWhenReady(false);
+  };
+
   return {
-    playing,
-    toggle: () => setPlayingSession(playing ? null : session),
-    pause: () => setPlayingSession(null),
+    /** true tambien si el play esta pedido y espera datos: el boton muestra "Pausar" desde el clic. */
+    playing: playing || startWhenReady,
+    toggle: () => {
+      if (playing || startWhenReady) stop();
+      else if (paused) setStartWhenReady(true);
+      else setPlayingSession(session);
+    },
+    pause: stop,
   };
 }
