@@ -42,7 +42,7 @@ backend/
     horizon.py      Máscaras de horizonte (esfera lisa o DEM de LOLA) y su caché
     analysis.py     Serie de tiempo, eventos, métricas, reglas de candidato
     evaluate.py     Rango de fechas  -> /api/evaluate
-    mission.py      Fecha fija + duración -> /api/mission
+    mission.py      Aterrizaje + salida de la Luna -> /api/mission
     report.py       Armado de los JSON de salida
     sites.py        Catálogo
     kernels.py      Carga de kernels SPICE

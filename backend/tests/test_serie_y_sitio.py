@@ -36,14 +36,14 @@ def test_earth_frac_lado_oculto_siempre_cero(client):
 
 def test_earth_frac_en_mission(client):
     d = client.post("/api/mission", json={"site_id": IM2["id"], "landing": "2025-03-06T17:29:00Z",
-                                          "duration_days": 2, "include_series": True}).json()
+                                          "departure": "2025-03-08T17:29:00Z", "include_series": True}).json()
     sr = d["series"]
     assert len(sr["earth_frac"]) == sr["count"]
 
 
 @pytest.mark.parametrize("endpoint,extra", [
     ("/api/evaluate", {"start": "2025-03-06T17:29:00Z", "end": "2025-03-07T17:29:00Z", "step_min": 360}),
-    ("/api/mission", {"landing": "2025-03-06T17:29:00Z", "duration_days": 1}),
+    ("/api/mission", {"landing": "2025-03-06T17:29:00Z", "departure": "2025-03-07T17:29:00Z"}),
 ])
 def test_site_id_gana_sobre_xy(client, endpoint, extra):
     """Con site_id y x/y distintos se usa el sitio del catálogo y su relieve precalculado."""

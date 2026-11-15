@@ -162,7 +162,7 @@ def test_forma_sites(client):
 
 def test_forma_mission(client):
     r = client.post("/api/mission", json={"site_id": "mons-mouton-im2", "landing": "2025-03-06T17:29:00Z",
-                                          "duration_days": 3})
+                                          "departure": "2025-03-09T17:29:00Z"})
     assert r.status_code == 200, r.text
     d = r.json()
     _tiene(d, ["result", "at_landing", "during_mission"], "mission")

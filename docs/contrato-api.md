@@ -140,15 +140,14 @@ Notas:
   "battery_hours": 12, "max_comm_gap_hours": 24 }
 ```
 
-- `landing`: fecha y hora de aterrizaje. Fin de la misión: **uno de los dos** (si llegan ambos o ninguno → 422):
-  - `departure`: fecha y hora en que la misión sale de la Luna (mismos formatos que `start`/`end`).
-  - `duration_days`: duración en días, admite decimales (`9.48`).
-- Con `departure`, la duración se calcula sola y `input.duration_days` la devuelve; `input.end_utc` es la salida.
-  Debe ser posterior a `landing` y como máximo 365 días después.
+- Obligatorios: `landing` (fecha y hora de aterrizaje) y `departure` (fecha y hora en que la misión sale de la
+  Luna), con los mismos formatos que `start`/`end`. **No hay campo de duración**: se calcula sola
+  (`departure − landing`) y se devuelve en `input.duration_days`; `input.end_utc` es la salida.
+- `departure` debe ser posterior a `landing` y como máximo 365 días después (si no → 422).
 - La ventana de la misión no pasa de la salida (misma regla de muestreo que `/api/evaluate`).
 
-Devuelve `result` (`label`, `reasons`, `checks`, `alternatives.before/after` con fechas cercanas que sí cumplen,
-`max_feasible_duration_days`), `at_landing` (igual que `at_start`) y `during_mission` (porcentajes, noche más larga,
+Devuelve `result` (`label`, `reasons`, `checks`, `alternatives.before/after` con fechas cercanas que sí cumplen:
+`landing_utc` y `departure_utc`, manteniendo la misma duración; `max_feasible_duration_days`), `at_landing` (igual que `at_start`) y `during_mission` (porcentajes, noche más larga,
 hueco de comunicación más largo). Ejemplo completo: `docs/ejemplos/mission-im2-10dias.json`.
 Sirve para "se retrasó el lanzamiento: ¿qué fecha cercana sí funciona?".
 
