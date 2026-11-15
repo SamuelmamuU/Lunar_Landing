@@ -1,13 +1,25 @@
 import { useAppStore } from '../../app/store';
-import { dateTimeInputToIso, formatUtcDate, isoToDateTimeInput, sameMinute } from '../../shared/lib/dates';
+import { addDays, dateTimeInputToIso, formatUtcDate, isoToDateTimeInput, sameMinute } from '../../shared/lib/dates';
 import { formatDays } from '../../shared/lib/format';
-import { durationDaysBetween, scenarioEnd, validateEnd, validateStart } from '../../shared/lib/scenario';
+import {
+  COVERAGE_END_INPUT,
+  COVERAGE_START_INPUT,
+  MAX_DURATION_DAYS,
+  durationDaysBetween,
+  scenarioEnd,
+  validateEnd,
+  validateStart,
+} from '../../shared/lib/scenario';
 import { Button } from '../../shared/ui/Button';
 import { TextField } from '../../shared/ui/TextField';
 import { useSyncedDraft } from './useSyncedDraft';
 
 /** Un dia lunar dura ~29.5 dias terrestres: desde ahi la ventana cubre un ciclo completo de luz. */
 const LUNAR_DAY_DAYS = 29.5;
+
+const addMinutes = (iso: string, minutes: number) => addDays(iso, minutes / 1440);
+/** El menor de dos valores de datetime-local (mismo formato: se comparan como texto). */
+const minInput = (a: string, b: string) => (a < b ? a : b);
 
 /**
  * Slice 2: fechas del escenario activo, inicio y fin. Controles arriba y ayudas abajo.
@@ -25,13 +37,13 @@ export function ScenarioForm() {
 
   if (!scenario) return null;
 
-  const startError = validateStart(startDraft);
+  const startError = validateStart(startDraft, scenario.durationDays);
   const endError = validateEnd(endDraft, scenario.start);
   const { landedAt } = scenario.site;
 
   function handleStartChange(raw: string) {
     setStartDraft(raw);
-    if (!validateStart(raw)) updateScenario({ start: dateTimeInputToIso(raw)! });
+    if (scenario && !validateStart(raw, scenario.durationDays)) updateScenario({ start: dateTimeInputToIso(raw)! });
   }
 
   function handleEndChange(raw: string) {
@@ -48,6 +60,9 @@ export function ScenarioForm() {
           type="datetime-local"
           label="Inicio"
           hint="UTC"
+          // El calendario solo ofrece lo que cubren los datos, dejando lugar para la duracion actual.
+          min={COVERAGE_START_INPUT}
+          max={isoToDateTimeInput(addDays(`${COVERAGE_END_INPUT}:00Z`, -scenario.durationDays))}
           value={startDraft}
           onChange={handleStartChange}
           error={startError}
@@ -68,6 +83,10 @@ export function ScenarioForm() {
           type="datetime-local"
           label="Fin"
           hint="UTC"
+          // El calendario solo ofrece fechas validas: de 1 h despues del inicio hasta el maximo. Escribiendo a mano
+          // se puede salir del rango; para eso esta validateEnd.
+          min={isoToDateTimeInput(addMinutes(scenario.start, 60))}
+          max={minInput(isoToDateTimeInput(addDays(scenario.start, MAX_DURATION_DAYS)), COVERAGE_END_INPUT)}
           value={endDraft}
           onChange={handleEndChange}
           error={endError}

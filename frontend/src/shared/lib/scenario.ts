@@ -12,16 +12,32 @@ export const MAX_DURATION_DAYS = 60;
 const MIN_DURATION_MINUTES = 60;
 const MINUTES_PER_DAY = 1440;
 
+/**
+ * Fechas que cubren los datos de orbitas de backend. La orientacion de la Luna (moon_pa_de421) termina a fines de
+ * 2050: medido contra backend, el ultimo fin que acepta es el 28 dic 2050 23:59; despues responde 422 con
+ * "SPICE(FRAMEDATANOTFOUND)", que nadie entiende. Si backend cambia a DE440, se puede ampliar.
+ */
 const MIN_YEAR = 1950;
-const MAX_YEAR = 2100;
+const MAX_YEAR = 2050;
+/** Primer y ultimo instante que se pueden pedir (valor de datetime-local). */
+export const COVERAGE_START_INPUT = `${MIN_YEAR}-01-01T00:00`;
+export const COVERAGE_END_INPUT = `${MAX_YEAR}-12-28T23:59`;
+const COVERAGE_END_MS = Date.parse(`${COVERAGE_END_INPUT}:00Z`);
+const COVERAGE_MESSAGE = `Usa una fecha entre ${MIN_YEAR} y el 28 dic ${MAX_YEAR}: es lo que cubren los datos de órbitas.`;
 
-/** Mensaje de error para el inicio (valor de datetime-local), o null si es valido. */
-export function validateStart(raw: string): string | null {
+/**
+ * Mensaje de error para el inicio (valor de datetime-local), o null si es valido. Con la duracion del escenario
+ * se revisa tambien que el fin (que se recorre con el inicio) no se salga de los datos.
+ */
+export function validateStart(raw: string, durationDays = 0): string | null {
   if (raw.trim() === '') return 'Elige una fecha de inicio.';
   const iso = dateTimeInputToIso(raw);
-  if (iso === null) return 'La fecha no es valida.';
+  if (iso === null) return 'La fecha no es válida.';
   const year = new Date(iso).getUTCFullYear();
-  if (year < MIN_YEAR || year > MAX_YEAR) return `Usa una fecha entre ${MIN_YEAR} y ${MAX_YEAR}.`;
+  if (year < MIN_YEAR || year > MAX_YEAR) return COVERAGE_MESSAGE;
+  if (Date.parse(addDays(iso, durationDays)) > COVERAGE_END_MS) {
+    return `Con esta duración el fin pasaría del 28 dic ${MAX_YEAR}: usa un inicio anterior o acorta la ventana.`;
+  }
   return null;
 }
 
@@ -37,6 +53,7 @@ export function validateEnd(raw: string, startIso: string): string | null {
   if (minutes <= 0) return 'El fin debe ser después del inicio.';
   if (minutes < MIN_DURATION_MINUTES) return 'La ventana debe durar al menos 1 hora.';
   if (minutes > MAX_DURATION_DAYS * MINUTES_PER_DAY) return `La ventana puede durar hasta ${MAX_DURATION_DAYS} días.`;
+  if (Date.parse(iso) > COVERAGE_END_MS) return COVERAGE_MESSAGE;
   return null;
 }
 
