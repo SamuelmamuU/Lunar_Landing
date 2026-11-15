@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 /** Segundos que tarda en recorrerse la ventana completa, dure lo que dure. */
 const PLAY_SECONDS = 20;
@@ -34,10 +34,19 @@ export function usePlayback<T>({ session, count, index, paused, onStep }: Option
   // El bucle lee siempre lo ultimo sin reiniciarse en cada paso.
   const indexRef = useRef(index);
   const onStepRef = useRef(onStep);
-  useEffect(() => {
+  /** Ultimo paso que dio el bucle; null = no esta reproduciendo. */
+  const emittedRef = useRef<number | null>(null);
+  useLayoutEffect(() => {
     indexRef.current = index;
     onStepRef.current = onStep;
   });
+
+  // Si el instante cambia y no fue el bucle (p. ej. clic en el recorrido del panorama), se respeta y se
+  // detiene. Se mira al confirmar el render y no en el siguiente cuadro: si el render tarda, el bucle no debe
+  // confundir su propio paso con un cambio de fuera.
+  useLayoutEffect(() => {
+    if (emittedRef.current !== null && index !== emittedRef.current) setPlayingSession(null);
+  }, [index]);
 
   useEffect(() => {
     if (!playing) return;
@@ -47,6 +56,7 @@ export function usePlayback<T>({ session, count, index, paused, onStep }: Option
     // La posicion sale del reloj, no de contar cuadros: en una maquina lenta se ve a saltos, pero el
     // recorrido dura lo mismo.
     const startedAt = performance.now();
+    emittedRef.current = indexRef.current;
     let frame = 0;
 
     const tick = (now: number) => {
@@ -56,7 +66,10 @@ export function usePlayback<T>({ session, count, index, paused, onStep }: Option
         : Math.floor((elapsed / 1000) * (last / PLAY_SECONDS));
 
       const next = Math.min(last, from + advanced);
-      if (next !== indexRef.current) onStepRef.current(next);
+      if (next !== emittedRef.current) {
+        emittedRef.current = next;
+        onStepRef.current(next);
+      }
       if (next >= last) {
         setPlayingSession(null);
         return;
@@ -65,7 +78,10 @@ export function usePlayback<T>({ session, count, index, paused, onStep }: Option
     };
 
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      emittedRef.current = null;
+    };
   }, [playing, count]);
 
   return {
