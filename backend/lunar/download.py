@@ -34,17 +34,22 @@ def download(url: str, dest: Path) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
     if dest.exists():
         return dest
+    # Se escribe en .part y se renombra al terminar: una descarga cortada no queda como archivo "completo"
+    part = dest.with_name(dest.name + ".part")
     with requests.get(url, stream=True, timeout=120) as r:
         r.raise_for_status()
         total = int(r.headers.get("content-length", 0))
         done = 0
-        with open(dest, "wb") as f:
+        with open(part, "wb") as f:
             for chunk in r.iter_content(1 << 20):
                 f.write(chunk)
                 done += len(chunk)
                 if total:
                     print(f"\r  {dest.name}: {done / 1e6:.0f}/{total / 1e6:.0f} MB", end="", flush=True)
     print()
+    if total and done != total:
+        raise IOError(f"{dest.name}: descarga incompleta ({done} de {total} bytes)")
+    part.replace(dest)
     return dest
 
 
