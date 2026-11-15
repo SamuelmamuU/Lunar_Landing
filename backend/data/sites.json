@@ -1,0 +1,152 @@
+[
+  {
+    "id": "connecting-ridge",
+    "name": "Connecting Ridge (Shackleton–de Gerlache)",
+    "lat": -89.4667,
+    "lon": -136.6667,
+    "category": "Polo sur · candidato Artemis",
+    "verified": true,
+    "source": "https://searchworks.jioinstitute.edu.in/articles/asx__79186103",
+    "note": "89°28'S, 136°40'W según estudio ESA de sitio de aterrizaje."
+  },
+  {
+    "id": "south-pole-rim",
+    "name": "Polo sur (borde de Shackleton)",
+    "lat": -89.98,
+    "lon": 0.0,
+    "category": "Polo sur",
+    "verified": true,
+    "source": "https://www.lroc.asu.edu/images/1276",
+    "note": "El polo (90°S) cae en el borde de Shackleton. Se usa 89.98°S para evitar la singularidad del norte local."
+  },
+  {
+    "id": "mons-mouton-im2",
+    "name": "IM-2 Athena (Mons Mouton)",
+    "lat": -84.7906,
+    "lon": 29.1957,
+    "category": "CLPS",
+    "verified": true,
+    "source": "https://en.wikipedia.org/wiki/IM-2",
+    "note": "Punto de aterrizaje real del 6 de marzo de 2025."
+  },
+  {
+    "id": "mons-mouton-summit",
+    "name": "Mons Mouton (cima)",
+    "lat": -84.6,
+    "lon": 31.0,
+    "category": "Polo sur · candidato Artemis",
+    "verified": true,
+    "source": "https://planetarynames.wr.usgs.gov/",
+    "note": "Coordenada del nomenclátor IAU/USGS (84.6°S, 31.0°E)."
+  },
+  {
+    "id": "malapert-a-im1",
+    "name": "IM-1 Odysseus (Malapert A)",
+    "lat": -80.13,
+    "lon": 1.44,
+    "category": "CLPS",
+    "verified": true,
+    "source": "https://www.nasa.gov/?p=620655",
+    "note": "Punto real de aterrizaje de Odysseus (LRO), 22 feb 2024."
+  },
+  {
+    "id": "chandrayaan3",
+    "name": "Chandrayaan-3 (Statio Shiv Shakti)",
+    "lat": -69.373,
+    "lon": 32.319,
+    "category": "ISRO",
+    "verified": true,
+    "source": "https://planetarynames.wr.usgs.gov/Feature/16272",
+    "note": "IAU: 69.37°S, 32.32°E."
+  },
+  {
+    "id": "change6",
+    "name": "Chang'e-6 (cuenca Apolo, lado oculto)",
+    "lat": -41.6385,
+    "lon": -153.9852,
+    "category": "CNSA",
+    "verified": true,
+    "source": "https://lroc.im-ldi.com/images/1374",
+    "note": "LROC: 41.6385°S, 206.0148°E (±30 m). Lado oculto: la Tierra nunca es visible."
+  },
+  {
+    "id": "slim",
+    "name": "SLIM (cráter Shioli)",
+    "lat": -13.316,
+    "lon": 25.251,
+    "category": "JAXA",
+    "verified": true,
+    "source": "https://lroc.im-ldi.com/images/1358",
+    "note": "LROC: 13.3160°S, 25.2510°E."
+  },
+  {
+    "id": "blue-ghost-1",
+    "name": "Blue Ghost M1 (Mare Crisium)",
+    "lat": 18.56,
+    "lon": 61.81,
+    "category": "CLPS",
+    "verified": true,
+    "source": "https://lroc.im-ldi.com/images/1400",
+    "note": "18.56°N, 61.81°E, cerca de Mons Latreille."
+  },
+  {
+    "id": "apollo11",
+    "name": "Apollo 11 (Mar de la Tranquilidad)",
+    "lat": 0.67416,
+    "lon": 23.47314,
+    "category": "Apollo",
+    "verified": true,
+    "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+    "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+  },
+  {
+    "id": "apollo17",
+    "name": "Apollo 17 (Taurus-Littrow)",
+    "lat": 20.1911,
+    "lon": 30.7723,
+    "category": "Apollo",
+    "verified": true,
+    "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+    "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+  },
+  {
+    "id": "apollo12",
+    "name": "Apollo 12 (Oceanus Procellarum)",
+    "lat": -3.0128,
+    "lon": -23.4219,
+    "category": "Apollo",
+    "verified": true,
+    "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+    "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+  },
+  {
+    "id": "apollo14",
+    "name": "Apollo 14 (Fra Mauro)",
+    "lat": -3.64589,
+    "lon": -17.47194,
+    "category": "Apollo",
+    "verified": true,
+    "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+    "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+  },
+  {
+    "id": "apollo15",
+    "name": "Apollo 15 (Hadley-Apennine)",
+    "lat": 26.13239,
+    "lon": 3.6333,
+    "category": "Apollo",
+    "verified": true,
+    "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+    "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+  },
+  {
+    "id": "apollo16",
+    "name": "Apollo 16 (Descartes)",
+    "lat": -8.9734,
+    "lon": 15.5011,
+    "category": "Apollo",
+    "verified": true,
+    "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+    "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+  }
+]

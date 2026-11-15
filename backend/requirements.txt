@@ -1,0 +1,14 @@
+# Núcleo (obligatorio)
+spiceypy>=6.0
+numpy>=1.26
+# Horizontes con DEM y descargas (opcional, para los comandos horizon y download)
+rasterio>=1.3
+pyproj>=3.6
+scipy>=1.11
+requests>=2.31
+# API
+fastapi>=0.110
+uvicorn>=0.29
+# Pruebas
+httpx>=0.27
+pytest>=8
