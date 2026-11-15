@@ -188,6 +188,7 @@ app  ->  features  ->  shared
   color de las acciones vive solo en `Button.tsx`. Unica excepcion: items seleccionables de una lista
   (como `SiteOption`), que son un `<button>` con `aria-pressed` y su propio estilo.
 - **Iconos:** un componente por icono en `shared/ui/icons/`. Nada de `<svg>` pegado dentro de un componente.
+- **Scroll:** toda zona con `overflow-y-auto` lleva tambien `scrollbar-subtle` (utilidad definida en `index.css`).
 - **Animaciones** (`tailwindcss-animated`): siempre con `motion-reduce:animate-none` y duraciones cortas
   (`animate-duration-300` a `500`). Solo en entradas y como respuesta a acciones, no decorativas en loop.
 - Paleta: superficies `slate`, acento `blue-600` (marca del equipo), texto `slate-900` / `slate-500`.

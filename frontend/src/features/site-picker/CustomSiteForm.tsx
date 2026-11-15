@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useAppStore } from '../../app/store';
-import { formatLat, formatLon, parseCoordinate, validateLat, validateLon } from '../../shared/lib/coords';
+import { parseCoordinate, validateLat, validateLon } from '../../shared/lib/coords';
 import { Button } from '../../shared/ui/Button';
 import { TextField } from '../../shared/ui/TextField';
 
@@ -23,12 +23,11 @@ export function CustomSiteForm({ onDone }: Props) {
     e.preventDefault();
     setTouched({ lat: true, lon: true });
     if (latError || lonError) return;
-    const latValue = parseCoordinate(lat)!;
-    const lonValue = parseCoordinate(lon)!;
     addCustomSite({
-      name: name.trim() || `Punto ${formatLat(latValue)}, ${formatLon(lonValue)}`,
-      lat: latValue,
-      lon: lonValue,
+      // Sin nombre: generico. Las coordenadas ya se muestran debajo del nombre en la lista y el encabezado.
+      name: name.trim() || 'Punto personalizado',
+      lat: parseCoordinate(lat)!,
+      lon: parseCoordinate(lon)!,
     });
     onDone();
   }

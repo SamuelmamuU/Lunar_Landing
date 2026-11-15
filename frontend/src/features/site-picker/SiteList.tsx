@@ -38,7 +38,7 @@ export function SiteList({ state, groups, query, activeSiteId, onSelect }: Props
   const startRows = groupStartRows(groups);
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+    <div className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto pr-1">
       {state.status === 'loading' && <SiteListSkeleton />}
 
       {state.status === 'error' && (

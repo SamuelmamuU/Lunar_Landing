@@ -62,3 +62,16 @@ export const REGION_LABEL: Record<LunarRegion, string> = {
   'far-side': 'Lado oculto',
   'near-side': 'Lado visible',
 };
+
+/** Que significa la region para Sol y Tierra, en lenguaje simple (para no expertos). */
+export const REGION_HINT: Record<LunarRegion, string> = {
+  'south-pole': 'el Sol da vueltas rozando el horizonte.',
+  'far-side': 'la Tierra nunca se ve desde aqui.',
+  'near-side': 'la Tierra siempre esta en el cielo; el dia y la noche duran ~14 dias cada uno.',
+};
+
+/** "Polo sur: el Sol da vueltas rozando el horizonte." */
+export function regionSummary(lat: number, lon: number): string {
+  const region = lunarRegion(lat, lon);
+  return `${REGION_LABEL[region]}: ${REGION_HINT[region]}`;
+}
