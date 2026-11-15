@@ -15,7 +15,7 @@ export function ScenarioHeader() {
   return (
     <section
       aria-label="Escenario"
-      className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4 border-b border-slate-200 pb-4"
+      className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4 border-b border-slate-200 pb-4 "
     >
       <ActiveScenarioSummary />
       <ScenarioForm />
