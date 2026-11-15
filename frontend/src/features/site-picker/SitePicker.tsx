@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useAppStore } from '../../app/store';
 import type { LandingSite } from '../../shared/types/lunar';
 import { Button } from '../../shared/ui/Button';
+import { ThemeToggle } from '../../shared/ui/ThemeToggle';
 import { AddIcon } from '../../shared/ui/icons/AddIcon';
 import { SidebarCollapseIcon } from '../../shared/ui/icons/SidebarCollapseIcon';
 import { CustomSiteForm } from './CustomSiteForm';
@@ -51,10 +52,11 @@ export function SitePicker() {
           {!showCustomForm && (
             <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="Nuevo punto por coordenadas">
               <AddIcon />
-              Nuevo punto
+              Nuevo
             </Button>
           )}
-          {/* Solo el icono, para que quepa junto a "Nuevo punto". */}
+          {/* Solo iconos, para que quepan junto a "Nuevo punto". */}
+          <ThemeToggle />
           <Button
             ref={collapseRef}
             variant="ghost"

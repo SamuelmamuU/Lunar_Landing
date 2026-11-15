@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Button } from '../../shared/ui/Button';
 import { SidebarExpandIcon } from '../../shared/ui/icons/SidebarExpandIcon';
+import { ThemeToggle } from '../../shared/ui/ThemeToggle';
 import { useAppStore } from '../store';
 
 interface Props {
@@ -9,8 +10,8 @@ interface Props {
 
 /**
  * Panel lateral. En pantallas grandes es una columna fija de 24rem con scroll propio.
- * Contraido (el boton esta en el contenido, junto a "Nuevo punto") queda un riel angosto con solo el boton para
- * expandir. El contenido se oculta pero no se desmonta: la busqueda y el catalogo cargado se conservan.
+ * Contraido (el boton esta en el contenido, junto a "Nuevo punto") queda un riel angosto con el boton para
+ * expandir y el de modo claro / oscuro. El contenido se oculta pero no se desmonta: la busqueda y el catalogo cargado se conservan.
  */
 export function Sidebar({ children }: Props) {
   const collapsed = useAppStore((s) => s.sidebarCollapsed);
@@ -30,18 +31,22 @@ export function Sidebar({ children }: Props) {
       }`}
     >
       {collapsed && (
-        <Button
-          ref={expandRef}
-          variant="ghost"
-          size="icon"
-          onClick={() => setSidebarCollapsed(false)}
-          aria-label="Expandir barra lateral"
-          aria-controls={contentId}
-          aria-expanded={false}
-          title="Expandir barra lateral"
-        >
-          <SidebarExpandIcon />
-        </Button>
+        // En el riel (lg) van uno debajo del otro; en movil, en fila.
+        <div className="flex gap-1 lg:flex-col">
+          <Button
+            ref={expandRef}
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarCollapsed(false)}
+            aria-label="Expandir barra lateral"
+            aria-controls={contentId}
+            aria-expanded={false}
+            title="Expandir barra lateral"
+          >
+            <SidebarExpandIcon />
+          </Button>
+          <ThemeToggle />
+        </div>
       )}
       <div id={contentId} hidden={collapsed} className="flex min-h-0 flex-1 flex-col gap-6">
         {children}
