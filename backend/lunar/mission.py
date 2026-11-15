@@ -46,6 +46,7 @@ def _first_false(flags: np.ndarray) -> int | None:
     return int(idx[0]) if len(idx) else None
 
 
+@kernels.serialized
 def mission(site: Site, landing_utc: str, departure_utc: str, rules: MissionRules,
             search_days: float = 15, step_min: float | None = None, include_series: bool = False) -> dict:
     """Aterrizar en `landing_utc` y salir de la Luna en `departure_utc`. La duración se calcula sola."""
