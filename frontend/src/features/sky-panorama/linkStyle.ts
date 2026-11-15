@@ -15,7 +15,7 @@ interface LinkStyle {
 
 export const LINK_STYLE: Record<LinkState, LinkStyle> = {
   clear: { label: 'Despejado', strokeClass: 'stroke-green-500' },
-  marginal: { label: 'Por poco (menos de 0.5°)', strokeClass: 'stroke-amber-400', dashArray: '6 4' },
+  marginal: { label: 'Visible por poco (sin margen)', strokeClass: 'stroke-amber-400', dashArray: '6 4' },
   blocked: { label: 'Tapado por el terreno', strokeClass: 'stroke-red-500', dashArray: '1.5 5' },
 };
 

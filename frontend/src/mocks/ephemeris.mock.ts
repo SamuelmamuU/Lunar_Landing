@@ -166,6 +166,8 @@ function bodyPosition(
     horizonElevation: round(h),
     visible: pos.elevation > h,
     visibleFraction: round(visibleFraction),
+    // Aproximacion sintetica de "despejado": el borde del disco 0.5 grados sobre el terreno.
+    clear: pos.elevation - h - radiusDeg >= 0.5,
   };
 }
 
