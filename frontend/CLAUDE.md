@@ -44,6 +44,8 @@ Si el contrato cambia, se cambia primero ahi.
 - `start` y `end` de `/api/evaluate` tambien son fechas. Los botones 1/7/14/30 dias solo son una forma comoda de
   elegir `end`: el front manda `end = start + dias` (`scenarioToRequest`), nunca un numero de dias.
 - Sitio del catalogo: se manda solo `site_id`. Sitio personalizado: solo `x` (lon) y `y` (lat). Nunca ambos.
+- **Una peticion a `/api/evaluate` a la vez.** SPICE no es thread-safe: dos calculos simultaneos tumban backend con
+  `SPICE(BADSUBSCRIPT)`. `getEphemeris` las pone en fila (`enqueueEvaluate` en `lunarApi.ts`); no saltarse esa cola.
 
 `EphemerisResponse` (lo que devuelve `getEphemeris`) trae:
 
@@ -143,7 +145,7 @@ src/
 | 3a | Efemerides al store (`ephemeris` + `loadEphemeris`); avisos de `source === 'mock'` y `terrain === false` | Un solo estado compartido | 45 min |
 | 3 | **Panorama del horizonte** (corazon del reto): SVG azimut vs elevacion, silueta del terreno, Sol y Tierra con su tamano, recorrido | Cambiar sitio/fecha mueve todo | 2-3 h |
 | 4 | Veredicto y metricas: CANDIDATO o no con motivos, "se pone en...", tarjetas con `metrics` | Los numeros coinciden con `/docs` de backend | 1-1.5 h |
-| 5 | **Comparador**: 2-4 escenarios lado a lado, mejor valor resaltado; "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo | 2 h |
+| 5 | **Comparador**: 2-4 escenarios lado a lado, mejor valor resaltado; "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo | Hecho |
 | 6 | Linea de tiempo: elevacion Sol/Tierra vs tiempo, bandas de visibilidad, `events`, slider que mueve el panorama; play | Arrastrar el slider anima el panorama | 1.5-2 h |
 | 7 | Extras: fechas alternativas (`/api/mission`), 3D, modo educativo, URL compartible | - | lo que sobre |
 
