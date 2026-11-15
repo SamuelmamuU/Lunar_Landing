@@ -66,6 +66,7 @@ def sky_now(calc: Calc, et: float, s: Settings) -> dict:
     }
 
 
+@kernels.serialized
 def report(site: Site, utc: str, days: float, step_min: float, s: Settings,
            with_series: bool = False, with_events: bool = True) -> dict:
     calc, mask = make_calc(site, s)

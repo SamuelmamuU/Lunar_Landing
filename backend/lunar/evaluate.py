@@ -60,6 +60,7 @@ def _runs(flags: np.ndarray, t_utc: list[str], step_h: float) -> list[dict]:
     return windows
 
 
+@kernels.serialized
 def evaluate(site: Site, start_utc: str, end_utc: str, s: Settings,
              step_min: float | None = None, include_series: bool = False, include_events: bool = True) -> dict:
     kernels.load()
