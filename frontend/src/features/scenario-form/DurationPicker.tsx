@@ -10,7 +10,7 @@ export function DurationPicker({ value, onChange }: Props) {
   return (
     <fieldset>
       <legend className="block text-xs font-medium text-slate-700">Duracion</legend>
-      <div className="mt-1 inline-flex rounded-md border border-slate-200 bg-slate-50 p-0.5">
+      <div className="mt-1 inline-flex rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 p-0.5">
         {DURATION_OPTIONS.map((days) => {
           const active = days === value;
           return (
@@ -21,8 +21,8 @@ export function DurationPicker({ value, onChange }: Props) {
               onClick={() => onChange(days)}
               className={`rounded px-3 py-1 text-sm tabular-nums whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40 ${
                 active
-                  ? 'bg-white text-blue-700 shadow-sm ring-1 ring-blue-600'
-                  : 'text-slate-600 hover:bg-white hover:text-slate-900'
+                  ? 'bg-white text-blue-700 shadow-sm ring-1 ring-blue-600 dark:bg-slate-800 dark:text-blue-400 dark:ring-blue-500'
+                  : 'text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
               }`}
             >
               {days} {days === 1 ? 'dia' : 'dias'}

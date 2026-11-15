@@ -27,10 +27,10 @@ export function TextField({ label, hint, value, onChange, error, className = '',
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={`mt-1 w-full rounded-md border bg-white px-2.5 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus-visible:ring-2 ${
+        className={`mt-1 w-full rounded-md border bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-400 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus-visible:ring-2 ${
           error
             ? 'border-red-600 focus-visible:ring-red-600/40'
-            : 'border-slate-200 focus:border-blue-600 focus-visible:ring-blue-600/40'
+            : 'border-slate-200 dark:border-slate-700 focus:border-blue-600 focus-visible:ring-blue-600/40'
         }`}
       />
       {error && (

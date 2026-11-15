@@ -17,7 +17,7 @@ export function MetricsGrid({ metrics, windowText }: Props) {
   return (
     <section aria-labelledby={titleId} className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id={titleId} className="text-lg font-semibold text-slate-900">
+        <h2 id={titleId} className="text-lg font-semibold text-slate-900 dark:text-slate-400">
           Métricas de la ventana
         </h2>
         <p className="text-sm text-slate-500">{windowText}</p>
@@ -30,7 +30,7 @@ export function MetricsGrid({ metrics, windowText }: Props) {
       </div>
 
       <details className="group">
-        <summary className="w-fit cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40">
+        <summary className="w-fit cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40">
           Más métricas
         </summary>
         <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">

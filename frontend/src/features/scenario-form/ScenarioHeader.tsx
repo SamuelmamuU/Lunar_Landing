@@ -22,7 +22,7 @@ export function ScenarioHeader({ actions }: Props) {
     <section
       aria-label="Escenario"
       // En pantallas grandes, sitio y fechas en una sola fila: las fechas no se encogen y el nombre se recorta.
-      className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4 border-b border-slate-200 pb-4 lg:flex-nowrap"
+      className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4 border-b border-slate-200 dark:border-slate-700 pb-4 lg:flex-nowrap"
     >
       <ActiveScenarioSummary />
       <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-3">
