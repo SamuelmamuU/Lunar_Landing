@@ -2,9 +2,11 @@
 // Un escenario = sitio + ventana de fechas (ver Scenario en shared/types/lunar.ts).
 
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { getEphemeris } from '../services/lunarApi';
 import { scenarioKey, scenarioToRequest } from '../shared/lib/scenario';
 import type { EphemerisResponse, LandingSite, Scenario } from '../shared/types/lunar';
+
 
 export const DEFAULT_DURATION_DAYS = 30;
 export const DEFAULT_STEP_MINUTES = 60;
@@ -81,7 +83,9 @@ interface AppState {
   loadEphemeris: (options?: { force?: boolean }) => Promise<void>;
 }
 
-export const useAppStore = create<AppState>()((set, get) => ({
+export const useAppStore = create<AppState>()(
+  persist(
+    (set, get) => ({
   customSites: [],
   scenarios: [],
   scenarioEphemeris: {},
@@ -192,4 +196,15 @@ export const useAppStore = create<AppState>()((set, get) => ({
       set({ ephemeris: { status: 'error', data: null, error } });
     }
   },
-}));
+    }),
+    {
+      name: 'lunar-landing-storage',
+      storage: createJSONStorage(() => localStorage),
+
+      // Solo guardamos los sitios personalizados.
+      partialize: (state) => ({
+        customSites: state.customSites,
+      }),
+    },
+  ),
+);
