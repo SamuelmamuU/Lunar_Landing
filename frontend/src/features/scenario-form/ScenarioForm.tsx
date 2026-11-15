@@ -54,11 +54,11 @@ export function ScenarioForm() {
   }
 
   return (
-    <div role="group" aria-label="Fechas del escenario" className="flex shrink-0 flex-wrap items-start gap-x-6 gap-y-3">
+    <div role="group" aria-label="Scenario dates" className="flex shrink-0 flex-wrap items-start gap-x-6 gap-y-3">
       <div className="w-56">
         <TextField
           type="datetime-local"
-          label="Inicio"
+          label="Start"
           hint="UTC"
           // El calendario solo ofrece lo que cubren los datos, dejando lugar para la duracion actual.
           min={COVERAGE_START_INPUT}
@@ -70,10 +70,10 @@ export function ScenarioForm() {
         {/* Con fecha de alunizaje: boton para usarla, o confirmacion si ya es el inicio (mismo alto, nada salta). */}
         {landedAt &&
           (sameMinute(landedAt, scenario.start) ? (
-            <p className="mt-1.5 text-xs text-slate-500">Es la fecha de alunizaje</p>
+            <p className="mt-1.5 text-xs text-slate-500">This is the landing date</p>
           ) : (
             <Button variant="link" className="mt-1.5 text-blue-700" onClick={() => updateScenario({ start: landedAt })}>
-              Usar alunizaje ({formatUtcDate(landedAt)})
+              Use landing date ({formatUtcDate(landedAt)})
             </Button>
           ))}
       </div>
@@ -81,7 +81,7 @@ export function ScenarioForm() {
       <div className="w-56">
         <TextField
           type="datetime-local"
-          label="Fin"
+          label="End"
           hint="UTC"
           // El calendario solo ofrece fechas validas: de 1 h despues del inicio hasta el maximo. Escribiendo a mano
           // se puede salir del rango; para eso esta validateEnd.
@@ -94,8 +94,8 @@ export function ScenarioForm() {
         {/* Duracion que resulta (la del escenario aplicado, no la del borrador si es invalido). */}
         {!endError && (
           <p className="mt-1.5 text-xs text-slate-500">
-            Dura {formatDays(scenario.durationDays)}
-            {scenario.durationDays >= LUNAR_DAY_DAYS && ': un día lunar completo'}
+            Lasts {formatDays(scenario.durationDays)}
+            {scenario.durationDays >= LUNAR_DAY_DAYS && ': a full lunar day'}
           </p>
         )}
       </div>

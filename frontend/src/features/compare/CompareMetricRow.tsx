@@ -17,7 +17,7 @@ export function CompareMetricRow({ row, statuses }: Props) {
         <span className="block text-slate-900" title={description}>
           {label}
         </span>
-        <span className="block text-xs text-slate-500">{better === 'higher' ? 'más es mejor' : 'menos es mejor'}</span>
+        <span className="block text-xs text-slate-500">{better === 'higher' ? 'higher is better' : 'lower is better'}</span>
       </th>
       {row.cells.map((cell, index) => (
         <CompareCell key={index} cell={cell} status={statuses[index]} />

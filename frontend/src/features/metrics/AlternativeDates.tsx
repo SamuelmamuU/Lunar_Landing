@@ -29,25 +29,25 @@ export function AlternativeDates({ state, durationDays, disabled, onSearch, onAp
       {data === null && (
         <>
           <Button size="sm" onClick={onSearch} disabled={disabled || state?.status === 'loading'}>
-            {state?.status === 'loading' ? 'Buscando fechas…' : 'Buscar fechas cercanas que sí sirvan'}
+            {state?.status === 'loading' ? 'Searching dates…' : 'Find nearby dates that work'}
           </Button>
           <p className="text-slate-600">
-            Misma duración ({duration}), hasta un mes antes o después: aterrizar con Sol y Tierra despejados, sin
-            noches más largas que la batería ni más de un día sin Tierra.
+            Same duration ({duration}), up to a month earlier or later: land with the Sun and Earth clear, with no
+            night longer than the battery lasts and no more than a day without Earth.
           </p>
         </>
       )}
 
       {state?.status === 'error' && (
         <p role="alert" className="text-red-800">
-          No se pudieron buscar fechas: {state.error}
+          Could not search for dates: {state.error}
         </p>
       )}
 
       <div aria-live="polite">
         {data && options.length > 0 && (
           <>
-            <p className="font-semibold text-slate-800">Con la misma duración ({duration}) sí sirven:</p>
+            <p className="font-semibold text-slate-800">With the same duration ({duration}) these work:</p>
             <ul className="mt-2 space-y-2">
               {options.map((option) => (
                 <AlternativeOption key={option.landing} alternative={option} onApply={onApply} />
@@ -58,13 +58,13 @@ export function AlternativeDates({ state, durationDays, disabled, onSearch, onAp
         {/* Las reglas de mision no son las del veredicto: puede que esta misma fecha si cumpla. */}
         {data?.isCandidate && (
           <p className="text-slate-700">
-            Aterrizando justo al inicio, una misión de {duration} sí cumple las reglas de misión.
+            Landing right at the start, a {duration} mission does meet the mission rules.
           </p>
         )}
         {data && !data.isCandidate && options.length === 0 && (
           <p className="text-slate-700">
-            No hay ninguna fecha a ±{Math.round(data.searchDays)} días en que una misión de {duration} cumpla. Prueba
-            una duración más corta.
+            No date within ±{Math.round(data.searchDays)} days works for a {duration} mission. Try a shorter
+            duration.
           </p>
         )}
       </div>

@@ -256,7 +256,7 @@ app  ->  features  ->  shared
 
 ### Nombres e idioma
 
-- Codigo (variables, funciones, tipos, archivos) en **ingles**. Textos de la UI y comentarios en **espanol**.
+- Codigo (variables, funciones, tipos, archivos) y **textos de la UI en ingles** (la entrega es en ingles). Comentarios en **espanol**.
 - Componentes `PascalCase.tsx`, hooks `useAlgo.ts`, utilidades `camelCase.ts`.
 
 ### Accesibilidad minima

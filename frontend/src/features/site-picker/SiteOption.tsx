@@ -39,8 +39,8 @@ export function SiteOption({ site, active, onSelect, onRemove }: Props) {
           size="icon"
           className="mt-1.5"
           onClick={onRemove}
-          aria-label={`Quitar ${site.name}`}
-          title="Quitar este sitio"
+          aria-label={`Remove ${site.name}`}
+          title="Remove this site"
         >
           <CloseIcon />
         </Button>

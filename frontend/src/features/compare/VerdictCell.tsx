@@ -15,10 +15,10 @@ export function VerdictCell({ state, onRetry }: Props) {
     return (
       <td className="px-3 py-2.5 align-top">
         <p role="alert" className="text-sm text-red-700">
-          No se pudo calcular: {state.error}
+          Could not calculate: {state.error}
         </p>
         <Button variant="link" className="mt-1 text-red-800" onClick={onRetry}>
-          Reintentar
+          Retry
         </Button>
       </td>
     );
@@ -28,7 +28,7 @@ export function VerdictCell({ state, onRetry }: Props) {
     return (
       <td className="px-3 py-2.5 align-top">
         <span className="block h-6 w-28 animate-pulse rounded bg-slate-100 motion-reduce:animate-none" />
-        <span className="sr-only">Calculando…</span>
+        <span className="sr-only">Calculating…</span>
       </td>
     );
   }
@@ -42,7 +42,7 @@ export function VerdictCell({ state, onRetry }: Props) {
           isCandidate ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-800'
         }`}
       >
-        {isCandidate ? 'CANDIDATO' : 'NO CANDIDATO'}
+        {isCandidate ? 'CANDIDATE' : 'NOT A CANDIDATE'}
       </p>
       {reasons.length > 0 && (
         <ul className="mt-1.5 max-w-56 space-y-0.5 text-xs text-slate-600">

@@ -27,7 +27,7 @@ export function CompareCell({ cell, status }: Props) {
         <span className={`tabular-nums ${cell.isBest ? 'font-semibold text-slate-900' : 'text-slate-700'}`}>
           {cell.text}
         </span>
-        {cell.isBest && <span className="rounded bg-slate-900 px-1.5 text-xs font-medium text-white">mejor</span>}
+        {cell.isBest && <span className="rounded bg-slate-900 px-1.5 text-xs font-medium text-white">best</span>}
       </p>
       {cell.barFraction !== null && <MetricBar fraction={cell.barFraction} emphasized={cell.isBest} />}
     </td>

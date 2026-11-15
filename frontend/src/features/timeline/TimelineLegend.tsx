@@ -11,7 +11,7 @@ interface Props {
 export function TimelineLegend({ className = '' }: Props) {
   return (
     <div className={`flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-200 ${className}`}>
-      <ul aria-label="Cuerpos" className="flex items-center gap-x-3">
+      <ul aria-label="Bodies" className="flex items-center gap-x-3">
         {BODY_IDS.map((id) => (
           <li key={id} className="flex items-center gap-1.5">
             <BodySwatch body={id} className="size-4" />
@@ -19,7 +19,7 @@ export function TimelineLegend({ className = '' }: Props) {
           </li>
         ))}
       </ul>
-      <ul aria-label="Visibilidad" className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <ul aria-label="Visibility" className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {BAND_STATES.map((state) => (
           <li key={state} className="flex items-center gap-1.5">
             <BandKey state={state} />

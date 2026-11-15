@@ -6,7 +6,7 @@ interface Props {
 }
 
 const AZIMUTH_TICKS = [0, 45, 90, 135, 180, 225, 270, 315, 360];
-const CARDINALS: Record<number, string> = { 0: 'N', 90: 'E', 180: 'S', 270: 'O', 360: 'N' };
+const CARDINALS: Record<number, string> = { 0: 'N', 90: 'E', 180: 'S', 270: 'W', 360: 'N' };
 
 /** Rejilla y rotulos: azimut abajo (N/E/S/O y grados) y elevacion a la izquierda. */
 export function PanoramaAxes({ scale }: Props) {
@@ -16,7 +16,7 @@ export function PanoramaAxes({ scale }: Props) {
   return (
     <g className="text-[11px] tabular-nums">
       <text x={scale.left} y={scale.top - 10} className="fill-slate-400">
-        Elevación, exagerada ×{scale.exaggeration.toFixed(scale.exaggeration < 10 ? 1 : 0)} para que se note el relieve
+        Elevation, exaggerated ×{scale.exaggeration.toFixed(scale.exaggeration < 10 ? 1 : 0)} so the relief shows
       </text>
 
       {AZIMUTH_TICKS.map((azimuth) => (

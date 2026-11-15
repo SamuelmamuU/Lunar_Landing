@@ -47,13 +47,13 @@ export function SitePicker() {
     <section aria-labelledby={titleId} className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <h2 id={titleId} className="whitespace-nowrap text-lg font-semibold text-slate-900">
-          Escenarios
+          Scenarios
         </h2>
         <div className="flex items-center gap-1">
           {!showCustomForm && (
-            <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="Nuevo punto por coordenadas">
+            <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="New point by coordinates">
               <AddIcon />
-              Nuevo
+              New
             </Button>
           )}
           {/* Solo iconos, para que quepan junto a "Nuevo punto". */}
@@ -63,8 +63,8 @@ export function SitePicker() {
             variant="ghost"
             size="icon"
             onClick={() => setSidebarCollapsed(true)}
-            aria-label="Contraer barra lateral"
-            title="Contraer barra lateral"
+            aria-label="Collapse sidebar"
+            title="Collapse sidebar"
           >
             <SidebarCollapseIcon />
           </Button>

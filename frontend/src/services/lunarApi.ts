@@ -42,7 +42,7 @@ function errorMessage(status: number, body: unknown): string {
       .filter(Boolean)
       .join('. ');
   }
-  return `El servidor respondio con un error (${status}).`;
+  return `The server responded with an error (${status}).`;
 }
 
 async function request<T>(path: string, body?: unknown): Promise<T> {
@@ -54,7 +54,7 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new Error('No se pudo conectar con el servidor de calculos.');
+    throw new Error('Could not connect to the calculation server.');
   }
   const json: unknown = await res.json().catch(() => null);
   if (!res.ok) throw new Error(errorMessage(res.status, json));

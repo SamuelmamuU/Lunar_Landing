@@ -21,16 +21,16 @@ interface Props {
 }
 
 const PHASE_LABEL: Record<DescentState['phase'], string> = {
-  aproximacion: 'Aproximación',
-  frenado: 'Frenado principal',
-  descenso_final: 'Descenso vertical',
-  en_superficie: 'En superficie',
+  aproximacion: 'Approach',
+  frenado: 'Main braking',
+  descenso_final: 'Vertical descent',
+  en_superficie: 'On the surface',
 };
 
 const CAMERA_MODES: { id: SurfaceCameraMode; label: string }[] = [
-  { id: 'first_person', label: 'Cabina 1ª' },
-  { id: 'third_person', label: 'Nave 3ª' },
-  { id: 'descent_cam', label: 'Descenso' },
+  { id: 'first_person', label: 'Cockpit' },
+  { id: 'third_person', label: 'Chase' },
+  { id: 'descent_cam', label: 'Descent' },
 ];
 
 export function LandingHud({
@@ -73,22 +73,22 @@ export function LandingHud({
               )}
             </div>
             <p className="mt-0.5 text-[11px] text-slate-400">
-              {terrain ? 'DEM local 64×64 + horizonte LOLA 360°' : 'Esfera lunar lisa (sin relieve local)'}
-              {siteElevationMeters !== null && ` · Cota sitio ${Math.round(siteElevationMeters)} m`}
-              {verticalScale > 1 && ' · Relieve exagerado 5× (solo inspección)'}
+              {terrain ? 'Local DEM 64×64 + LOLA 360° horizon' : 'Smooth lunar sphere (no local relief)'}
+              {siteElevationMeters !== null && ` · Site elevation ${Math.round(siteElevationMeters)} m`}
+              {verticalScale > 1 && ' · Relief exaggerated 5× (inspection only)'}
             </p>
           </div>
 
           {blockedAny && (
             <div className="rounded-md border border-amber-500/50 bg-amber-950/80 px-2.5 py-1 text-[11px] text-amber-200 backdrop-blur-sm">
-              Oclusión topográfica:{' '}
+              Terrain occlusion:{' '}
               {[
-                current.sun.interference && 'Sol bloqueado por cresta lunar',
-                current.earth.interference && 'Tierra bloqueada por cresta lunar',
+                current.sun.interference && 'Sun blocked by a lunar ridge',
+                current.earth.interference && 'Earth blocked by a lunar ridge',
               ]
                 .filter(Boolean)
                 .join(' · ')}{' '}
-              (anillo muestra dirección real)
+              (ring shows the true direction)
             </div>
           )}
         </div>
@@ -113,9 +113,9 @@ export function LandingHud({
             size="sm"
             className="border border-slate-700/70 bg-slate-950/78 text-xs text-slate-200 hover:bg-slate-800 hover:text-white"
             onClick={onToggleVerticalScale}
-            title="Alternar entre elevacion fisica 1x y exageracion 5x para inspeccionar crateres"
+            title="Toggle between true 1× elevation and 5× exaggeration to inspect craters"
           >
-            {verticalScale === 1 ? 'Escala 1× real' : 'Relieve 5×'}
+            {verticalScale === 1 ? 'True 1× scale' : 'Relief 5×'}
           </Button>
         </div>
       </div>
@@ -123,7 +123,7 @@ export function LandingHud({
       <div className="pointer-events-none absolute inset-x-3 bottom-3 flex flex-wrap items-center justify-between gap-2">
         <div className="pointer-events-auto flex flex-wrap items-center gap-1.5 rounded-md border border-slate-700/70 bg-slate-950/80 px-2.5 py-1.5 backdrop-blur-sm">
           <Button variant="primary" size="sm" className="text-xs" onClick={onToggleDescent}>
-            {isDescending ? 'Pausar descenso' : descentProgress >= 0.995 ? 'Repetir aterrizaje' : 'Simular aterrizaje'}
+            {isDescending ? 'Pause descent' : descentProgress >= 0.995 ? 'Replay landing' : 'Simulate landing'}
           </Button>
           {descentProgress < 0.995 && (
             <Button
@@ -132,7 +132,7 @@ export function LandingHud({
               className="text-xs text-slate-300 hover:bg-slate-800 hover:text-white"
               onClick={onResetDescent}
             >
-              A superficie
+              Skip to surface
             </Button>
           )}
           <input
@@ -140,7 +140,7 @@ export function LandingHud({
             min={0}
             max={1000}
             value={Math.round(descentProgress * 1000)}
-            aria-label="Progreso del descenso hacia el punto de aterrizaje"
+            aria-label="Descent progress toward the landing site"
             className="h-1.5 w-24 cursor-pointer accent-blue-500 sm:w-32"
             onChange={(e) => onSeekDescent(Number(e.target.value) / 1000)}
           />
@@ -155,7 +155,7 @@ export function LandingHud({
             onClick={onFocusSun}
           >
             <span className="inline-block size-2 rounded-full bg-sun" />
-            Enfocar Sol
+            Focus Sun
           </Button>
           <Button
             variant="ghost"
@@ -164,7 +164,7 @@ export function LandingHud({
             onClick={onFocusEarth}
           >
             <span className="inline-block size-2 rounded-full bg-earth" />
-            Enfocar Tierra
+            Focus Earth
           </Button>
         </div>
       </div>

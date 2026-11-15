@@ -129,7 +129,7 @@ export function timeTicks(scale: TimelineScale): TimeTick[] {
   const step = TIME_STEPS_HOURS.find((s) => hours / s <= maxTicks) ?? TIME_STEPS_HOURS[TIME_STEPS_HOURS.length - 1];
   const ticks: TimeTick[] = [];
   for (let offset = 0; offset <= hours + 1e-9; offset += step) {
-    ticks.push({ ms: scale.startMs + offset * HOUR_MS, label: offset === 0 ? 'Inicio' : formatDuration(offset) });
+    ticks.push({ ms: scale.startMs + offset * HOUR_MS, label: offset === 0 ? 'Start' : formatDuration(offset) });
   }
   return ticks;
 }
@@ -137,7 +137,7 @@ export function timeTicks(scale: TimelineScale): TimeTick[] {
 /** "+13 d 4 h desde el inicio" (o "Inicio de la ventana"). */
 export function offsetLabel(time: string, startMs: number): string {
   const hours = (Date.parse(time) - startMs) / HOUR_MS;
-  return hours < 1 / 60 ? 'Inicio de la ventana' : `+${formatDuration(hours)} desde el inicio`;
+  return hours < 1 / 60 ? 'Window start' : `+${formatDuration(hours)} from start`;
 }
 
 const point = (x: number, y: number) => `${x.toFixed(1)},${y.toFixed(1)}`;

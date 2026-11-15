@@ -12,10 +12,10 @@ export function ActiveScenarioSummary() {
   if (!scenario) {
     return (
       <div className="rounded-lg border border-dashed border-slate-400 p-6 text-slate-600">
-        <p className="font-medium text-slate-800">Elige un sitio para empezar.</p>
+        <p className="font-medium text-slate-800">Pick a site to start.</p>
         <p className="mt-1 text-sm">
-          Toma uno del catalogo o escribe coordenadas propias. Despues vas a ver donde estan el Sol y
-          la Tierra respecto al horizonte de ese lugar.
+          Choose one from the catalog or enter your own coordinates. Then you will see where the Sun and the
+          Earth are relative to that place's horizon.
         </p>
       </div>
     );
@@ -24,7 +24,7 @@ export function ActiveScenarioSummary() {
   const { site } = scenario;
 
   return (
-    <section aria-label="Sitio seleccionado" className="min-w-0">
+    <section aria-label="Selected site" className="min-w-0">
       {/* La descripcion queda como tooltip: es contexto para quien la busque. */}
       <h2 className="truncate text-xl font-bold text-blue-600" title={site.description ?? site.name}>
         {site.name}

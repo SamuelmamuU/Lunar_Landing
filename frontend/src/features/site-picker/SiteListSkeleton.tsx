@@ -6,7 +6,7 @@ const GROUPS = [3, 2];
 
 export function SiteListSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Cargando sitios" className="animate-pulse motion-reduce:animate-none">
+    <div aria-busy="true" aria-label="Loading sites" className="animate-pulse motion-reduce:animate-none">
       {GROUPS.map((items, g) => (
         <div key={g} className="mb-4">
           <div className="my-1.5 h-3 w-28 rounded bg-slate-200" />

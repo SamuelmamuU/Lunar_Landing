@@ -13,12 +13,12 @@ export const CATEGORY_ORDER: SiteCategory[] = [
 ];
 
 export const CATEGORY_LABEL: Record<SiteCategory, string> = {
-  custom: 'Tus coordenadas',
-  artemis: 'Regiones Artemis',
-  clps: 'Misiones CLPS',
-  international: 'Misiones internacionales',
+  custom: 'Your coordinates',
+  artemis: 'Artemis regions',
+  clps: 'CLPS missions',
+  international: 'International missions',
   apollo: 'Apollo',
-  reference: 'Referencia',
+  reference: 'Reference',
 };
 
 /** Minusculas y sin acentos, para que "chang" encuentre "Chang'e". */

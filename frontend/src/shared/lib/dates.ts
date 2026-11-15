@@ -2,8 +2,8 @@
 
 const DAY_MS = 86_400_000;
 
-const dateFormatter = new Intl.DateTimeFormat('es-MX', { dateStyle: 'medium', timeZone: 'UTC' });
-const dateTimeFormatter = new Intl.DateTimeFormat('es-MX', {
+const dateFormatter = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeZone: 'UTC' });
+const dateTimeFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
   timeStyle: 'short',
   hourCycle: 'h23',

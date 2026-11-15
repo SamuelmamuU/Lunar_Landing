@@ -9,9 +9,9 @@ import type { BodyPosition } from '../../shared/types/lunar';
 export function visibilityWord(position: BodyPosition): string {
   switch (linkState(position)) {
     case 'blocked':
-      return 'oculto';
+      return 'hidden';
     case 'marginal':
-      return position.visibleFraction < 1 ? 'parcialmente visible' : 'visible por poco';
+      return position.visibleFraction < 1 ? 'partially visible' : 'barely visible';
     case 'clear':
       return 'visible';
   }
@@ -23,10 +23,10 @@ export function visibilityWord(position: BodyPosition): string {
  */
 export function describeMargin(position: BodyPosition): string {
   if (position.visible && position.visibleFraction < 1) {
-    return `asoma el ${Math.round(position.visibleFraction * 100)}% del disco`;
+    return `${Math.round(position.visibleFraction * 100)}% of the disc showing`;
   }
   const margin = clearance(position);
-  return `${formatDegrees(Math.abs(margin))} ${margin >= 0 ? 'sobre' : 'bajo'} el terreno`;
+  return `${formatDegrees(Math.abs(margin))} ${margin >= 0 ? 'above' : 'below'} the terrain`;
 }
 
 /** "1.6° sobre el terreno, visible" (para lectores de pantalla). */
@@ -37,5 +37,5 @@ export function describeVisibility(position: BodyPosition): string {
 /** "elevación 2.5°, azimut 66° (ENE)" */
 export function describePosition(position: BodyPosition): string {
   const azimuth = formatDegrees(position.azimuth, 0);
-  return `elevación ${formatDegrees(position.elevation)}, azimut ${azimuth} (${compassPoint(position.azimuth)})`;
+  return `elevation ${formatDegrees(position.elevation)}, azimuth ${azimuth} (${compassPoint(position.azimuth)})`;
 }

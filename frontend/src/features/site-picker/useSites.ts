@@ -20,7 +20,7 @@ export function useSites() {
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        const message = err instanceof Error ? err.message : 'Error desconocido';
+        const message = err instanceof Error ? err.message : 'Unknown error';
         setState({ status: 'error', message });
       });
     return () => {

@@ -49,18 +49,18 @@ export function Timeline() {
     seek(Math.min(samples.length - 1, after));
   }
 
-  const description = `Elevación del Sol y de la Tierra en la ventana, con ${data.events.length} salidas y puestas. ${BODY_IDS.map(
-    (id) => `${BODIES[id].label} visible el ${Math.round(id === 'sun' ? data.metrics.sunVisiblePct : data.metrics.earthVisiblePct)}% del tiempo`,
+  const description = `Sun and Earth elevation over the window, with ${data.events.length} rises and sets. ${BODY_IDS.map(
+    (id) => `${BODIES[id].label} visible ${Math.round(id === 'sun' ? data.metrics.sunVisiblePct : data.metrics.earthVisiblePct)}% of the time`,
   ).join('. ')}.`;
 
   return (
     // Mientras llega otro escenario se conserva lo anterior, atenuado, igual que el panorama.
     <section
-      aria-label="Línea de tiempo"
+      aria-label="Timeline"
       aria-busy={isLoading}
       className={`space-y-2 transition-opacity ${isLoading ? 'opacity-50' : ''}`}
     >
-      <h2 className="text-sm text-slate-500">Línea de tiempo: arrastra para mover el panorama</h2>
+      <h2 className="text-sm text-slate-500">Timeline: drag to move the panorama</h2>
 
       {/* theme-fixed: oscuro por diseno, como el bento del panorama (ver index.css). */}
       <div className="theme-fixed space-y-3 rounded-lg bg-black p-3">

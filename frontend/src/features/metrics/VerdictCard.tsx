@@ -23,9 +23,9 @@ export function VerdictCard({ verdict, children }: Props) {
   return (
     <section aria-labelledby={titleId}>
       <h2 id={titleId} className={`text-2xl font-bold ${isCandidate ? 'text-green-800' : 'text-red-800'}`}>
-        {isCandidate ? 'CANDIDATO' : 'NO CANDIDATO'}
+        {isCandidate ? 'CANDIDATE' : 'NOT A CANDIDATE'}
       </h2>
-      <p className="text-sm text-slate-600">para aterrizar en esta ventana</p>
+      <p className="text-sm text-slate-600">for landing in this window</p>
 
       {reasons.length > 0 ? (
         <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-slate-700">
@@ -36,15 +36,15 @@ export function VerdictCard({ verdict, children }: Props) {
       ) : (
         isCandidate && (
           <p className="mt-3 text-sm text-slate-700">
-            Hay {windowCount === 1 ? 'una ventana' : `${windowCount} ventanas`} con Sol y Tierra despejados y horas por
-            delante.
+            {windowCount === 1 ? 'There is one window' : `There are ${windowCount} windows`} with the Sun and Earth
+            clear and hours ahead.
           </p>
         )
       )}
 
       {bestWindow && (
         <div className="mt-3 border-t border-slate-200/70 pt-3 text-sm">
-          <p className="font-semibold text-slate-800">Mejor ventana: {formatDuration(bestWindow.durationHours)}</p>
+          <p className="font-semibold text-slate-800">Best window: {formatDuration(bestWindow.durationHours)}</p>
           <p className="mt-0.5 text-slate-700">
             {formatUtcDateTime(bestWindow.start)} – {formatUtcDateTime(bestWindow.end)} UTC
           </p>

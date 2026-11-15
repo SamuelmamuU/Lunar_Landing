@@ -15,7 +15,7 @@ const CARDINALS = [
   { azimuth: 0, label: 'N' },
   { azimuth: 90, label: 'E' },
   { azimuth: 180, label: 'S' },
-  { azimuth: 270, label: 'O' },
+  { azimuth: 270, label: 'W' },
 ];
 
 /**

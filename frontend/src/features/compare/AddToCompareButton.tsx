@@ -17,7 +17,7 @@ export function AddToCompareButton() {
 
   if (!hasScenario) return null;
 
-  const label = isAdded ? 'Ya está en el comparador' : isFull ? 'Comparador lleno' : 'Agregar al comparador';
+  const label = isAdded ? 'Already in comparison' : isFull ? 'Comparison full' : 'Add to comparison';
 
   return (
     <Button size="sm" onClick={addScenario} disabled={isAdded || isFull}>

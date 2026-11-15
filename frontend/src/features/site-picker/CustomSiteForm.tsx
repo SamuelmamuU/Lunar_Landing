@@ -25,7 +25,7 @@ export function CustomSiteForm({ onDone }: Props) {
     if (latError || lonError) return;
     addCustomSite({
       // Sin nombre: generico. Las coordenadas ya se muestran debajo del nombre en la lista y el encabezado.
-      name: name.trim() || 'Punto personalizado',
+      name: name.trim() || 'Custom point',
       lat: parseCoordinate(lat)!,
       lon: parseCoordinate(lon)!,
     });
@@ -34,12 +34,12 @@ export function CustomSiteForm({ onDone }: Props) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-lg border border-blue-600 bg-blue-50 p-3">
-      <TextField label="Nombre" hint="opcional" value={name} onChange={setName} placeholder="Mi sitio candidato" />
+      <TextField label="Name" hint="optional" value={name} onChange={setName} placeholder="My candidate site" />
 
       <div className="grid grid-cols-2 gap-3">
         <TextField
-          label="Latitud"
-          hint="-90 a 90"
+          label="Latitude"
+          hint="-90 to 90"
           value={lat}
           onChange={setLat}
           onBlur={() => setTouched((t) => ({ ...t, lat: true }))}
@@ -49,8 +49,8 @@ export function CustomSiteForm({ onDone }: Props) {
           autoComplete="off"
         />
         <TextField
-          label="Longitud"
-          hint="-180 a 180"
+          label="Longitude"
+          hint="-180 to 180"
           value={lon}
           onChange={setLon}
           onBlur={() => setTouched((t) => ({ ...t, lon: true }))}
@@ -61,13 +61,13 @@ export function CustomSiteForm({ onDone }: Props) {
         />
       </div>
 
-      <p className="text-xs text-slate-500">Sur y oeste son negativos.</p>
+      <p className="text-xs text-slate-500">South and west are negative.</p>
 
       <div className="flex gap-2">
-        <Button type="submit">Usar este punto</Button>
+        <Button type="submit">Use this point</Button>
         {/* Sobre el fondo azul del formulario, ghost sin fondo parece texto suelto: blanco con borde, como los inputs. */}
         <Button variant="ghost" className="border border-slate-300 bg-white" onClick={onDone}>
-          Cancelar
+          Cancel
         </Button>
       </div>
     </form>

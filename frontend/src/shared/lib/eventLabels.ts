@@ -9,13 +9,13 @@ export type NextEventType = NextEvents['sunEvent'] | NextEvents['earthEvent'];
 export function eventLabel(event: SkyEventType | null): string | null {
   switch (event) {
     case 'sunset':
-      return 'Puesta de Sol';
+      return 'Sunset';
     case 'sunrise':
-      return 'Salida del Sol';
+      return 'Sunrise';
     case 'earthset':
-      return 'La Tierra se oculta';
+      return 'Earthset';
     case 'earthrise':
-      return 'La Tierra vuelve a aparecer';
+      return 'Earthrise';
     default:
       return null;
   }

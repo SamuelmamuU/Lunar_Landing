@@ -24,7 +24,7 @@ export function MetricsPanel() {
   return (
     // Mientras llega otro escenario se conserva lo anterior, atenuado, igual que el panorama.
     <section
-      aria-label="Veredicto y próximos eventos"
+      aria-label="Verdict and upcoming events"
       aria-busy={isLoading}
       className={`pt-4 transition-opacity ${isLoading ? 'opacity-50' : ''}`}
     >

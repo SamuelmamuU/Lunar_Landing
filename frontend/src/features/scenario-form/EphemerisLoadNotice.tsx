@@ -15,10 +15,10 @@ export function EphemerisLoadNotice({ status, error, onRetry }: Props) {
   if (status === 'error') {
     return (
       <div role="alert" className="rounded-lg border border-red-300 bg-red-50 px-4 text-sm text-red-800">
-        <p className="font-medium">No se pudieron calcular las posiciones del Sol y la Tierra.</p>
+        <p className="font-medium">Could not calculate the Sun and Earth positions.</p>
         <p className="mt-1 text-red-700">{error}</p>
         <Button variant="link" onClick={onRetry} className="mt-2">
-          Reintentar
+          Retry
         </Button>
       </div>
     );
@@ -27,7 +27,7 @@ export function EphemerisLoadNotice({ status, error, onRetry }: Props) {
   // La region viva existe siempre (para lectores de pantalla) y reserva su alto para que nada salte.
   return (
     <p role="status" className="min-h-1 text-sm text-slate-500">
-      {status === 'loading' && 'Calculando posiciones del Sol y la Tierra...'}
+      {status === 'loading' && 'Calculating Sun and Earth positions...'}
     </p>
   );
 }

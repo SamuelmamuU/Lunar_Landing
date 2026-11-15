@@ -17,8 +17,8 @@ export interface Body {
 }
 
 export const BODIES: Record<BodyId, Body> = {
-  sun: { id: 'sun', label: 'Sol', color: '#d95926', angularRadiusDeg: 0.27 },
-  earth: { id: 'earth', label: 'Tierra', color: '#3987e5', angularRadiusDeg: 0.96 },
+  sun: { id: 'sun', label: 'Sun', color: '#d95926', angularRadiusDeg: 0.27 },
+  earth: { id: 'earth', label: 'Earth', color: '#3987e5', angularRadiusDeg: 0.96 },
 };
 
 /** Orden fijo para leyendas y listas. */

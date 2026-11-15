@@ -38,14 +38,14 @@ export function CompareColumnHeader({ scenario, isActive, terrain, onShow, onRem
       {/* -ml-3: el texto de los botones queda alineado con el nombre del sitio. */}
       <div className="-ml-3 mt-2 flex items-center gap-1">
         {isActive ? (
-          <span className="px-3 py-1 text-sm text-slate-500">En pantalla</span>
+          <span className="px-3 py-1 text-sm text-slate-500">On screen</span>
         ) : (
-          <Button variant="ghost" size="sm" onClick={onShow} aria-label={`Ver ${name} arriba`}>
-            Ver
+          <Button variant="ghost" size="sm" onClick={onShow} aria-label={`Show ${name} above`}>
+            Show
           </Button>
         )}
-        <Button variant="ghost" size="sm" onClick={onRemove} aria-label={`Quitar ${name} del comparador`}>
-          Quitar
+        <Button variant="ghost" size="sm" onClick={onRemove} aria-label={`Remove ${name} from comparison`}>
+          Remove
         </Button>
       </div>
     </th>

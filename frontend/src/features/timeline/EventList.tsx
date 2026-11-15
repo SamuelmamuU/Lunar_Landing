@@ -21,10 +21,10 @@ export function EventList({ events, startMs, onSelect }: Props) {
   return (
     <details className="group text-sm">
       <summary className="cursor-pointer text-slate-500 hover:text-slate-700">
-        Salidas y puestas en la ventana ({events.length})
+        Rises and sets in the window ({events.length})
       </summary>
       {events.length === 0 ? (
-        <p className="mt-2 text-slate-600">Ni el Sol ni la Tierra salen o se ocultan en esta ventana.</p>
+        <p className="mt-2 text-slate-600">Neither the Sun nor the Earth rises or sets in this window.</p>
       ) : (
         <ul className="mt-2 divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
           {events.map((event) => {
@@ -42,9 +42,9 @@ export function EventList({ events, startMs, onSelect }: Props) {
                   size="sm"
                   className="ml-auto"
                   onClick={() => onSelect(event)}
-                  aria-label={`Ver ${label.toLowerCase()} (${BODIES[eventBody(event.type)].label}) del ${date} en el panorama`}
+                  aria-label={`Show ${label.toLowerCase()} (${BODIES[eventBody(event.type)].label}) on ${date} in the panorama`}
                 >
-                  Ver en el panorama
+                  Show in panorama
                 </Button>
               </li>
             );

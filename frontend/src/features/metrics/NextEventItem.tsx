@@ -29,14 +29,14 @@ export function NextEventItem({ body, event, time, hours }: Props) {
         <>
           {/* El evento y el "en cuanto" en lineas aparte: asi Sol y Tierra miden lo mismo aunque un texto sea mas largo. */}
           <p className="mt-1 text-base font-semibold text-slate-900">{label}</p>
-          {hours !== null && <p className="text-sm text-slate-700">en {formatDuration(hours)}</p>}
+          {hours !== null && <p className="text-sm text-slate-700">in {formatDuration(hours)}</p>}
           {time && <p className="mt-0.5 text-sm text-slate-500">{formatUtcDateTime(time)} UTC</p>}
         </>
       ) : (
         // Mismas lineas y tamanos que un evento, para que Sol y Tierra se vean parejos.
         <>
-          <p className="mt-1 text-base font-semibold text-slate-900">Sin cambios</p>
-          <p className="text-sm text-slate-700">en los próximos 60 días</p>
+          <p className="mt-1 text-base font-semibold text-slate-900">No change</p>
+          <p className="text-sm text-slate-700">in the next 60 days</p>
         </>
       )}
     </article>

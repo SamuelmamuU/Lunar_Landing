@@ -26,21 +26,21 @@ export function ComparePanel() {
     <section aria-labelledby={titleId} className="space-y-3 pt-6">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id={titleId} className="text-lg font-semibold text-slate-900">
-          Comparar escenarios
+          Compare scenarios
         </h2>
         {scenarios.length > 0 && (
           <p className="text-sm text-slate-500">
-            {scenarios.length} de {MAX_COMPARED_SCENARIOS}
+            {scenarios.length} of {MAX_COMPARED_SCENARIOS}
           </p>
         )}
       </div>
 
       {scenarios.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-400 p-6 text-sm text-slate-600">
-          <p className="font-medium text-slate-800">Agrega el escenario que estás viendo con «Agregar al comparador».</p>
+          <p className="font-medium text-slate-800">Add the scenario you are viewing with “Add to comparison”.</p>
           <p className="mt-1">
-            Después elige otro sitio (la fecha se conserva) o cambia la fecha (el sitio se conserva) y agrégalo
-            también. Caben hasta {MAX_COMPARED_SCENARIOS}.
+            Then pick another site (the dates stay) or change the dates (the site stays) and add it too. Up to{' '}
+            {MAX_COMPARED_SCENARIOS} fit.
           </p>
         </div>
       ) : (
@@ -53,7 +53,7 @@ export function ComparePanel() {
           />
           {scenarios.length === 1 && (
             <p className="text-sm text-slate-600">
-              Elige otro sitio o cambia la fecha arriba y agrégalo para ver cuál gana en cada métrica.
+              Pick another site or change the dates above and add it to see which one wins on each metric.
             </p>
           )}
         </>

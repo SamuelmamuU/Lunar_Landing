@@ -53,7 +53,7 @@ export function CompareTable({ columns, onShow, onRemove, onRetry }: Props) {
         <tbody>
           <tr className="border-t border-slate-300">
             <th scope="row" className="sticky left-0 bg-white px-3 py-2.5 text-left align-top font-normal text-slate-900">
-              Veredicto
+              Verdict
             </th>
             {columns.map(({ scenario, state }) => (
               <VerdictCell key={scenario.id} state={state} onRetry={() => onRetry(scenario.id)} />

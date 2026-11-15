@@ -14,9 +14,9 @@ interface LinkStyle {
 }
 
 export const LINK_STYLE: Record<LinkState, LinkStyle> = {
-  clear: { label: 'Despejado', strokeClass: 'stroke-green-500' },
-  marginal: { label: 'Visible por poco (sin margen)', strokeClass: 'stroke-amber-400', dashArray: '6 4' },
-  blocked: { label: 'Tapado por el terreno', strokeClass: 'stroke-red-500', dashArray: '1.5 5' },
+  clear: { label: 'Clear', strokeClass: 'stroke-green-500' },
+  marginal: { label: 'Barely visible (no margin)', strokeClass: 'stroke-amber-400', dashArray: '6 4' },
+  blocked: { label: 'Blocked by terrain', strokeClass: 'stroke-red-500', dashArray: '1.5 5' },
 };
 
 /** Orden fijo para la leyenda. */

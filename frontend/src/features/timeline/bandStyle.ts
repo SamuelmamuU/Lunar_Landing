@@ -6,9 +6,9 @@
 import type { LinkState } from '../../shared/lib/visibility';
 
 export const BAND_LABEL: Record<LinkState, string> = {
-  clear: 'Despejado',
-  marginal: 'Visible por poco',
-  blocked: 'Tapado',
+  clear: 'Clear',
+  marginal: 'Barely visible',
+  blocked: 'Blocked',
 };
 
 /** Orden fijo para la leyenda. */

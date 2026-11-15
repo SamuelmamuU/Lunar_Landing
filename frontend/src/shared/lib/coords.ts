@@ -16,19 +16,19 @@ export function parseCoordinate(raw: string): number | null {
 
 /** Mensaje de error para la latitud, o null si es valida. */
 export function validateLat(raw: string): string | null {
-  if (raw.trim() === '') return 'Escribe una latitud.';
+  if (raw.trim() === '') return 'Enter a latitude.';
   const value = parseCoordinate(raw);
-  if (value === null) return 'La latitud debe ser un numero, por ejemplo -89.45.';
-  if (value < LAT_MIN || value > LAT_MAX) return 'La latitud va de -90 (polo sur) a 90 (polo norte).';
+  if (value === null) return 'Latitude must be a number, for example -89.45.';
+  if (value < LAT_MIN || value > LAT_MAX) return 'Latitude goes from -90 (south pole) to 90 (north pole).';
   return null;
 }
 
 /** Mensaje de error para la longitud, o null si es valida. */
 export function validateLon(raw: string): string | null {
-  if (raw.trim() === '') return 'Escribe una longitud.';
+  if (raw.trim() === '') return 'Enter a longitude.';
   const value = parseCoordinate(raw);
-  if (value === null) return 'La longitud debe ser un numero, por ejemplo -137.3.';
-  if (value < LON_MIN || value > LON_MAX) return 'La longitud va de -180 a 180 (este positivo).';
+  if (value === null) return 'Longitude must be a number, for example -137.3.';
+  if (value < LON_MIN || value > LON_MAX) return 'Longitude goes from -180 to 180 (east positive).';
   return null;
 }
 
@@ -40,7 +40,7 @@ export function formatLat(lat: number, digits = 2): string {
 
 /** -137.3 -> "137.30° O" (oeste), 32.3 -> "32.30° E" */
 export function formatLon(lon: number, digits = 2): string {
-  const hemi = lon < 0 ? 'O' : 'E';
+  const hemi = lon < 0 ? 'W' : 'E';
   return `${Math.abs(lon).toFixed(digits)}° ${hemi}`;
 }
 
@@ -58,16 +58,16 @@ export function lunarRegion(lat: number, lon: number): LunarRegion {
 }
 
 export const REGION_LABEL: Record<LunarRegion, string> = {
-  'south-pole': 'Polo sur',
-  'far-side': 'Lado oculto',
-  'near-side': 'Lado visible',
+  'south-pole': 'South pole',
+  'far-side': 'Far side',
+  'near-side': 'Near side',
 };
 
 /** Que significa la region para Sol y Tierra, en lenguaje simple (para no expertos). */
 export const REGION_HINT: Record<LunarRegion, string> = {
-  'south-pole': 'el Sol da vueltas rozando el horizonte.',
-  'far-side': 'la Tierra nunca se ve desde aqui.',
-  'near-side': 'la Tierra siempre esta en el cielo; el dia y la noche duran ~14 dias cada uno.',
+  'south-pole': 'the Sun circles just above the horizon.',
+  'far-side': 'the Earth is never visible from here.',
+  'near-side': 'the Earth is always in the sky; day and night last ~14 days each.',
 };
 
 /** "Polo sur: el Sol da vueltas rozando el horizonte." */

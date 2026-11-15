@@ -18,9 +18,9 @@ export function NextEvents({ next, from }: Props) {
     <section aria-labelledby={titleId} className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id={titleId} className="text-lg font-semibold text-slate-900">
-          Próximos eventos
+          Upcoming events
         </h2>
-        <p className="text-sm text-slate-500">desde el {formatUtcDateTime(from)} UTC</p>
+        <p className="text-sm text-slate-500">from {formatUtcDateTime(from)} UTC</p>
       </div>
 
       <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">

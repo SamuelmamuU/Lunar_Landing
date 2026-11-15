@@ -11,7 +11,7 @@ import { LightModeIcon } from './icons/LightModeIcon';
 export function ThemeToggle() {
   const theme = useSyncExternalStore(subscribeTheme, currentTheme, () => 'light' as const);
   const isDark = theme === 'dark';
-  const label = isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+  const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
 
   return (
     <Button variant="ghost" size="icon" onClick={() => setTheme(isDark ? 'light' : 'dark')} aria-label={label} title={label}>

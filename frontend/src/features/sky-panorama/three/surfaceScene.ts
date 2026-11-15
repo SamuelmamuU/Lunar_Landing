@@ -145,7 +145,7 @@ export function createSurfaceScene(container: HTMLElement) {
     { label: 'N', az: 0 },
     { label: 'E', az: 90 },
     { label: 'S', az: 180 },
-    { label: 'O', az: 270 },
+    { label: 'W', az: 270 },
   ];
   for (const c of cardinalDirs) {
     const sprite = makeCardinalSprite(c.label);

@@ -236,7 +236,7 @@ export const useAppStore = create<AppState>()(
           // Cada escenario hace su propia llamada (lunarApi las pone en fila: SPICE no aguanta dos a la vez).
           setEntry({ status: 'ready', data: await getEphemeris(scenarioToRequest(scenario)), error: null });
         } catch (err: unknown) {
-          setEntry({ status: 'error', data: null, error: err instanceof Error ? err.message : 'Error desconocido' });
+          setEntry({ status: 'error', data: null, error: err instanceof Error ? err.message : 'Unknown error' });
         }
       },
 
@@ -256,7 +256,7 @@ export const useAppStore = create<AppState>()(
           set({ ephemeris: { status: 'ready', data, error: null } });
         } catch (err: unknown) {
           if (key !== lastRequestKey) return;
-          const error = err instanceof Error ? err.message : 'Error desconocido';
+          const error = err instanceof Error ? err.message : 'Unknown error';
           set({ ephemeris: { status: 'error', data: null, error } });
         }
       },

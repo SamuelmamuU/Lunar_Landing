@@ -88,19 +88,19 @@ export function SkyPanorama({ metrics }: Props) {
 
   const status = BODY_IDS.map((id) => `${BODIES[id].label}: ${describeVisibility(current[id])}`).join('. ');
   const directions = BODY_IDS.map(
-    (id) => `${BODIES[id].label} al ${compassPoint(current[id].azimuth)}, ${describeVisibility(current[id])}`,
+    (id) => `${BODIES[id].label} to the ${compassPoint(current[id].azimuth)}, ${describeVisibility(current[id])}`,
   ).join('. ');
 
   return (
     // Mientras llega otro escenario se conserva lo anterior, atenuado: nada salta.
     <section
-      aria-label="Sol y Tierra sobre el horizonte"
+      aria-label="Sun and Earth above the horizon"
       aria-busy={isLoading}
       className={`space-y-2 transition-opacity ${isLoading ? 'opacity-50' : ''}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-sm text-slate-500">Sol y Tierra sobre el horizonte</h2>
+          <h2 className="text-sm text-slate-500">Sun and Earth above the horizon</h2>
           <ViewModeSwitch value={viewMode} onChange={setViewMode} showMetrics={metrics !== undefined} />
         </div>
         <p className="text-sm text-slate-500">{formatUtcDateTime(current.time)} UTC</p>
@@ -138,7 +138,7 @@ export function SkyPanorama({ metrics }: Props) {
           </div>
           <div className="grid gap-2 sm:grid-cols-[15rem_minmax(0,1fr)]">
             <div className="mx-auto w-full max-w-60 sm:max-w-none">
-              <TopView current={current} description={`Vista desde arriba del sitio. ${directions}.`} />
+              <TopView current={current} description={`Top-down view of the site. ${directions}.`} />
             </div>
             <BodyStatusPanel current={current} />
           </div>
@@ -150,7 +150,7 @@ export function SkyPanorama({ metrics }: Props) {
               horizon={data.horizon}
               samples={data.samples}
               current={current}
-              description={`Panorama del horizonte. ${status}.`}
+              description={`Horizon panorama. ${status}.`}
               onSelectTime={setCurrentTime}
               className="aspect-[2/1] sm:col-span-2 lg:col-span-1 lg:row-span-2 lg:aspect-auto lg:min-h-96"
             />
@@ -180,7 +180,7 @@ export function SkyPanorama({ metrics }: Props) {
             />
           )}
           <div className="mx-auto w-full max-w-60 sm:max-w-none">
-            <TopView current={current} description={`Vista desde arriba del sitio. ${directions}.`} />
+            <TopView current={current} description={`Top-down view of the site. ${directions}.`} />
           </div>
           <BodyStatusPanel current={current} />
         </div>

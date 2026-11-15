@@ -14,8 +14,8 @@ interface Props {
 
 const PRESETS: { id: OrbitalCameraPreset; label: string }[] = [
   { id: 'global', label: 'Global' },
-  { id: 'south_pole', label: 'Polo Sur' },
-  { id: 'site', label: 'Sitio' },
+  { id: 'south_pole', label: 'South Pole' },
+  { id: 'site', label: 'Site' },
 ];
 
 export function OrbitalView3D({
@@ -83,15 +83,15 @@ export function OrbitalView3D({
         <div className="flex flex-wrap items-center gap-3 rounded-md border border-slate-700/60 bg-slate-950/70 px-2.5 py-1 backdrop-blur-sm">
           <span className="flex items-center gap-1.5">
             <span className="inline-block size-2 rounded-full bg-sun" />
-            Sol {sample.sun.visible ? 'visible' : sample.sun.interference ? 'oculto por relieve' : 'bajo horizonte'}
+            Sun {sample.sun.visible ? 'visible' : sample.sun.interference ? 'hidden by terrain' : 'below horizon'}
           </span>
           <span className="flex items-center gap-1.5">
             <span className="inline-block size-2 rounded-full bg-earth" />
-            Tierra {sample.earth.visible ? 'visible' : sample.earth.interference ? 'oculta por relieve' : 'bajo horizonte'}
+            Earth {sample.earth.visible ? 'visible' : sample.earth.interference ? 'hidden by terrain' : 'below horizon'}
           </span>
         </div>
         <span className="rounded-md bg-slate-950/60 px-2 py-0.5 text-slate-400">
-          Arrastra para rotar · Rueda para zoom
+          Drag to rotate · Scroll to zoom
         </span>
       </div>
     </div>

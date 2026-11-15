@@ -27,7 +27,7 @@ export function useMissionAlternatives(scenario: Scenario | null) {
     try {
       settle({ status: 'ready', data: await getMissionAlternatives(scenarioToMissionRequest(scenario)) });
     } catch (err: unknown) {
-      settle({ status: 'error', error: err instanceof Error ? err.message : 'Error desconocido' });
+      settle({ status: 'error', error: err instanceof Error ? err.message : 'Unknown error' });
     }
   }
 

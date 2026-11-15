@@ -46,16 +46,16 @@ export function SiteList({ state, groups, query, activeSiteId, onSelect, onRemov
 
       {state.status === 'error' && (
         <div role="alert" className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-          <p className="font-medium">No se pudo cargar el catalogo de sitios.</p>
+          <p className="font-medium">Could not load the site catalog.</p>
           <p className="mt-1 text-red-700">{state.message}</p>
           <Button variant="link" onClick={state.retry} className="mt-2">
-            Reintentar
+            Retry
           </Button>
         </div>
       )}
 
       {state.status === 'ready' && groups.length === 0 && (
-        <p className="py-6 text-center text-sm text-slate-500">Ningun sitio coincide con "{query}".</p>
+        <p className="py-6 text-center text-sm text-slate-500">No site matches "{query}".</p>
       )}
 
       {groups.map((group, g) => (

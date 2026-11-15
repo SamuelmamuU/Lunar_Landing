@@ -38,10 +38,10 @@ export function Sidebar({ children }: Props) {
             variant="ghost"
             size="icon"
             onClick={() => setSidebarCollapsed(false)}
-            aria-label="Expandir barra lateral"
+            aria-label="Expand sidebar"
             aria-controls={contentId}
             aria-expanded={false}
-            title="Expandir barra lateral"
+            title="Expand sidebar"
           >
             <SidebarExpandIcon />
           </Button>

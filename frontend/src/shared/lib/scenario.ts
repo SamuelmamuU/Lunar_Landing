@@ -23,20 +23,20 @@ const MAX_YEAR = 2050;
 export const COVERAGE_START_INPUT = `${MIN_YEAR}-01-01T00:00`;
 export const COVERAGE_END_INPUT = `${MAX_YEAR}-12-28T23:59`;
 const COVERAGE_END_MS = Date.parse(`${COVERAGE_END_INPUT}:00Z`);
-const COVERAGE_MESSAGE = `Usa una fecha entre ${MIN_YEAR} y el 28 dic ${MAX_YEAR}: es lo que cubren los datos de órbitas.`;
+const COVERAGE_MESSAGE = `Use a date between ${MIN_YEAR} and 28 Dec ${MAX_YEAR}: that is what the orbit data covers.`;
 
 /**
  * Mensaje de error para el inicio (valor de datetime-local), o null si es valido. Con la duracion del escenario
  * se revisa tambien que el fin (que se recorre con el inicio) no se salga de los datos.
  */
 export function validateStart(raw: string, durationDays = 0): string | null {
-  if (raw.trim() === '') return 'Elige una fecha de inicio.';
+  if (raw.trim() === '') return 'Pick a start date.';
   const iso = dateTimeInputToIso(raw);
-  if (iso === null) return 'La fecha no es válida.';
+  if (iso === null) return 'The date is not valid.';
   const year = new Date(iso).getUTCFullYear();
   if (year < MIN_YEAR || year > MAX_YEAR) return COVERAGE_MESSAGE;
   if (Date.parse(addDays(iso, durationDays)) > COVERAGE_END_MS) {
-    return `Con esta duración el fin pasaría del 28 dic ${MAX_YEAR}: usa un inicio anterior o acorta la ventana.`;
+    return `With this duration the end would go past 28 Dec ${MAX_YEAR}: use an earlier start or shorten the window.`;
   }
   return null;
 }
@@ -46,13 +46,13 @@ export function validateStart(raw: string, durationDays = 0): string | null {
  * El fin define la duracion: debe quedar despues del inicio y dentro de MAX_DURATION_DAYS.
  */
 export function validateEnd(raw: string, startIso: string): string | null {
-  if (raw.trim() === '') return 'Elige una fecha de fin.';
+  if (raw.trim() === '') return 'Pick an end date.';
   const iso = dateTimeInputToIso(raw);
-  if (iso === null) return 'La fecha no es válida.';
+  if (iso === null) return 'The date is not valid.';
   const minutes = minutesBetween(startIso, iso);
-  if (minutes <= 0) return 'El fin debe ser después del inicio.';
-  if (minutes < MIN_DURATION_MINUTES) return 'La ventana debe durar al menos 1 hora.';
-  if (minutes > MAX_DURATION_DAYS * MINUTES_PER_DAY) return `La ventana puede durar hasta ${MAX_DURATION_DAYS} días.`;
+  if (minutes <= 0) return 'The end must be after the start.';
+  if (minutes < MIN_DURATION_MINUTES) return 'The window must last at least 1 hour.';
+  if (minutes > MAX_DURATION_DAYS * MINUTES_PER_DAY) return `The window can last up to ${MAX_DURATION_DAYS} days.`;
   if (Date.parse(iso) > COVERAGE_END_MS) return COVERAGE_MESSAGE;
   return null;
 }

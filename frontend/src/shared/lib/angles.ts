@@ -2,7 +2,7 @@
 
 const COMPASS_POINTS = [
   'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-  'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO',
+  'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
 ] as const;
 
 /** "1.6°". Evita el "-0.0°". */

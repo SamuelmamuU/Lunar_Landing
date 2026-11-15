@@ -13,6 +13,6 @@ export function WindowMetrics() {
 
   if (!data) return null;
 
-  const windowText = `${durationDays === undefined ? '' : formatDays(durationDays)} desde el ${formatUtcDateTime(data.start)} UTC`;
+  const windowText = `${durationDays === undefined ? '' : formatDays(durationDays)} from ${formatUtcDateTime(data.start)} UTC`;
   return <MetricsGrid metrics={data.metrics} windowText={windowText} />;
 }

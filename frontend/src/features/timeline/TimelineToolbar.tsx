@@ -30,7 +30,7 @@ export function TimelineToolbar({ playing, onTogglePlay, time, startMs }: Props)
         className="min-w-[calc(10ch+3rem)] justify-center focus-visible:ring-offset-black"
       >
         {playing ? <PauseIcon /> : <PlayIcon />}
-        {playing ? 'Pausar' : 'Reproducir'}
+        {playing ? 'Pause' : 'Play'}
       </Button>
       {/* 52ch = "28 sept 2025, 23:28 UTC +23 h 30 min desde el inicio". */}
       <p className="w-[52ch] max-w-full text-sm text-slate-100 tabular-nums">

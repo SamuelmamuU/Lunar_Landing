@@ -10,11 +10,11 @@ interface Props {
 }
 
 const MODES: { id: SkyViewMode; label: string }[] = [
-  { id: '2d', label: 'Panorama 2D' },
-  { id: 'surface3d', label: 'Superficie 3D' },
-  { id: 'orbital3d', label: 'Espacio 3D' },
+  { id: '2d', label: '2D panorama' },
+  { id: 'surface3d', label: '3D surface' },
+  { id: 'orbital3d', label: '3D space' },
   { id: 'dual3d', label: 'Dual 3D' },
-  { id: 'metrics', label: 'Métricas' },
+  { id: 'metrics', label: 'Metrics' },
 ];
 
 export function ViewModeSwitch({ value, onChange, showMetrics }: Props) {
@@ -22,7 +22,7 @@ export function ViewModeSwitch({ value, onChange, showMetrics }: Props) {
   return (
     <div
       role="tablist"
-      aria-label="Modo de visualizacion lunar"
+      aria-label="Lunar view mode"
       className="inline-flex flex-wrap items-center gap-1 rounded-lg bg-slate-200/80 p-1"
     >
       {modes.map((m) => (

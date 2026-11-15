@@ -45,7 +45,7 @@ export function PanoramaTooltip({ target, x, y, scale }: Props) {
           {target.time && <p className="text-slate-300">{formatUtcDateTime(target.time)} UTC</p>}
           <p>{describeMargin(target.position)}</p>
           <p className="text-slate-400">{describePosition(target.position)}</p>
-          {target.time && <p className="mt-1 text-slate-400">Clic para ver este momento</p>}
+          {target.time && <p className="mt-1 text-slate-400">Click to view this moment</p>}
         </>
       )}
     </ChartTooltip>

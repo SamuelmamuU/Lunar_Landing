@@ -24,7 +24,7 @@ export function TimeSlider({ index, count, time, scale, onSeek }: Props) {
   return (
     <div>
       <label htmlFor={id} className="sr-only">
-        Instante dentro de la ventana
+        Moment within the window
       </label>
       <input
         id={id}

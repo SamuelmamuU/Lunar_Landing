@@ -14,7 +14,7 @@ export function TimelineAxes({ scale }: Props) {
   return (
     <g className="text-[11px] tabular-nums">
       <text x={scale.left} y={12} className="fill-slate-400">
-        Elevación sobre el horizonte plano
+        Elevation above the flat horizon
       </text>
 
       {ticks.map((tick) => (
