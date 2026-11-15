@@ -39,8 +39,8 @@ class Mask:
         w = f - math.floor(f)
         return float(self.deg[i] * (1 - w) + self.deg[j] * w)
 
-    def summary(self) -> dict:
-        return {
+    def summary(self, include_profile: bool = True) -> dict:
+        d = {
             "terrain": self.terrain,
             "dem": self.dem,
             "z_m": self.z_m,
@@ -49,6 +49,9 @@ class Mask:
             "max_deg": round(float(self.deg.max()), 3),
             "min_deg": round(float(self.deg.min()), 3),
         }
+        if include_profile:
+            d["profile_deg"] = [round(float(v), 3) for v in self.deg]
+        return d
 
 
 def sphere_mask(h_obs_m: float = DEFAULT_H_OBS_M, n: int = 360) -> Mask:

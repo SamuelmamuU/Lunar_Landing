@@ -1,6 +1,7 @@
 """Lunar Landing Site Navigator — cálculos desde la terminal, salida en JSON.
 
 Ejemplos:
+  python main.py validate                      (modelo vs. 7 misiones reales)
   python main.py mission  --x 29.1957 --y -84.7906 --landing 2025-03-06T17:29:00Z --duration 10
   python main.py evaluate --x -136.6667 --y -89.4667 --start 2026-11-14 --end 2026-12-14
   python main.py sites
@@ -23,6 +24,11 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Asegurar que el directorio backend esté en sys.path
+BACKEND_DIR = Path(__file__).resolve().parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 from lunar import kernels
 from lunar.analysis import DAY, Calc
@@ -95,6 +101,17 @@ def cmd_mission(args):
         emit(mission(site, args.landing, args.duration, rules, args.search_days, include_series=args.series), args)
     except ValueError as e:
         raise SystemExit(str(e))
+
+
+def cmd_validate(args):
+    from lunar.validation import to_markdown, validate_all
+
+    rep = validate_all()
+    md = Path(args.md)
+    md.parent.mkdir(parents=True, exist_ok=True)
+    md.write_text(to_markdown(rep), encoding="utf-8")
+    print(f"Reporte legible en {md}", file=sys.stderr)
+    emit({"meta": meta(), **rep}, args)
 
 
 def cmd_events(args):
@@ -248,6 +265,9 @@ def build_parser() -> argparse.ArgumentParser:
     mi.add_argument("--search-days", type=float, default=15, help="Días para buscar alternativas")
     mi.add_argument("--series", action="store_true")
     mi.set_defaults(fn=cmd_mission)
+    va = sub.add_parser("validate", parents=[common], help="Comparar el modelo contra misiones reales")
+    va.add_argument("--md", default="output/validation_report.md", help="Dónde guardar el reporte en Markdown")
+    va.set_defaults(fn=cmd_validate)
     sub.add_parser("events", parents=[common, where, window], help="Salidas y puestas").set_defaults(fn=cmd_events)
     sub.add_parser("series", parents=[common, where, window], help="Serie de tiempo").set_defaults(fn=cmd_series)
 

@@ -54,7 +54,9 @@ class Observer:
     @classmethod
     def make(cls, site: Site, mask: Mask) -> "Observer":
         r = R_MOON_KM + ((mask.z_m or 0.0) + mask.h_obs_m) / 1000.0
-        pos = np.array(sp.latrec(r, math.radians(site.lon), math.radians(site.lat)))
+        # En el polo exacto el "norte" no está definido: se desplaza el punto ~15 cm
+        lat = max(-89.999995, min(89.999995, site.lat))
+        pos = np.array(sp.latrec(r, math.radians(site.lon), math.radians(lat)))
         return cls(site, mask, pos)
 
 
@@ -65,6 +67,15 @@ def body_state(obs: Observer, body: str, et: float, eps: float) -> dict:
     horizon = obs.mask.at(az)
     clearance = el - horizon
     status = classify(el, horizon, obs.mask.ideal_deg, eps)
+    az_rad = math.radians(az)
+    el_rad = math.radians(el)
+    cos_el = math.cos(el_rad)
+    # Vector unitario 3D en el cielo local (Three.js: X=Este, Y=Cénit, Z=-Norte)
+    vec_sky = [
+        round(cos_el * math.sin(az_rad), 5),
+        round(math.sin(el_rad), 5),
+        round(-cos_el * math.cos(az_rad), 5),
+    ]
     return {
         "azimuth_deg": az,
         "elevation_deg": el,
@@ -78,6 +89,7 @@ def body_state(obs: Observer, body: str, et: float, eps: float) -> dict:
         "angular_radius_deg": radius,
         "visible_fraction": disk_fraction(clearance, radius),
         "distance_km": dist,
+        "vector_3d_sky": vec_sky,
     }
 
 
@@ -87,3 +99,32 @@ def sky(obs: Observer, et: float, eps_sun: float = 0.5, eps_earth: float = 0.5) 
     sun["visible"] = sun["visible_fraction"] > 0
     earth["visible"] = earth["line_of_sight"]
     return {"et": et, "sun": sun, "earth": earth}
+
+
+def orbital_vectors_3d(obs: Observer, et: float) -> dict:
+    site_pos = obs.pos
+    earth_pos = np.array(sp.spkpos("EARTH", et, FRAME, ABCORR, "MOON")[0])
+    sun_pos = np.array(sp.spkpos("SUN", et, FRAME, ABCORR, "MOON")[0])
+
+    def _unit(v: np.ndarray) -> list[float]:
+        norm = float(np.linalg.norm(v))
+        return [round(float(x / norm), 6) for x in v] if norm > 0 else [0.0, 0.0, 0.0]
+
+    return {
+        "frame": FRAME,
+        "origin": "center_of_moon",
+        "units": "km",
+        "moon_radius_km": R_MOON_KM,
+        "positions_km": {
+            "site": [round(float(x), 3) for x in site_pos],
+            "earth": [round(float(x), 3) for x in earth_pos],
+            "sun": [round(float(x), 3) for x in sun_pos],
+        },
+        "unit_directions": {
+            "site": _unit(site_pos),
+            "earth": _unit(earth_pos),
+            "sun": _unit(sun_pos),
+            "site_to_earth": _unit(earth_pos - site_pos),
+            "site_to_sun": _unit(sun_pos - site_pos),
+        },
+    }

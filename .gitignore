@@ -1,0 +1,33 @@
+# Entornos virtuales
+.venv/
+env/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Salidas y datos pesados
+output/
+data/dem/*.TIF
+data/dem/*.tif
+data/dem/*.img
+data/dem/*.IMG
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+backend/data/dem/

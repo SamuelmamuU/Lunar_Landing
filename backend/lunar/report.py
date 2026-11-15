@@ -3,7 +3,7 @@ from . import kernels
 from .analysis import DAY, EARTH, HOUR, LIT, Calc, candidate
 from .config import (ABCORR, DEFAULT_EPS_EARTH_DEG, DEFAULT_EPS_SUN_DEG, DEFAULT_H_OBS_M, DEFAULT_MIN_COMM_HOURS,
                      DEFAULT_MIN_LIGHT_HOURS, FRAME)
-from .geometry import Observer, et_to_utc, utc_to_et
+from .geometry import Observer, et_to_utc, orbital_vectors_3d, utc_to_et
 from .horizon import mask_for
 from .sites import Site
 
@@ -62,6 +62,7 @@ def sky_now(calc: Calc, et: float, s: Settings) -> dict:
             "search_limit_days": 60,
         },
         "candidate": candidate(now, h_sun, h_earth, s.min_light_hours, s.min_comm_hours),
+        "vectors_3d": orbital_vectors_3d(calc.obs, et),
     }
 
 

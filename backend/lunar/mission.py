@@ -47,7 +47,7 @@ def _first_false(flags: np.ndarray) -> int | None:
 
 
 def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRules,
-            search_days: float = 15, step_min: float = 10, include_series: bool = False) -> dict:
+            search_days: float = 15, step_min: float | None = None, include_series: bool = False) -> dict:
     from .report import Settings
 
     kernels.load()
@@ -58,6 +58,10 @@ def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRu
     settings = Settings(h_obs_m=rules.h_obs_m, eps_sun_deg=rules.eps_sun_deg, eps_earth_deg=rules.eps_earth_deg,
                         min_light_hours=0, min_comm_hours=0)
     calc, mask = make_calc(site, settings)
+    if step_min is None:
+        # Paso automático: fino para misiones cortas, más grueso para las largas (respuesta rápida)
+        span = duration_days + 2 * search_days
+        step_min = 10 if span <= 75 else 20 if span <= 200 else 30
 
     # Una sola serie cubre la misión y la búsqueda de alternativas
     step_s = step_min * 60.0
@@ -101,7 +105,8 @@ def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRu
             dark = 0 if lit[k] else dark + 1
             gap = 0 if earth[k] else gap + 1
             if dark * step_h > rules.battery_hours or gap * step_h > rules.max_comm_gap_hours:
-                return round((k - i - max(dark, gap)) * step_h, 2)
+                # La ventana que termina en k-1 todavía cumple (la noche o el hueco caben en la tolerancia)
+                return round((k - 1 - i) * step_h, 2)
         return round((len(lit) - 1 - i) * step_h, 2)
     w = slice(i_land, i_land + n_dur + 1)
     first_dark = _first_false(lit[w])
@@ -139,7 +144,8 @@ def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRu
     out = {
         "meta": meta(),
         "input": {"x_lon": site.lon, "y_lat": site.lat, "landing_utc": landing_utc,
-                  "duration_days": duration_days, "end_utc": et_to_utc(et_land + duration_days * DAY)},
+                  "duration_days": duration_days, "end_utc": et_to_utc(et_land + duration_days * DAY),
+                  "step_min": step_min},
         "site": site.to_dict(),
         "horizon": mask.summary(),
         "rules": rules.to_dict(),

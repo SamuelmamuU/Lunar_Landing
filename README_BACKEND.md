@@ -8,7 +8,7 @@ Todo sale como JSON por la terminal o a un archivo.
 
 Copien a la raíz del proyecto (donde están `frontend/` y `pyproject.toml`):
 
-```
+```[README_BACKEND.md](README_BACKEND.md)
 main.py          ← reemplaza el main.py vacío
 lunar/           ← paquete de cálculos
 kernels/         ← kernels SPICE (DE421 incluidos, ~18 MB)
@@ -240,3 +240,19 @@ que el sitio permite: acorten la misión, suban `battery_hours` o acepten huecos
 Terminal: `python main.py mission --x 29.1957 --y -84.7906 --landing 2025-03-06T17:29:00Z --duration 10`
 
 `/api/evaluate` (rango de fechas) sigue disponible para buscar ventanas sin fecha fija.
+
+## 8. Datos de validación y pruebas
+
+- `data/real_missions.json`: 7 misiones reales (Apollo 11, IM-1, SLIM, Blue Ghost M1, IM-2, Chandrayaan-3, Chang'e-6)
+  con coordenadas, hora de aterrizaje, lo observado y la fuente.
+- `python main.py validate` → `output/validation_report.md` (tabla legible) y JSON con cada comprobación.
+- `data/sites.json`: 15 sitios, todos con coordenada verificada y fuente (incluye Apollo 11–17 en marco MOON_ME DE421, NSSDC).
+
+Pruebas (`python -m pytest tests -q`, 42 en total):
+
+| Archivo | Qué prueba |
+| --- | --- |
+| `test_calculos.py` | Fracción de disco, Sol rasante en el polo, lado oculto sin Tierra, ~50% de luz en el ecuador, interferencia con una “pared” de terreno |
+| `test_real_missions.py` | Modelo vs. 7 misiones reales (Blue Ghost: 346 h de luz reportadas vs. 348 h del modelo; SLIM: ocaso el 31 ene 2024) |
+| `test_casos_borde.py` | Polo exacto, longitud 200 = −160, Tierra en el cenit en (0,0), ε más alto nunca da más candidatos, eventos alternan, día lunar de 29.5 d, alternativa sugerida sí es candidata, formatos de fecha, entradas inválidas → 422 |
+| `test_api.py`, `test_mission.py` | Endpoints `/api/evaluate` y `/api/mission` |

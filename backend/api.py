@@ -8,15 +8,22 @@ Entrada principal (POST /api/evaluate):
   start = fecha de inicio, end = fecha de fin (UTC)
 Salida: CANDIDATO / NO CANDIDATO con ε, interferencia del terreno, ventanas de aterrizaje y métricas.
 """
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Optional
+
+# Asegurar que el directorio backend esté en sys.path
+BACKEND_DIR = Path(__file__).resolve().parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 import spiceypy as sp
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from lunar import kernels
 from lunar.evaluate import evaluate
@@ -92,6 +99,11 @@ def _run(body: EvaluateIn) -> dict:
         raise HTTPException(422, f"Fecha fuera de la cobertura de las efemérides: {e.short}")
 
 
+def _errors(e: ValidationError) -> list[dict]:
+    """Errores de validación legibles: [{campo, mensaje}]."""
+    return [{"campo": ".".join(str(x) for x in err["loc"]), "mensaje": err["msg"]} for err in e.errors()]
+
+
 @app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse("/docs")
@@ -121,8 +133,12 @@ def evaluate_get(
     min_light_hours: float = 72, min_comm_hours: float = 24, h_obs_m: float = 2,
 ):
     """Lo mismo por GET, para probar desde el navegador: /api/evaluate?x=-136.67&y=-89.47&start=2026-11-14&end=2026-12-14"""
-    return _run(EvaluateIn(x=x, y=y, start=start, end=end, eps_sun_deg=eps_sun_deg, eps_earth_deg=eps_earth_deg,
-                           min_light_hours=min_light_hours, min_comm_hours=min_comm_hours, h_obs_m=h_obs_m))
+    try:
+        body = EvaluateIn(x=x, y=y, start=start, end=end, eps_sun_deg=eps_sun_deg, eps_earth_deg=eps_earth_deg,
+                          min_light_hours=min_light_hours, min_comm_hours=min_comm_hours, h_obs_m=h_obs_m)
+    except ValidationError as e:
+        raise HTTPException(422, _errors(e))
+    return _run(body)
 
 
 # ------------------------------------------------------------------ misión: fecha de aterrizaje + duración
@@ -176,6 +192,10 @@ def mission_get(
     battery_hours: float = 12, max_comm_gap_hours: float = 24, h_obs_m: float = 2, search_days: float = 15,
 ):
     """Para probar en el navegador: /api/mission?x=29.1957&y=-84.7906&landing=2025-03-06T17:29:00Z&duration_days=10"""
-    return _run_mission(MissionIn(x=x, y=y, landing=landing, duration_days=duration_days, eps_sun_deg=eps_sun_deg,
-                                  eps_earth_deg=eps_earth_deg, battery_hours=battery_hours,
-                                  max_comm_gap_hours=max_comm_gap_hours, h_obs_m=h_obs_m, search_days=search_days))
+    try:
+        body = MissionIn(x=x, y=y, landing=landing, duration_days=duration_days, eps_sun_deg=eps_sun_deg,
+                         eps_earth_deg=eps_earth_deg, battery_hours=battery_hours,
+                         max_comm_gap_hours=max_comm_gap_hours, h_obs_m=h_obs_m, search_days=search_days)
+    except ValidationError as e:
+        raise HTTPException(422, _errors(e))
+    return _run_mission(body)

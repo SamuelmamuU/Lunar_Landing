@@ -1,0 +1,66 @@
+[
+  {
+    "id": "apollo11",
+    "name": "Apollo 11 (Eagle)",
+    "lat": 0.67416, "lon": 23.47314,
+    "landing_utc": "1969-07-20T20:17:40Z",
+    "observed": {"note": "Aterrizaje al inicio de la mañana lunar, con Sol bajo; Tierra alta en el cielo; ~21.6 h en superficie"},
+    "expect": {"sun_visible": true, "earth_visible": true, "sun_el_min": 5, "sun_el_max": 15},
+    "sources": ["https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html"]
+  },
+  {
+    "id": "im1",
+    "name": "IM-1 Odysseus (Malapert A)",
+    "lat": -80.13, "lon": 1.44,
+    "landing_utc": "2024-02-22T23:23:00Z",
+    "observed": {"surface_ops_h": 174, "note": "Operó ~174 h; activo cerca de una semana antes del ocaso. Aterrizó en una pendiente de 12°"},
+    "expect": {"sun_visible": true, "earth_visible": true, "sunset_after_h": 174},
+    "known_gap": "Sin relieve el modelo pone el ocaso ~9.5 días después; el ocaso real fue antes. Se espera que el DEM de LOLA reduzca esta diferencia.",
+    "sources": ["https://www.nasa.gov/?p=620655", "https://en.wikipedia.org/wiki/IM-1"]
+  },
+  {
+    "id": "slim",
+    "name": "SLIM (cráter Shioli)",
+    "lat": -13.3160, "lon": 25.2510,
+    "landing_utc": "2024-01-19T15:20:00Z",
+    "observed": {"sunset_utc_approx": "2024-01-31T06:00:00Z", "note": "JAXA esperaba el ocaso a inicios del 31 de enero UTC"},
+    "expect": {"sun_visible": true, "earth_visible": true, "sunset_utc_approx": "2024-01-31T06:00:00Z", "sunset_tolerance_h": 12},
+    "sources": ["https://spacenews.com/?p=230829", "https://lroc.im-ldi.com/images/1358"]
+  },
+  {
+    "id": "blue-ghost-1",
+    "name": "Blue Ghost M1 (Mare Crisium)",
+    "lat": 18.56, "lon": 61.81,
+    "landing_utc": "2025-03-02T08:34:00Z",
+    "observed": {"daylight_h": 346, "note": "Aterrizó al amanecer; 346 h de luz y ~5 h en la noche"},
+    "expect": {"sun_visible": true, "earth_visible": true, "hours_to_sunset": 346, "hours_tolerance": 12},
+    "sources": ["https://fireflyspace.com/missions/blue-ghost-mission-1/", "https://lroc.im-ldi.com/images/1400"]
+  },
+  {
+    "id": "im2",
+    "name": "IM-2 Athena (Mons Mouton)",
+    "lat": -84.7906, "lon": 29.1957,
+    "landing_utc": "2025-03-06T17:28:50Z",
+    "observed": {"planned_days": 10, "note": "Misión planeada de ~10 días, terminando al ocaso"},
+    "expect": {"sun_visible": true, "earth_visible": true, "sunset_after_h": 216},
+    "sources": ["https://en.wikipedia.org/wiki/IM-2", "https://www.space.com/the-universe/moon/intuitive-machines-lands-private-athena-lander-near-moon-south-pole-historic-touchdown"]
+  },
+  {
+    "id": "chandrayaan3",
+    "name": "Chandrayaan-3 Vikram (Statio Shiv Shakti)",
+    "lat": -69.373, "lon": 32.319,
+    "landing_utc": "2023-08-23T12:33:00Z",
+    "observed": {"note": "Planeado para un día lunar; Vikram y Pragyan se pusieron a dormir el 2–4 de septiembre, antes del ocaso"},
+    "expect": {"sun_visible": true, "earth_visible": true, "sunset_after_utc": "2023-09-03T00:00:00Z", "sunset_before_h": 360},
+    "sources": ["https://planetarynames.wr.usgs.gov/Feature/16272", "https://en.wikipedia.org/wiki/Chandrayaan-3"]
+  },
+  {
+    "id": "change6",
+    "name": "Chang'e-6 (cuenca Apolo, lado oculto)",
+    "lat": -41.6385, "lon": -153.9852,
+    "landing_utc": "2024-06-01T22:23:16Z",
+    "observed": {"note": "Lado oculto: comunicación solo vía el satélite de relevo Queqiao-2"},
+    "expect": {"sun_visible": true, "earth_visible": false, "earth_status": "bajo_horizonte"},
+    "sources": ["https://lroc.im-ldi.com/images/1374", "https://mdwiki.org/wiki/Chang%27e_6"]
+  }
+]
