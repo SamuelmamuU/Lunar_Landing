@@ -42,8 +42,9 @@ Si el contrato cambia, se cambia primero ahi.
   Extra: `POST /api/mission` (fechas alternativas, `search_days: 30`; solo se pide con un boton porque tarda ~1.5 s
   y va por la misma cola de SPICE). Recibe **fechas**, no duracion: `landing` (aterrizaje) y
   `departure` (salida de la Luna); la duracion la calcula backend.
-- `start` y `end` de `/api/evaluate` tambien son fechas. Los botones 1/7/14/30 dias solo son una forma comoda de
-  elegir `end`: el front manda `end = start + dias` (`scenarioToRequest`), nunca un numero de dias.
+- `start` y `end` de `/api/evaluate` tambien son fechas. El formulario tiene dos fechas (Inicio y Fin, maximo
+  `MAX_DURATION_DAYS` = 60 dias); el escenario guarda inicio + duracion para que al mover el inicio el fin se recorra
+  con la misma duracion. El front manda `end = start + dias` (`scenarioToRequest`), nunca un numero de dias.
 - Sitio del catalogo: se manda solo `site_id`. Sitio personalizado: solo `x` (lon) y `y` (lat). Nunca ambos.
 - **Una peticion a `/api/evaluate` a la vez.** SPICE no es thread-safe: dos calculos simultaneos tumban backend con
   `SPICE(BADSUBSCRIPT)`. `getEphemeris` las pone en fila (`enqueueEvaluate` en `lunarApi.ts`); no saltarse esa cola.
@@ -146,7 +147,7 @@ src/
 |---|---|---|---|
 | 0 | Base: Vite + Tailwind, types/mocks/services, layout, store | La app arranca y lista los sitios | Hecho |
 | 1 | Selector de sitio: lista por categoria + buscador + lat/lon personalizadas | Elegir sitio cambia el escenario activo | Hecho |
-| 2 | Fecha y carga: inicio, duracion (1/7/14/30 dias); `useEphemeris` con loading/error | Se ve el estado de carga | Hecho |
+| 2 | Fecha y carga: inicio y fin (hasta 60 dias); `useEphemeris` con loading/error | Se ve el estado de carga | Hecho |
 | F-int | Conexion al backend real: adaptador en `lunarApi.ts`, proxy de Vite | Con `VITE_USE_MOCK=false` llegan catalogo y efemerides reales | Hecho |
 | 3a | Efemerides al store (`ephemeris` + `loadEphemeris`); avisos de `source === 'mock'` y `terrain === false` | Un solo estado compartido | Hecho |
 | 3 | **Panorama del horizonte** (corazon del reto): SVG azimut vs elevacion, silueta del terreno, Sol y Tierra con su tamano, recorrido; cursor con iman sobre discos y recorrido (clic = ir a ese instante) | Cambiar sitio/fecha mueve todo | Hecho |

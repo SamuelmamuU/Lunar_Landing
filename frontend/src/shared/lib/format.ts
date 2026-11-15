@@ -19,3 +19,8 @@ export function formatDuration(hours: number): string {
   if (wholeHours > 0) return minutes > 0 ? `${wholeHours} h ${minutes} min` : `${wholeHours} h`;
   return `${minutes} min`;
 }
+
+/** Duracion de una ventana en dias -> texto corto: 7 -> "7 d", 9.47 -> "9 d 11 h", 0.5 -> "12 h". */
+export function formatDays(days: number): string {
+  return formatDuration(days * 24);
+}

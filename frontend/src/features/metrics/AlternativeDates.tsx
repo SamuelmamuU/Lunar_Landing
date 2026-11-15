@@ -1,3 +1,4 @@
+import { formatDays } from '../../shared/lib/format';
 import type { MissionAlternative } from '../../shared/types/lunar';
 import { Button } from '../../shared/ui/Button';
 import { AlternativeOption } from './AlternativeOption';
@@ -18,7 +19,7 @@ interface Props {
  * con /api/mission fechas antes y despues con la misma duracion y un clic aplica la elegida.
  */
 export function AlternativeDates({ state, durationDays, disabled, onSearch, onApply }: Props) {
-  const duration = `${durationDays} ${durationDays === 1 ? 'día' : 'días'}`;
+  const duration = formatDays(durationDays);
   const data = state?.status === 'ready' ? state.data : null;
   // Primero la de despues: es la respuesta a "se retraso el lanzamiento".
   const options = data ? [data.after, data.before].filter((o): o is MissionAlternative => o !== null) : [];

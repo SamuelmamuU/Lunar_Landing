@@ -1,5 +1,6 @@
 import { useAppStore } from '../../app/store';
 import { formatUtcDateTime } from '../../shared/lib/dates';
+import { formatDays } from '../../shared/lib/format';
 import { AlternativeDates } from './AlternativeDates';
 import { MetricsGrid } from './MetricsGrid';
 import { NextEvents } from './NextEvents';
@@ -20,7 +21,7 @@ export function MetricsPanel() {
 
   if (!data) return null;
 
-  const windowText = `${durationDays ?? ''} ${durationDays === 1 ? 'día' : 'días'} desde el ${formatUtcDateTime(data.start)} UTC`;
+  const windowText = `${durationDays === undefined ? '' : formatDays(durationDays)} desde el ${formatUtcDateTime(data.start)} UTC`;
 
   return (
     // Mientras llega otro escenario se conserva lo anterior, atenuado, igual que el panorama.
