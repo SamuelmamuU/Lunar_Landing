@@ -72,7 +72,11 @@ export function usePlayback<T>({ session, count, index, paused, onStep }: Option
     let frame = 0;
 
     const tick = (now: number) => {
-      const elapsed = now - startedAt;
+      // `now` es el inicio del cuadro, no el momento de la llamada: el primer cuadro puede haber empezado ANTES
+      // del clic (now < startedAt). Sin el Math.max, `advanced` daba -1 y desde la muestra 0 se pedia la -1:
+      // samples[-1] es undefined, onStep tronaba y el bucle moria con el boton en "Pausar". Por eso el primer play
+      // (con el instante en el inicio) no hacia nada y despues de mover el slider si funcionaba.
+      const elapsed = Math.max(0, now - startedAt);
       const advanced = reduced
         ? Math.floor(elapsed / REDUCED_STEP_MS) * Math.max(1, Math.round(last / REDUCED_STEPS))
         : Math.floor((elapsed / 1000) * (last / PLAY_SECONDS));
