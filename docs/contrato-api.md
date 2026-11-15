@@ -164,7 +164,7 @@ Cobertura del terreno:
 
 | Caso | Horizonte |
 |---|---|
-| Sitio del catálogo con horizonte precalculado en `data/horizons.json` (hoy 5: connecting-ridge, south-pole-rim, mons-mouton-im2, mons-mouton-summit, malapert-a-im1) | Relieve real, en cualquier máquina |
+| Sitio del catálogo con horizonte precalculado en `data/horizons.json` (hoy 9, todos los del catálogo al sur de 80°S: connecting-ridge, south-pole-rim, mons-mouton-im2, mons-mouton-summit, malapert-a-im1, shackleton-floor, mons-malapert, haworth, nobile) | Relieve real, en cualquier máquina |
 | Coordenadas personalizadas al sur de 80°S **y** con el `.TIF` en `backend/data/dem/` | Relieve real, calculado al vuelo (1–3 s la primera vez) |
 | Cualquier otro caso (norte de 80°S, o sin el `.TIF`) | Esfera lisa (`terrain: false`) |
 
