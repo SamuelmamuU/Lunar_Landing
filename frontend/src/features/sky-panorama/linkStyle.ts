@@ -1,5 +1,6 @@
 // Como se dibuja cada estado del enlace sitio-cuerpo. Verde, ambar y rojo son colores de estado
 // (reservados para el semaforo); nunca van solos: cada estado tiene ademas su patron de linea y su texto.
+// Pensados para el fondo oscuro del panel (slate-950), donde los tres pasan 3:1 de contraste.
 
 import type { LinkState } from '../../shared/lib/visibility';
 
@@ -14,7 +15,7 @@ interface LinkStyle {
 
 export const LINK_STYLE: Record<LinkState, LinkStyle> = {
   clear: { label: 'Despejado', strokeClass: 'stroke-green-500' },
-  marginal: { label: 'Por poco (menos de 0.5° de margen)', strokeClass: 'stroke-amber-400', dashArray: '6 4' },
+  marginal: { label: 'Por poco (menos de 0.5°)', strokeClass: 'stroke-amber-400', dashArray: '6 4' },
   blocked: { label: 'Tapado por el terreno', strokeClass: 'stroke-red-500', dashArray: '1.5 5' },
 };
 

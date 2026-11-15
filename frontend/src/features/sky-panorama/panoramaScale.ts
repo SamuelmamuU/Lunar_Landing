@@ -1,11 +1,10 @@
-// Escalas y trazos del panorama (sin React): de grados a pixeles del viewBox del SVG.
+// Escalas y trazos del panorama (sin React): de grados a pixeles del SVG.
+// El SVG mide lo mismo que su contenedor (1 unidad = 1 px), asi los textos quedan a su tamano real.
 // Eje X = azimut 0..360. Eje Y = elevacion, exagerada: en el polo todo pasa en unos pocos grados.
 
 import { BODIES, BODY_IDS, type BodyId } from '../../shared/lib/bodies';
 import type { EphemerisSample, HorizonProfile } from '../../shared/types/lunar';
 
-export const VIEW_WIDTH = 960;
-export const VIEW_HEIGHT = 400;
 const MARGIN = { top: 26, right: 14, bottom: 42, left: 44 };
 
 /** Los cuerpos nunca se dibujan mas chicos que esto, aunque su tamano angular sea menor. */
@@ -16,6 +15,9 @@ const TICK_STEPS = [0.5, 1, 2, 5, 10, 15, 30, 45];
 const MAX_TICKS = 7;
 
 export interface PanoramaScale {
+  /** Tamano total del SVG en pixeles. */
+  width: number;
+  height: number;
   left: number;
   right: number;
   top: number;
@@ -31,8 +33,16 @@ export interface PanoramaScale {
   exaggeration: number;
 }
 
-/** Arma la escala para que quepan el terreno y todo el recorrido de Sol y Tierra que sube sobre el. */
-export function createScale(horizon: HorizonProfile, samples: EphemerisSample[]): PanoramaScale {
+/**
+ * Arma la escala para un SVG de `width` x `height` pixeles, de modo que quepan el terreno y todo el
+ * recorrido de Sol y Tierra que sube sobre el.
+ */
+export function createScale(
+  horizon: HorizonProfile,
+  samples: EphemerisSample[],
+  width: number,
+  height: number,
+): PanoramaScale {
   let terrainMin = 0;
   let skyTop = MIN_SKY_DEG;
   for (const elevation of horizon.elevations) {
@@ -51,13 +61,15 @@ export function createScale(horizon: HorizonProfile, samples: EphemerisSample[])
   const maxElevation = skyTop + span * 0.08;
 
   const left = MARGIN.left;
-  const right = VIEW_WIDTH - MARGIN.right;
+  const right = width - MARGIN.right;
   const top = MARGIN.top;
-  const bottom = VIEW_HEIGHT - MARGIN.bottom;
+  const bottom = height - MARGIN.bottom;
   const pxPerAzimuthDeg = (right - left) / 360;
   const pxPerElevationDeg = (bottom - top) / (maxElevation - minElevation);
 
   return {
+    width,
+    height,
     left,
     right,
     top,

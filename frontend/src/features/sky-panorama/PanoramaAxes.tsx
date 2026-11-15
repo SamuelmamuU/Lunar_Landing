@@ -16,7 +16,7 @@ export function PanoramaAxes({ scale }: Props) {
   return (
     <g className="text-[11px] tabular-nums">
       <text x={scale.left} y={scale.top - 10} className="fill-slate-400">
-        Elevación
+        Elevación, exagerada ×{scale.exaggeration.toFixed(scale.exaggeration < 10 ? 1 : 0)} para que se note el relieve
       </text>
 
       {AZIMUTH_TICKS.map((azimuth) => (

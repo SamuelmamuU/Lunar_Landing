@@ -27,7 +27,7 @@ export function TopView({ current, description }: Props) {
       viewBox={`0 0 ${TOP_VIEW_SIZE} ${TOP_VIEW_SIZE}`}
       role="img"
       aria-label={description}
-      className="block aspect-square w-full max-w-60 rounded-lg bg-slate-950"
+      className="block aspect-square w-full rounded-lg bg-slate-950"
     >
       {BODY_IDS.map((body) => (
         <circle key={body} cx={CENTER} cy={CENTER} r={ORBIT_RADIUS[body]} fill="none" className="stroke-slate-700" />

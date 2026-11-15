@@ -7,7 +7,7 @@ import { BodyTrack } from './BodyTrack';
 import { PanoramaAxes } from './PanoramaAxes';
 import { PanoramaCrosshair } from './PanoramaCrosshair';
 import { TerrainSilhouette } from './TerrainSilhouette';
-import { VIEW_HEIGHT, VIEW_WIDTH, type PanoramaScale } from './panoramaScale';
+import type { PanoramaScale } from './panoramaScale';
 
 interface Props {
   horizon: HorizonProfile;
@@ -15,31 +15,33 @@ interface Props {
   samples: EphemerisSample[];
   /** Instante que se muestra. */
   current: EphemerisSample;
+  /** Trae tambien el tamano del SVG (el de su contenedor). */
   scale: PanoramaScale;
-  /** Texto para lectores de pantalla (lo mismo que dicen las lineas bajo la grafica). */
+  /** Texto para lectores de pantalla (lo mismo que dicen los textos del panel). */
   description: string;
 }
 
 // La Tierra (mas grande) se pinta primero para que el Sol no quede tapado si coinciden.
 const DRAW_ORDER = [...BODY_IDS].reverse();
 
-/** SVG del panorama: cielo, recorridos, discos, terreno encima y rotulos. */
+/** SVG del panorama: cielo, recorridos, discos, terreno encima y rotulos. Llena su contenedor. */
 export function PanoramaChart({ horizon, samples, current, scale, description }: Props) {
   const clipId = useId();
   const [hoverAzimuth, setHoverAzimuth] = useState<number | null>(null);
 
   function handlePointerMove(event: PointerEvent<SVGSVGElement>) {
-    const box = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - box.left) / box.width) * VIEW_WIDTH;
+    const x = event.clientX - event.currentTarget.getBoundingClientRect().left;
     setHoverAzimuth(x < scale.left || x > scale.right ? null : scale.azimuthAt(x));
   }
 
   return (
     <svg
-      viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
+      viewBox={`0 0 ${scale.width} ${scale.height}`}
+      width={scale.width}
+      height={scale.height}
       role="img"
       aria-label={description}
-      className="block w-full touch-pan-y rounded-lg bg-slate-950"
+      className="absolute inset-0 block touch-pan-y"
       onPointerMove={handlePointerMove}
       onPointerLeave={() => setHoverAzimuth(null)}
     >
