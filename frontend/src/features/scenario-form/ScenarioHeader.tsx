@@ -15,7 +15,8 @@ export function ScenarioHeader() {
   return (
     <section
       aria-label="Escenario"
-      className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4 border-b border-slate-200 pb-4 "
+      // En pantallas grandes, sitio y fechas en una sola fila: las fechas no se encogen y el nombre se recorta.
+      className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4 border-b border-slate-200 pb-4 lg:flex-nowrap"
     >
       <ActiveScenarioSummary />
       <ScenarioForm />

@@ -1,5 +1,5 @@
 import { formatDegrees } from '../../shared/lib/angles';
-import { BODIES, type BodyId } from '../../shared/lib/bodies';
+import { BODIES, bodyExtent, type BodyId } from '../../shared/lib/bodies';
 import type { BodyPosition } from '../../shared/types/lunar';
 import { discRadius, type PanoramaScale } from './panoramaScale';
 
@@ -35,8 +35,10 @@ export function BodyLabel({ body, position, scale }: Props) {
     );
   }
 
-  const above = cy - radius - 7;
-  const y = above < scale.top + 10 ? cy + radius + 16 : above;
+  // Separado del icono completo (en el Sol, de la punta de los rayos).
+  const extent = bodyExtent(body, radius);
+  const above = cy - extent - 7;
+  const y = above < scale.top + 10 ? cy + extent + 16 : above;
   return (
     <text x={textX} y={y} textAnchor="middle" className={LABEL_CLASS}>
       {label}

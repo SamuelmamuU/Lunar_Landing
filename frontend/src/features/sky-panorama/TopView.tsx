@@ -1,5 +1,6 @@
 import { BODY_IDS } from '../../shared/lib/bodies';
 import type { EphemerisSample } from '../../shared/types/lunar';
+import { StarField } from './StarField';
 import { TopViewBody } from './TopViewBody';
 import { CARDINAL_RADIUS, CENTER, ORBIT_RADIUS, SITE_RADIUS, TOP_VIEW_SIZE, polarToPoint } from './topViewGeometry';
 
@@ -29,6 +30,9 @@ export function TopView({ current, description }: Props) {
       aria-label={description}
       className="block aspect-square w-full rounded-lg bg-black"
     >
+      {/* Mas tenues que en el panorama: aqui manda el panorama. */}
+      <StarField x={0} y={0} width={TOP_VIEW_SIZE} height={TOP_VIEW_SIZE} intensity={0.6} />
+
       {BODY_IDS.map((body) => (
         <circle key={body} cx={CENTER} cy={CENTER} r={ORBIT_RADIUS[body]} fill="none" className="stroke-white/30" />
       ))}

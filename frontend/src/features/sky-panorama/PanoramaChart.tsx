@@ -6,6 +6,7 @@ import { BodyLabel } from './BodyLabel';
 import { BodyTrack } from './BodyTrack';
 import { PanoramaAxes } from './PanoramaAxes';
 import { PanoramaCrosshair } from './PanoramaCrosshair';
+import { StarField } from './StarField';
 import { TerrainSilhouette } from './TerrainSilhouette';
 import type { PanoramaScale } from './panoramaScale';
 
@@ -26,7 +27,8 @@ const DRAW_ORDER = [...BODY_IDS].reverse();
 
 /** SVG del panorama: cielo, recorridos, discos, terreno encima y rotulos. Llena su contenedor. */
 export function PanoramaChart({ horizon, samples, current, scale, description }: Props) {
-  const clipId = useId();
+  // Los id de React traen caracteres que no sirven dentro de url(#...).
+  const clipId = `clip-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const [hoverAzimuth, setHoverAzimuth] = useState<number | null>(null);
 
   function handlePointerMove(event: PointerEvent<SVGSVGElement>) {
@@ -51,6 +53,13 @@ export function PanoramaChart({ horizon, samples, current, scale, description }:
         </clipPath>
       </defs>
 
+      {/* Solo en el area del cielo; el terreno, que se pinta despues, tapa las de abajo. */}
+      <StarField
+        x={scale.left}
+        y={scale.top}
+        width={scale.right - scale.left}
+        height={scale.bottom - scale.top}
+      />
       <PanoramaAxes scale={scale} />
 
       <g clipPath={`url(#${clipId})`}>

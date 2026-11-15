@@ -26,7 +26,7 @@ export function ActiveScenarioSummary() {
   return (
     <section aria-label="Sitio seleccionado" className="min-w-0">
       {/* La descripcion queda como tooltip: es contexto para quien la busque. */}
-      <h2 className="truncate text-xl font-medium text-slate-900" title={site.description ?? site.name}>
+      <h2 className="truncate text-xl font-bold text-blue-600" title={site.description ?? site.name}>
         {site.name}
       </h2>
       <p className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
@@ -34,7 +34,7 @@ export function ActiveScenarioSummary() {
         {/* La agencia es contexto: gris, para que el ojo vaya primero a las coordenadas. */}
         {site.agency && <span className="text-slate-500">{site.agency}</span>}
       </p>
-      <p className="mt-1 text-sm text-slate-500">{regionSummary(site.lat, site.lon)}</p>
+      <p className="mt-1 text-xs text-slate-500">{regionSummary(site.lat, site.lon)}</p>
     </section>
   );
 }

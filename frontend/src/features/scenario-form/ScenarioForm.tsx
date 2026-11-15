@@ -28,7 +28,7 @@ export function ScenarioForm() {
   }
 
   return (
-    <div role="group" aria-label="Fechas del escenario" className="flex flex-wrap items-start gap-x-6 gap-y-3">
+    <div role="group" aria-label="Fechas del escenario" className="flex shrink-0 flex-wrap items-start gap-x-6 gap-y-3">
       <div className="w-56">
         <TextField
           type="datetime-local"

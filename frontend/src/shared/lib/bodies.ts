@@ -23,3 +23,11 @@ export const BODIES: Record<BodyId, Body> = {
 
 /** Orden fijo para leyendas y listas. */
 export const BODY_IDS: BodyId[] = ['sun', 'earth'];
+
+/**
+ * Radio total que ocupa el icono de un cuerpo cuyo disco mide `radius`. El disco del icono del Sol es la
+ * mitad del icono (los rayos llegan al doble); el de la Tierra lo llena. Sirve para separar rotulos y lineas.
+ */
+export function bodyExtent(id: BodyId, radius: number): number {
+  return id === 'sun' ? radius * 2 : radius;
+}

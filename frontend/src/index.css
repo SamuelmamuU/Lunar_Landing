@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "tailwindcss-animated";
 
+/* Fuente de toda la app (se carga en index.html). font-sans es la que Tailwind pone por defecto en <html>. */
+@theme {
+  --font-sans: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 /*
  * Scrollbar delgado y discreto. Uso: className="overflow-y-auto scrollbar-subtle".
  * Chrome/Edge/Safari usan ::-webkit-scrollbar (control total: redondeado, sin flechas).
@@ -35,8 +40,17 @@
   }
 }
 
-/* Tailwind v4 ya no pone cursor: pointer a los botones; se restaura para toda la app. */
 @layer base {
+  /*
+   * JetBrains Mono es monoespaciada: cada caracter (y el espacio) ocupa lo mismo y el texto se ve muy abierto.
+   * Se compacta un poco entre letras y mas entre palabras. Lo heredan tambien los textos de los SVG.
+   */
+  body {
+    letter-spacing: -0.03em;
+    word-spacing: -0.2em;
+  }
+
+  /* Tailwind v4 ya no pone cursor: pointer a los botones; se restaura para toda la app. */
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]) {
     cursor: pointer;

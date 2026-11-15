@@ -31,7 +31,7 @@ export function DurationPicker({ value, onChange }: Props) {
         })}
       </div>
       {/* Pista educativa: el dia lunar dura ~29.5 dias terrestres. */}
-      <p className="mt-1.5 text-sm text-slate-500">30 dias ≈ 1 dia lunar</p>
+      <p className="mt-1.5 text-xs text-slate-500">30 dias ≈ 1 dia lunar</p>
     </fieldset>
   );
 }
