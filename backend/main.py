@@ -15,6 +15,7 @@ Ejemplos:
   python main.py horizon  --all --dem data/dem/ldem_87s_5m.tif --dem data/dem/LDEM_80S_80MPP_ADJ.TIF
   python main.py export   --out-dir frontend/public/data
   python main.py download --kernels            (DE440 oficial; DE421 ya viene incluido)
+  python main.py download --global-dem         (LOLA LDEM_64 global, para relieve fuera del polo sur)
 
 Todas las fechas en UTC. Usa --out para guardar el JSON además de imprimirlo.
 """
@@ -205,8 +206,10 @@ def cmd_download(args):
         out["dems_available"] = dl.list_dems()
     if args.dem_url:
         out["dems"] = [dl.get_dem(u) for u in args.dem_url]
+    if args.global_dem:
+        out["global_dem"] = dl.get_global_dem()
     if not out:
-        raise SystemExit("Usa --kernels, --list-dems o --dem-url URL")
+        raise SystemExit("Usa --kernels, --list-dems, --dem-url URL o --global-dem")
     emit(out, args)
 
 
@@ -292,6 +295,8 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--kernels", action="store_true")
     d.add_argument("--list-dems", action="store_true")
     d.add_argument("--dem-url", action="append", default=[])
+    d.add_argument("--global-dem", action="store_true",
+                   help="LOLA LDEM_64 global (~474 m/px, 507 MB) convertido a data/dem/LDEM_64_global.tif")
     d.set_defaults(fn=cmd_download)
 
     e = sub.add_parser("export", parents=[common], help="Datos para el frontend")
