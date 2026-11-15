@@ -17,7 +17,9 @@ import type {
   EphemerisResponse,
   EphemerisSample,
   HorizonProfile,
+  LocalDemPatch,
 } from '../shared/types/lunar';
+import { azElToMoonMe, azElToSkyVector, moonMeBasis } from '../shared/lib/skyVector';
 import { MOCK_TERRAIN, type MockTerrain } from './sites.mock';
 import { summarize } from './summary.mock';
 
@@ -113,6 +115,77 @@ function terrainFor(siteId?: string): MockTerrain {
   return (siteId && MOCK_TERRAIN[siteId]) || 'plain';
 }
 
+function generateLocalDem(
+  lat: number,
+  lon: number,
+  elevations: number[],
+  stepDeg: number,
+  terrain: MockTerrain,
+): LocalDemPatch {
+  const size = 64;
+  const extentMeters = 16000;
+  const half = extentMeters / 2;
+  const stepMeters = round(extentMeters / (size - 1), 3);
+  const rand = mulberry32(hashString(`dem:${lat.toFixed(3)},${lon.toFixed(3)}`));
+  const centerElevationMeters = terrain === 'peak' ? 4200 : terrain === 'ridge' ? 2800 : terrain === 'crater' ? -1800 : 600;
+
+  // Cráteres locales sintéticos dentro del parche ±8 km
+  const craters = Array.from({ length: 10 }, () => ({
+    x: (rand() - 0.5) * extentMeters * 0.85,
+    z: (rand() - 0.5) * extentMeters * 0.85,
+    r: 450 + rand() * 1400,
+    d: 35 + rand() * 130,
+  }));
+
+  let minElevationMeters = centerElevationMeters;
+  let maxElevationMeters = centerElevationMeters;
+  const heightsMeters: number[][] = [];
+
+  for (let row = 0; row < size; row++) {
+    const northM = half - (row / (size - 1)) * extentMeters;
+    const line: number[] = [];
+    for (let col = 0; col < size; col++) {
+      const eastM = -half + (col / (size - 1)) * extentMeters;
+      const dist = Math.hypot(eastM, northM);
+      const azDeg = norm360(Math.atan2(eastM, northM) / DEG);
+      const xIdx = azDeg / stepDeg;
+      const i0 = Math.floor(xIdx) % elevations.length;
+      const i1 = (i0 + 1) % elevations.length;
+      const w = xIdx - Math.floor(xIdx);
+      const hDeg = elevations[i0] * (1 - w) + elevations[i1] * w;
+
+      const slope = Math.tan(clamp(hDeg, -2, 35) * DEG);
+      const blend = 1 - Math.exp(-((dist / (half * 0.35)) ** 2));
+      let z = centerElevationMeters + slope * dist * blend;
+
+      for (const c of craters) {
+        const dc = Math.hypot(eastM - c.x, northM - c.z);
+        if (dc < c.r * 1.35) {
+          const u = dc / c.r;
+          // Depresión suave con borde levemente elevado
+          z += u <= 1 ? -c.d * (1 - u * u) : c.d * 0.14 * Math.exp(-(((u - 1) / 0.22) ** 2));
+        }
+      }
+      z += Math.sin(eastM * 0.0018) * Math.cos(northM * 0.0021) * 14;
+      const rounded = round(z, 2);
+      minElevationMeters = Math.min(minElevationMeters, rounded);
+      maxElevationMeters = Math.max(maxElevationMeters, rounded);
+      line.push(rounded);
+    }
+    heightsMeters.push(line);
+  }
+
+  return {
+    size,
+    extentMeters,
+    stepMeters,
+    centerElevationMeters,
+    minElevationMeters,
+    maxElevationMeters,
+    heightsMeters,
+  };
+}
+
 export function generateHorizon(
   lat: number,
   lon: number,
@@ -140,7 +213,13 @@ export function generateHorizon(
     return round(h, 2);
   });
 
-  return { stepDeg, elevations };
+  const localDem = generateLocalDem(lat, lon, elevations, stepDeg, terrain);
+  return {
+    stepDeg,
+    elevations,
+    altitudeMeters: localDem.centerElevationMeters,
+    localDem,
+  };
 }
 
 /** Elevacion del terreno en un azimut cualquiera (interpolacion lineal). */
@@ -160,14 +239,19 @@ function bodyPosition(
 ): BodyPosition {
   const h = horizonAt(horizon, pos.azimuth);
   const visibleFraction = clamp((pos.elevation - h + radiusDeg) / (2 * radiusDeg), 0, 1);
+  const visible = pos.elevation > h;
+  const clear = pos.elevation - h - radiusDeg >= 0.5;
   return {
     azimuth: round(pos.azimuth),
     elevation: round(pos.elevation),
     horizonElevation: round(h),
-    visible: pos.elevation > h,
+    visible,
     visibleFraction: round(visibleFraction),
     // Aproximacion sintetica de "despejado": el borde del disco 0.5 grados sobre el terreno.
-    clear: pos.elevation - h - radiusDeg >= 0.5,
+    clear,
+    // Encima del horizonte ideal esferico (-0.09 deg para 2 m) pero bloqueado por relieve.
+    interference: !visible && pos.elevation > -0.09,
+    skyVector: azElToSkyVector(pos.azimuth, pos.elevation),
   };
 }
 
@@ -209,6 +293,15 @@ export function generateEphemeris(req: EphemerisRequest): EphemerisResponse {
     samples.push(sampleAt(req.lat, req.lon, startMs + i * stepMs, horizon));
   }
 
+  const first = samples[0];
+  const moonRadiusKm = 1737.4;
+  const { up } = moonMeBasis(req.lat, req.lon);
+  const sitePositionKm: [number, number, number] = [
+    round(up[0] * moonRadiusKm, 3),
+    round(up[1] * moonRadiusKm, 3),
+    round(up[2] * moonRadiusKm, 3),
+  ];
+
   return {
     lat: req.lat,
     lon: req.lon,
@@ -218,6 +311,15 @@ export function generateEphemeris(req: EphemerisRequest): EphemerisResponse {
     horizon,
     samples,
     ...summarize(samples, req.stepMinutes),
+    vectors3d: first
+      ? {
+          frame: 'MOON_ME',
+          moonRadiusKm,
+          sitePositionKm,
+          sunDirection: azElToMoonMe(req.lat, req.lon, first.sun.azimuth, first.sun.elevation),
+          earthDirection: azElToMoonMe(req.lat, req.lon, first.earth.azimuth, first.earth.elevation),
+        }
+      : null,
     terrain: true,
     source: 'mock',
   };

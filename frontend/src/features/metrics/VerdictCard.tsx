@@ -1,17 +1,19 @@
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 import { formatUtcDateTime } from '../../shared/lib/dates';
 import { formatDuration } from '../../shared/lib/format';
 import type { Verdict } from '../../shared/types/lunar';
 
 interface Props {
   verdict: Verdict;
+  /** Va al pie de la tarjeta (p. ej. las fechas alternativas cuando no es candidato). */
+  children?: ReactNode;
 }
 
 /**
  * CANDIDATO o NO CANDIDATO para aterrizar en la ventana, con sus motivos (texto de backend) y la mejor
  * ventana de aterrizaje. Verde y rojo son el semaforo; el veredicto siempre va tambien en texto.
  */
-export function VerdictCard({ verdict }: Props) {
+export function VerdictCard({ verdict, children }: Props) {
   const { isCandidate, reasons, landingWindows, bestWindow } = verdict;
   // id unico: en el comparador puede haber varios veredictos en la misma pagina.
   const titleId = useId();
@@ -50,6 +52,8 @@ export function VerdictCard({ verdict }: Props) {
           </p>
         </div>
       )}
+
+      {children}
     </section>
   );
 }

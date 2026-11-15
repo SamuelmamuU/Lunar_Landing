@@ -94,7 +94,9 @@ Respuesta (resumen; completo en `docs/ejemplos/evaluate-im2-1dia.json`):
   "site":    { "id": "mons-mouton-im2", "name": "...", "lat": -84.7906, "lon": 29.1957, "category": "CLPS" },
   "horizon": { "terrain": true, "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)", "LDEM_64_global.tif (~474 m/px)"],
                "z_m": 5321.5, "h_obs_m": 2.0,
-               "az_step_deg": 0.25, "max_deg": 4.061, "min_deg": -1.47, "profile_deg": [ "...1440 valores..." ] },
+               "az_step_deg": 0.25, "max_deg": 4.061, "min_deg": -1.47, "profile_deg": [ "...1440 valores..." ],
+               "local_dem": { "size": 64, "extent_m": 16000.0, "step_m": 253.968, "center_z_m": 5321.5,
+                              "min_z_m": 4910.2, "max_z_m": 5542.8, "heights_m": [["...64x64 m..."]] } },
   "result":  { "is_candidate": true, "label": "CANDIDATO", "first_landing_utc": "...",
                "best_window": { "start_utc": "...", "end_utc": "...", "duration_h": 296.0 },
                "landing_windows": [ { "start_utc": "...", "end_utc": "...", "duration_h": 296.0 } ],
@@ -130,6 +132,7 @@ Notas:
 - `next.*` es `null` si no hay cambio en los próximos 60 días (p. ej. Sol continuo, o lado oculto sin Tierra).
 - `events[].type`: `sunrise | sunset | earthrise | earthset`, con precisión de ~1 s.
 - `horizon.terrain: false` = no hay relieve para ese punto (esfera lisa). **El front debe avisarlo.**
+- `horizon.local_dem` (slice B-3D): grilla local $64\times 64$ en metros (`heights_m[r][c]`, con filas Norte→Sur y columnas Oeste→Este en pasos `step_m` sobre `extent_m` centrado en el sitio); `null` si `horizon.terrain` es `false`.
 - `earth_frac[i]` (slice B4): fracción visible del disco de la Tierra (0..1), igual que `sun_frac`.
   `earth_visible[i]` sigue siendo "el centro está sobre el terreno", que equivale a `earth_frac[i] > 0.5`.
 

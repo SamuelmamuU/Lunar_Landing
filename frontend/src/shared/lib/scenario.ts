@@ -1,22 +1,79 @@
 // Ventana de tiempo de un escenario: opciones, validaciones y armado de la peticion (sin React).
 
-import type { EphemerisRequest, Scenario } from '../types/lunar';
+import type { EphemerisRequest, MissionRequest, Scenario } from '../types/lunar';
 import { addDays, dateTimeInputToIso } from './dates';
 
-/** Duraciones que ofrece el formulario, en dias. 30 cubre un dia lunar completo (~29.5 dias). */
-export const DURATION_OPTIONS = [1, 7, 14, 30] as const;
+/**
+ * Ventana mas larga que se puede pedir, en dias: dos dias lunares (~29.5 dias cada uno). Backend acepta hasta
+ * 366, pero a paso de 1 h serian ~8800 muestras: carga lenta y un slider que no se puede mover con precision.
+ */
+export const MAX_DURATION_DAYS = 60;
+/** Ventana mas corta: una muestra de backend (el paso es de 60 min). */
+const MIN_DURATION_MINUTES = 60;
+const MINUTES_PER_DAY = 1440;
 
+/**
+ * Fechas que cubren los datos de orbitas de backend. La orientacion de la Luna (moon_pa_de421) termina a fines de
+ * 2050: medido contra backend, el ultimo fin que acepta es el 28 dic 2050 23:59; despues responde 422 con
+ * "SPICE(FRAMEDATANOTFOUND)", que nadie entiende. Si backend cambia a DE440, se puede ampliar.
+ */
 const MIN_YEAR = 1950;
-const MAX_YEAR = 2100;
+const MAX_YEAR = 2050;
+/** Primer y ultimo instante que se pueden pedir (valor de datetime-local). */
+export const COVERAGE_START_INPUT = `${MIN_YEAR}-01-01T00:00`;
+export const COVERAGE_END_INPUT = `${MAX_YEAR}-12-28T23:59`;
+const COVERAGE_END_MS = Date.parse(`${COVERAGE_END_INPUT}:00Z`);
+const COVERAGE_MESSAGE = `Usa una fecha entre ${MIN_YEAR} y el 28 dic ${MAX_YEAR}: es lo que cubren los datos de órbitas.`;
 
-/** Mensaje de error para el inicio (valor de datetime-local), o null si es valido. */
-export function validateStart(raw: string): string | null {
+/**
+ * Mensaje de error para el inicio (valor de datetime-local), o null si es valido. Con la duracion del escenario
+ * se revisa tambien que el fin (que se recorre con el inicio) no se salga de los datos.
+ */
+export function validateStart(raw: string, durationDays = 0): string | null {
   if (raw.trim() === '') return 'Elige una fecha de inicio.';
   const iso = dateTimeInputToIso(raw);
-  if (iso === null) return 'La fecha no es valida.';
+  if (iso === null) return 'La fecha no es válida.';
   const year = new Date(iso).getUTCFullYear();
-  if (year < MIN_YEAR || year > MAX_YEAR) return `Usa una fecha entre ${MIN_YEAR} y ${MAX_YEAR}.`;
+  if (year < MIN_YEAR || year > MAX_YEAR) return COVERAGE_MESSAGE;
+  if (Date.parse(addDays(iso, durationDays)) > COVERAGE_END_MS) {
+    return `Con esta duración el fin pasaría del 28 dic ${MAX_YEAR}: usa un inicio anterior o acorta la ventana.`;
+  }
   return null;
+}
+
+/**
+ * Mensaje de error para el fin (valor de datetime-local) dado el inicio (ISO), o null si es valido.
+ * El fin define la duracion: debe quedar despues del inicio y dentro de MAX_DURATION_DAYS.
+ */
+export function validateEnd(raw: string, startIso: string): string | null {
+  if (raw.trim() === '') return 'Elige una fecha de fin.';
+  const iso = dateTimeInputToIso(raw);
+  if (iso === null) return 'La fecha no es válida.';
+  const minutes = minutesBetween(startIso, iso);
+  if (minutes <= 0) return 'El fin debe ser después del inicio.';
+  if (minutes < MIN_DURATION_MINUTES) return 'La ventana debe durar al menos 1 hora.';
+  if (minutes > MAX_DURATION_DAYS * MINUTES_PER_DAY) return `La ventana puede durar hasta ${MAX_DURATION_DAYS} días.`;
+  if (Date.parse(iso) > COVERAGE_END_MS) return COVERAGE_MESSAGE;
+  return null;
+}
+
+/**
+ * Minutos enteros entre el inicio y el fin, contando el inicio como se ve en el campo (sin segundos). La fecha de
+ * alunizaje trae segundos (17:28:50): sin esto, un fin escrito a las 17:28 de una semana despues daria
+ * "6 d 23 h" y el campo saltaria a 17:27.
+ */
+function minutesBetween(startIso: string, endIso: string): number {
+  return Math.round(Date.parse(endIso) / 60_000) - Math.floor(Date.parse(startIso) / 60_000);
+}
+
+/** Dias entre el inicio y el fin, en minutos enteros (ver minutesBetween). */
+export function durationDaysBetween(startIso: string, endIso: string): number {
+  return minutesBetween(startIso, endIso) / MINUTES_PER_DAY;
+}
+
+/** Fin de la ventana de un escenario (ISO). */
+export function scenarioEnd(scenario: Scenario): string {
+  return addDays(scenario.start, scenario.durationDays);
 }
 
 /** Escenario -> peticion de efemerides. */
@@ -31,6 +88,12 @@ export function scenarioToRequest(scenario: Scenario): EphemerisRequest {
     // Los sitios personalizados no existen en el catalogo del backend.
     ...(site.category === 'custom' ? {} : { siteId: site.id }),
   };
+}
+
+/** Escenario -> peticion de fechas alternativas: aterriza al inicio de la ventana y sale al final. */
+export function scenarioToMissionRequest(scenario: Scenario): MissionRequest {
+  const { lat, lon, start, end, siteId } = scenarioToRequest(scenario);
+  return { lat, lon, landing: start, departure: end, ...(siteId ? { siteId } : {}) };
 }
 
 /**

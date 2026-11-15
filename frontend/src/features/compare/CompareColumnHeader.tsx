@@ -1,4 +1,5 @@
 import { formatUtcDate, formatUtcDateTime } from '../../shared/lib/dates';
+import { formatDays } from '../../shared/lib/format';
 import type { Scenario } from '../../shared/types/lunar';
 import { Button } from '../../shared/ui/Button';
 import { TerrainBadge } from '../../shared/ui/TerrainBadge';
@@ -27,7 +28,7 @@ export function CompareColumnHeader({ scenario, isActive, terrain, onShow, onRem
       <span className="block text-xs text-slate-500">
         {formatUtcDateTime(start)} UTC
         <br />
-        {durationDays} {durationDays === 1 ? 'día' : 'días'}
+        {formatDays(durationDays)}
       </span>
       {terrain === false && (
         <div className="mt-1.5">
