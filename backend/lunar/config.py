@@ -7,7 +7,7 @@ DEM_DIR = DATA_DIR / "dem"
 HORIZONS_FILE = DATA_DIR / "horizons.json"
 SITES_FILE = DATA_DIR / "sites.json"
 OUTPUT_DIR = ROOT / "output"
-FRONTEND_DATA_DIR = ROOT / "frontend" / "public" / "data"
+FRONTEND_DATA_DIR = ROOT.parent / "frontend" / "public" / "data"
 
 R_MOON_KM = 1737.4          # esfera de referencia de LOLA
 R_SUN_KM = 696_000.0
