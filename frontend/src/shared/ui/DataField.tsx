@@ -10,7 +10,7 @@ export function DataField({ label, value, tone = 'default' }: Props) {
   return (
     <div className="min-w-0">
       <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className={`truncate ${tone === 'accent' ? 'text-teal-800' : 'font-medium text-slate-900 dark:text-slate-400'}`} title={value}>
+      <dd className={`truncate ${tone === 'accent' ? 'text-teal-800' : 'font-medium text-slate-900'}`} title={value}>
         {value}
       </dd>
     </div>

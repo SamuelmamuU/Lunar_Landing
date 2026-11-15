@@ -222,6 +222,10 @@ app  ->  features  ->  shared
 - **Animaciones** (`tailwindcss-animated`): siempre con `motion-reduce:animate-none` y duraciones cortas
   (`animate-duration-300` a `500`). Solo en entradas y como respuesta a acciones, no decorativas en loop.
 - Paleta: superficies `slate`, acento `blue-600` (marca del equipo), texto `slate-900` / `slate-500`.
+- **Modo oscuro: no usar `dark:` en los componentes.** Es automatico (sigue al sistema): `index.html` pone `.dark` en
+  `<html>` y `index.css` invierte las escalas de color (50 <-> 950, blanco -> casi negro). Se escribe la clase de
+  modo claro y el oscuro sale solo. Lo que ya es oscuro por diseno (el bento del panorama) lleva `theme-fixed` y
+  conserva sus colores. Si un color nuevo no se ve bien en oscuro, se ajusta en `index.css`, no en el componente.
 - **Datos (coordenadas, datos de mision): `teal`** (`text-teal-700`, chips `bg-teal-50`), peso normal, sin bold.
   Usar `<Coordinates>` y `<DataField tone="accent">` en vez de repetir clases.
 - **Rojo, ambar y `green` estan reservados** para errores, avisos y el semaforo de metricas. No usarlos para

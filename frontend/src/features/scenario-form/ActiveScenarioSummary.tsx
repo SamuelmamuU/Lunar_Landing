@@ -12,7 +12,7 @@ export function ActiveScenarioSummary() {
   if (!scenario) {
     return (
       <div className="rounded-lg border border-dashed border-slate-400 p-6 text-slate-600">
-        <p className="font-medium text-slate-800 dark:text-slate-400">Elige un sitio para empezar.</p>
+        <p className="font-medium text-slate-800">Elige un sitio para empezar.</p>
         <p className="mt-1 text-sm">
           Toma uno del catalogo o escribe coordenadas propias. Despues vas a ver donde estan el Sol y
           la Tierra respecto al horizonte de ese lugar.

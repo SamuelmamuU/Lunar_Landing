@@ -44,8 +44,9 @@ export function SkyPanorama() {
       {/*
         < sm: todo apilado. sm..lg: panorama arriba a lo ancho; mapa y datos lado a lado debajo.
         lg+: panorama a la izquierda en las dos filas; mapa arriba y datos abajo a la derecha.
+        theme-fixed: el bento ya es oscuro por diseno; en modo oscuro conserva sus colores (ver index.css).
       */}
-      <div className="grid gap-2 sm:grid-cols-[15rem_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_15rem] lg:grid-rows-[auto_1fr]">
+      <div className="theme-fixed grid gap-2 sm:grid-cols-[15rem_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_15rem] lg:grid-rows-[auto_1fr]">
         <PanoramaPanel
           horizon={data.horizon}
           samples={data.samples}

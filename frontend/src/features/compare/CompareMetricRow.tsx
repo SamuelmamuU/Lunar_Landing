@@ -12,9 +12,9 @@ export function CompareMetricRow({ row, statuses }: Props) {
   const { label, description, better } = row.definition;
 
   return (
-    <tr className="border-t border-slate-200 dark:border-slate-700">
+    <tr className="border-t border-slate-200">
       <th scope="row" className="sticky left-0 bg-white px-3 py-2.5 text-left align-top font-normal">
-        <span className="block text-slate-900 dark:text-slate-400" title={description}>
+        <span className="block text-slate-900" title={description}>
           {label}
         </span>
         <span className="block text-xs text-slate-500">{better === 'higher' ? 'más es mejor' : 'menos es mejor'}</span>

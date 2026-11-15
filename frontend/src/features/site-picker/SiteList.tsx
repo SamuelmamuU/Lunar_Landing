@@ -58,7 +58,7 @@ export function SiteList({ state, groups, query, activeSiteId, onSelect }: Props
       {groups.map((group, g) => (
         <div key={group.category} className="mb-4">
           <h3
-            className={`sticky top-0 z-10 bg-white dark:bg-slate-900 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 ${ENTER_CLASS}`}
+            className={`sticky top-0 z-10 bg-white py-1 text-xs font-semibold text-slate-500 ${ENTER_CLASS}`}
             style={enterDelay(startRows[g])}
           >
             {group.label} <span className="font-normal">({group.sites.length})</span>

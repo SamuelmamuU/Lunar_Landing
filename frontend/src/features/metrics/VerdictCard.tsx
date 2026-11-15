@@ -43,8 +43,8 @@ export function VerdictCard({ verdict }: Props) {
       )}
 
       {bestWindow && (
-        <div className="mt-3 border-t border-slate-200 dark:border-slate-700/70 pt-3 text-sm">
-          <p className="font-semibold text-slate-800 dark:text-slate-400">Mejor ventana: {formatDuration(bestWindow.durationHours)}</p>
+        <div className="mt-3 border-t border-slate-200/70 pt-3 text-sm">
+          <p className="font-semibold text-slate-800">Mejor ventana: {formatDuration(bestWindow.durationHours)}</p>
           <p className="mt-0.5 text-slate-700">
             {formatUtcDateTime(bestWindow.start)} – {formatUtcDateTime(bestWindow.end)} UTC
           </p>

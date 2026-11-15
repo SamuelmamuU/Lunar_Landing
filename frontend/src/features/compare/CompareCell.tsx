@@ -24,7 +24,7 @@ export function CompareCell({ cell, status }: Props) {
   return (
     <td className="px-3 py-2.5 align-top">
       <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className={`tabular-nums ${cell.isBest ? 'font-semibold text-slate-900 dark:text-slate-400' : 'text-slate-700'}`}>
+        <span className={`tabular-nums ${cell.isBest ? 'font-semibold text-slate-900' : 'text-slate-700'}`}>
           {cell.text}
         </span>
         {cell.isBest && <span className="rounded bg-slate-900 px-1.5 text-xs font-medium text-white">mejor</span>}

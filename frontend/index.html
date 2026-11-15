@@ -5,6 +5,18 @@
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lunar Landing</title>
+    <!--
+      Modo oscuro automatico: sigue al sistema. Va aqui (antes de pintar) para que no parpadee en claro.
+      La clase .dark en <html> invierte la paleta (ver src/index.css).
+    -->
+    <script>
+      (() => {
+        const query = matchMedia('(prefers-color-scheme: dark)');
+        const apply = () => document.documentElement.classList.toggle('dark', query.matches);
+        apply();
+        query.addEventListener('change', apply);
+      })();
+    </script>
     <!-- Fuente de la app: JetBrains Mono (Google Fonts). La familia se asigna en src/index.css (@theme). -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

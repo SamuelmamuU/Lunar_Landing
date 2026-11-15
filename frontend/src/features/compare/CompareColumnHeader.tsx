@@ -21,7 +21,7 @@ export function CompareColumnHeader({ scenario, isActive, terrain, onShow, onRem
 
   return (
     <th scope="col" className="px-3 pb-3 text-left align-bottom font-normal">
-      <span className="line-clamp-2 font-semibold text-slate-900 dark:text-slate-400" title={site.name}>
+      <span className="line-clamp-2 font-semibold text-slate-900" title={site.name}>
         {site.name}
       </span>
       <span className="block text-xs text-slate-500">

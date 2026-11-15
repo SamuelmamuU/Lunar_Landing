@@ -25,7 +25,7 @@ export function ComparePanel() {
   return (
     <section aria-labelledby={titleId} className="space-y-3 pt-6">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id={titleId} className="text-lg font-semibold text-slate-900 dark:text-slate-400">
+        <h2 id={titleId} className="text-lg font-semibold text-slate-900">
           Comparar escenarios
         </h2>
         {scenarios.length > 0 && (
@@ -37,7 +37,7 @@ export function ComparePanel() {
 
       {scenarios.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-400 p-6 text-sm text-slate-600">
-          <p className="font-medium text-slate-800 dark:text-slate-400">Agrega el escenario que estás viendo con «Agregar al comparador».</p>
+          <p className="font-medium text-slate-800">Agrega el escenario que estás viendo con «Agregar al comparador».</p>
           <p className="mt-1">
             Después elige otro sitio (la fecha se conserva) o cambia la fecha (el sitio se conserva) y agrégalo
             también. Caben hasta {MAX_COMPARED_SCENARIOS}.
