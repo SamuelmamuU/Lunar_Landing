@@ -7,64 +7,46 @@ interface Props {
   verdict: Verdict;
 }
 
+/**
+ * CANDIDATO o NO CANDIDATO para aterrizar en la ventana, con sus motivos (texto de backend) y la mejor
+ * ventana de aterrizaje. Verde y rojo son el semaforo; el veredicto siempre va tambien en texto.
+ */
 export function VerdictCard({ verdict }: Props) {
-  const { isCandidate, reasons, bestWindow } = verdict;
+  const { isCandidate, reasons, landingWindows, bestWindow } = verdict;
   // id unico: en el comparador puede haber varios veredictos en la misma pagina.
   const titleId = useId();
+  const windowCount = landingWindows.length;
 
   return (
     <section
       aria-labelledby={titleId}
-      className={`rounded-xl border p-5 ${
-        isCandidate
-          ? 'border-green-200 bg-green-50'
-          : 'border-red-200 bg-red-50'
-      }`}
+      className={`rounded-lg border p-4 ${isCandidate ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-slate-600">
-            Evaluación del sitio
-          </p>
-          <h2
-            id={titleId}
-            className={`mt-1 text-2xl font-bold ${
-              isCandidate ? 'text-green-800' : 'text-red-800'
-            }`}
-          >
-            {isCandidate ? 'CANDIDATO' : 'NO CANDIDATO'}
-          </h2>
-        </div>
-      </div>
+      <h2 id={titleId} className={`text-2xl font-bold ${isCandidate ? 'text-green-800' : 'text-red-800'}`}>
+        {isCandidate ? 'CANDIDATO' : 'NO CANDIDATO'}
+      </h2>
+      <p className="text-sm text-slate-600">para aterrizar en esta ventana</p>
 
-      <div className="mt-4">
-        <h3 className="text-sm font-semibold text-slate-800">
-          Razones de la evaluación
-        </h3>
-
-        {reasons.length > 0 ? (
-          <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-slate-700">
-            {reasons.map((reason, index) => (
-              <li key={`${index}-${reason}`}>{reason}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-2 text-sm text-slate-600">
-            El backend no proporcionó razones adicionales.
+      {reasons.length > 0 ? (
+        <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-slate-700">
+          {reasons.map((reason, index) => (
+            <li key={`${index}-${reason}`}>{reason}</li>
+          ))}
+        </ul>
+      ) : (
+        isCandidate && (
+          <p className="mt-3 text-sm text-slate-700">
+            Hay {windowCount === 1 ? 'una ventana' : `${windowCount} ventanas`} con Sol y Tierra despejados y horas por
+            delante.
           </p>
-        )}
-      </div>
+        )
+      )}
 
       {bestWindow && (
-        <div className="mt-4 border-t border-slate-200/70 pt-4">
-          <h3 className="text-sm font-semibold text-slate-800">
-            Mejor ventana de aterrizaje
-          </h3>
-          <p className="mt-1 text-sm text-slate-700">
+        <div className="mt-3 border-t border-slate-200/70 pt-3 text-sm">
+          <p className="font-semibold text-slate-800">Mejor ventana: {formatDuration(bestWindow.durationHours)}</p>
+          <p className="mt-0.5 text-slate-700">
             {formatUtcDateTime(bestWindow.start)} – {formatUtcDateTime(bestWindow.end)} UTC
-          </p>
-          <p className="mt-1 text-sm font-medium text-slate-800">
-            Duración: {formatDuration(bestWindow.durationHours)}
           </p>
         </div>
       )}

@@ -1,5 +1,2 @@
-
-export { VerdictCard } from './VerdictCard';
-export { NextEvents } from './NextEvents';
-export { MetricsGrid } from './MetricsGrid';
-export { MetricCard } from './MetricCard';
+// API publica del feature: el resto de la app solo importa desde aqui.
+export { MetricsPanel } from './MetricsPanel';

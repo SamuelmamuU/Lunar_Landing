@@ -1,98 +1,44 @@
 import { useId } from 'react';
-import { formatDegrees } from '../../shared/lib/angles';
-import { formatDuration, formatPercent } from '../../shared/lib/format';
 import type { ScenarioMetrics } from '../../shared/types/lunar';
 import { MetricCard } from './MetricCard';
+import { extraMetrics, mainMetrics } from './metricItems';
 
 interface Props {
   metrics: ScenarioMetrics;
+  /** "30 días desde el 6 mar 2025, 17:29 UTC": a que periodo se refieren los numeros. */
+  windowText: string;
 }
 
-export function MetricsGrid({ metrics }: Props) {
+/** Las 6 metricas principales a la vista y el resto en un desplegable. */
+export function MetricsGrid({ metrics, windowText }: Props) {
   // id unico: en el comparador puede haber varias rejillas en la misma pagina.
   const titleId = useId();
-  const items = [
-    {
-      label: 'Visibilidad del Sol',
-      value: formatPercent(metrics.sunVisiblePct),
-      description: 'Porcentaje del tiempo con el Sol visible',
-    },
-    {
-      label: 'Energía solar',
-      value: formatPercent(metrics.sunEnergyPct),
-      description: 'Porcentaje de energía solar recibida',
-    },
-    {
-      label: 'Visibilidad de la Tierra',
-      value: formatPercent(metrics.earthVisiblePct),
-      description: 'Porcentaje del tiempo con la Tierra visible',
-    },
-    {
-      label: 'Visibilidad simultánea',
-      value: formatPercent(metrics.sunAndEarthPct),
-      description: 'Sol y Tierra visibles al mismo tiempo',
-    },
-    {
-      label: 'Periodo más largo de luz',
-      value: formatDuration(metrics.longestLightHours),
-      description: 'Mayor periodo continuo de iluminación',
-    },
-    {
-      label: 'Noche más larga',
-      value: formatDuration(metrics.longestDarkHours),
-      description: 'Mayor periodo continuo sin luz solar',
-    },
-    {
-      label: 'Mayor interrupción de comunicación',
-      value: formatDuration(metrics.longestEarthGapHours),
-      description: 'Mayor periodo continuo sin visibilidad terrestre',
-    },
-    {
-      label: 'Elevación solar máxima',
-      value: formatDegrees(metrics.maxSunElevation),
-      description: 'Máxima elevación del Sol sobre el horizonte',
-    },
-    {
-      label: 'Elevación solar mínima',
-      value: formatDegrees(metrics.minSunElevation),
-      description: 'Mínima elevación del Sol sobre el horizonte',
-    },
-    {
-      label: 'Tiempo candidato',
-      value: formatPercent(metrics.candidatePct),
-      description: 'Porcentaje del periodo que cumple los criterios',
-    },
-    {
-      label: 'Bloqueo del Sol por terreno',
-      value: formatPercent(metrics.sunBlockedByTerrainPct),
-      description: 'Porcentaje del tiempo bloqueado por el relieve',
-    },
-    {
-      label: 'Bloqueo de la Tierra por terreno',
-      value: formatPercent(metrics.earthBlockedByTerrainPct),
-      description: 'Porcentaje del tiempo bloqueado por el relieve',
-    },
-  ];
 
   return (
-    <section aria-labelledby={titleId}>
-      <h2
-        id={titleId}
-        className="mb-3 text-lg font-semibold text-slate-900"
-      >
-        Métricas del escenario
-      </h2>
+    <section aria-labelledby={titleId} className="space-y-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 id={titleId} className="text-lg font-semibold text-slate-900">
+          Métricas de la ventana
+        </h2>
+        <p className="text-sm text-slate-500">{windowText}</p>
+      </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => (
-          <MetricCard
-            key={item.label}
-            label={item.label}
-            value={item.value}
-            description={item.description}
-          />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        {mainMetrics(metrics).map((item) => (
+          <MetricCard key={item.label} {...item} />
         ))}
       </div>
+
+      <details className="group">
+        <summary className="w-fit cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40">
+          Más métricas
+        </summary>
+        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          {extraMetrics(metrics).map((item) => (
+            <MetricCard key={item.label} {...item} />
+          ))}
+        </div>
+      </details>
     </section>
   );
 }
