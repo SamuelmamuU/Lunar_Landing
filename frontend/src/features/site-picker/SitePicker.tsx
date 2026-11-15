@@ -1,8 +1,9 @@
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useAppStore } from '../../app/store';
 import type { LandingSite } from '../../shared/types/lunar';
 import { Button } from '../../shared/ui/Button';
 import { AddIcon } from '../../shared/ui/icons/AddIcon';
+import { SidebarCollapseIcon } from '../../shared/ui/icons/SidebarCollapseIcon';
 import { CustomSiteForm } from './CustomSiteForm';
 import { SiteList } from './SiteList';
 import { SiteSearch } from './SiteSearch';
@@ -20,9 +21,19 @@ export function SitePicker() {
   const customSites = useAppStore((s) => s.customSites);
   const activeSiteId = useAppStore((s) => s.activeScenario?.site.id);
   const selectSite = useAppStore((s) => s.selectSite);
+  const setSidebarCollapsed = useAppStore((s) => s.setSidebarCollapsed);
+  const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
+  const collapseRef = useRef<HTMLButtonElement>(null);
+  const wasCollapsed = useRef(sidebarCollapsed);
   const [query, setQuery] = useState('');
   const [showCustomForm, setShowCustomForm] = useState(false);
   const titleId = useId();
+
+  // Al expandir, el boton de expandir desaparece: el foco vuelve al de contraer para no perderse.
+  useEffect(() => {
+    if (wasCollapsed.current && !sidebarCollapsed) collapseRef.current?.focus();
+    wasCollapsed.current = sidebarCollapsed;
+  }, [sidebarCollapsed]);
 
   const catalog = sitesState.status === 'ready' ? sitesState.sites : NO_SITES;
   const groups = useMemo(
@@ -36,12 +47,25 @@ export function SitePicker() {
         <h2 id={titleId} className="whitespace-nowrap text-lg font-semibold text-slate-900">
           Escenarios
         </h2>
-        {!showCustomForm && (
-          <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="Nuevo punto por coordenadas">
-            <AddIcon />
-            Nuevo punto
+        <div className="flex items-center gap-1">
+          {!showCustomForm && (
+            <Button size="sm" onClick={() => setShowCustomForm(true)} aria-label="Nuevo punto por coordenadas">
+              <AddIcon />
+              Nuevo punto
+            </Button>
+          )}
+          {/* Solo el icono, para que quepa junto a "Nuevo punto". */}
+          <Button
+            ref={collapseRef}
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarCollapsed(true)}
+            aria-label="Contraer barra lateral"
+            title="Contraer barra lateral"
+          >
+            <SidebarCollapseIcon />
           </Button>
-        )}
+        </div>
       </div>
 
       {showCustomForm && <CustomSiteForm onDone={() => setShowCustomForm(false)} />}

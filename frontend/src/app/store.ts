@@ -50,6 +50,8 @@ interface AppState {
   currentTime: string | null;
   /** Efemerides del escenario activo (las carga loadEphemeris). */
   ephemeris: EphemerisState;
+  /** Barra lateral contraida: el boton vive en el selector de sitio y el ancho lo cambia el layout. */
+  sidebarCollapsed: boolean;
 
   /**
    * Cambia el sitio del escenario activo. Conserva fecha, duracion y paso,
@@ -64,6 +66,7 @@ interface AppState {
    */
   updateScenario: (patch: ScenarioWindowPatch) => void;
   setCurrentTime: (time: string | null) => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
   /**
    * Agrega una copia del escenario activo al comparador y carga sus efemerides (si ya estan cargadas para el
    * activo, las reutiliza). No hace nada si ya esta (mismo sitio y ventana) o si el comparador esta lleno.
@@ -88,6 +91,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   activeScenario: null,
   currentTime: null,
   ephemeris: { status: 'idle', data: null, error: null },
+  sidebarCollapsed: false,
 
   selectSite: (site) => {
     const prev = get().activeScenario;
@@ -120,6 +124,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   setCurrentTime: (time) => set({ currentTime: time }),
+
+  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
 
   addScenario: () => {
     const { activeScenario, scenarios, ephemeris } = get();
