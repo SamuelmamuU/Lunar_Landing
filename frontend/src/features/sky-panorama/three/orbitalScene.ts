@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { EphemerisSample, OrbitalVectors3D, Vec3 } from '../../../shared/types/lunar';
 import { BODIES } from '../../../shared/lib/bodies';
+import { createRealisticEarth, createRealisticSun } from './celestialBodies';
 import {
   bodyOcclusionState,
   clamp01,
@@ -200,26 +201,63 @@ export function createOrbitalScene(container: HTMLElement) {
   controls.maxDistance = 64;
 
   // Iluminacion astronomica real: luz solar direccional para marcar el terminador
-  const ambientLight = new THREE.AmbientLight(0x1f2937, 0.45);
+  const ambientLight = new THREE.AmbientLight(0x1f2937, 0.24);
   scene.add(ambientLight);
-  const sunLight = new THREE.DirectionalLight(0xfff7ed, 2.7);
+  const sunLight = new THREE.DirectionalLight(0xfff7ed, 2.85);
   sunLight.position.set(30, 5, 20);
   scene.add(sunLight);
 
   scene.add(buildStarfield());
 
-  // Globo lunar
-  const { map: moonMap, bumpMap: moonBump } = createMoonTextures();
-  const moonGeom = new THREE.SphereGeometry(MOON_WORLD_RADIUS, 64, 48);
+  // Globo lunar: arranque inmediato con fallback y carga asincrona de mapas reales NASA SVS 4720 (LROC/LOLA)
+  const fallbackMoon = createMoonTextures();
+  let activeMoonMap: THREE.Texture = fallbackMoon.map;
+  let activeMoonBump: THREE.Texture = fallbackMoon.bumpMap;
+  const moonGeom = new THREE.SphereGeometry(MOON_WORLD_RADIUS, 72, 54);
   const moonMat = new THREE.MeshStandardMaterial({
-    map: moonMap,
-    bumpMap: moonBump,
-    bumpScale: 0.16,
-    roughness: 0.92,
+    map: activeMoonMap,
+    bumpMap: activeMoonBump,
+    bumpScale: 0.22,
+    roughness: 0.94,
     metalness: 0.02,
   });
   const moonMesh = new THREE.Mesh(moonGeom, moonMat);
+  // Alinea u=0.5 (meridiano 0° de NASA SVS 4720) con +Z de moonMeToThree y +90°E con +X
+  moonMesh.rotation.y = -Math.PI / 2;
   scene.add(moonMesh);
+
+  let disposed = false;
+  const texLoader = new THREE.TextureLoader();
+  const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  const baseUrl = import.meta.env.BASE_URL ?? '/';
+
+  texLoader.load(`${baseUrl}textures/moon_color.jpg`, (loadedMap) => {
+    if (disposed) {
+      loadedMap.dispose();
+      return;
+    }
+    loadedMap.colorSpace = THREE.SRGBColorSpace;
+    loadedMap.anisotropy = maxAniso;
+    const prev = activeMoonMap;
+    activeMoonMap = loadedMap;
+    moonMat.map = loadedMap;
+    moonMat.needsUpdate = true;
+    prev.dispose();
+  });
+
+  texLoader.load(`${baseUrl}textures/moon_bump.jpg`, (loadedBump) => {
+    if (disposed) {
+      loadedBump.dispose();
+      return;
+    }
+    loadedBump.anisotropy = maxAniso;
+    const prev = activeMoonBump;
+    activeMoonBump = loadedBump;
+    moonMat.bumpMap = loadedBump;
+    moonMat.bumpScale = 0.26;
+    moonMat.needsUpdate = true;
+    prev.dispose();
+  });
 
   // Graticula sutil: ecuador y paralelo -80S (cobertura LOLA polo sur)
   const eqGeom = buildLatRingGeometry(0, MOON_WORLD_RADIUS + 0.025);
@@ -270,30 +308,10 @@ export function createOrbitalScene(container: HTMLElement) {
   );
   scene.add(craftMesh);
 
-  // Proxy Sol y Tierra
-  const sunGroup = new THREE.Group();
-  const sunSphere = new THREE.Mesh(
-    new THREE.SphereGeometry(1.15, 24, 18),
-    new THREE.MeshBasicMaterial({ color: BODIES.sun.color }),
-  );
-  const sunHalo = new THREE.Mesh(
-    new THREE.RingGeometry(1.4, 1.75, 32),
-    new THREE.MeshBasicMaterial({ color: 0xfdba74, side: THREE.DoubleSide, transparent: true, opacity: 0.65 }),
-  );
-  sunGroup.add(sunSphere, sunHalo);
-  scene.add(sunGroup);
-
-  const earthGroup = new THREE.Group();
-  const earthSphere = new THREE.Mesh(
-    new THREE.SphereGeometry(1.4, 28, 22),
-    new THREE.MeshStandardMaterial({ color: BODIES.earth.color, roughness: 0.55, emissive: 0x0c4a6e, emissiveIntensity: 0.4 }),
-  );
-  const earthHalo = new THREE.Mesh(
-    new THREE.RingGeometry(1.65, 1.92, 32),
-    new THREE.MeshBasicMaterial({ color: 0x7dd3fc, side: THREE.DoubleSide, transparent: true, opacity: 0.55 }),
-  );
-  earthGroup.add(earthSphere, earthHalo);
-  scene.add(earthGroup);
+  // Sol y Tierra realistas en orbita
+  const realisticSun = createRealisticSun(1.22, { depthTestHalo: true });
+  const realisticEarth = createRealisticEarth(1.45, { depthTestHalo: true });
+  scene.add(realisticSun.group, realisticEarth.group);
 
   // Rayos sitio -> Sol y sitio -> Tierra
   const sunRay = buildRayLine(BODIES.sun.color);
@@ -340,8 +358,8 @@ export function createOrbitalScene(container: HTMLElement) {
     const earthDir = toThreeVec(dirs.earthDir, 1).normalize();
 
     sunLight.position.copy(sunDir).multiplyScalar(80);
-    sunGroup.position.copy(sunDir).multiplyScalar(SUN_PROXY_DIST);
-    earthGroup.position.copy(earthDir).multiplyScalar(EARTH_PROXY_DIST);
+    realisticSun.group.position.copy(sunDir).multiplyScalar(SUN_PROXY_DIST);
+    realisticEarth.group.position.copy(earthDir).multiplyScalar(EARTH_PROXY_DIST);
 
     const siteSurfacePos = latestSiteUnit.clone().multiplyScalar(MOON_WORLD_RADIUS);
     siteGroup.position.copy(siteSurfacePos);
@@ -390,13 +408,18 @@ export function createOrbitalScene(container: HTMLElement) {
 
   let rafId = 0;
   let paused = document.hidden;
+  let elapsedSec = 0;
+  let lastNow = performance.now();
 
   const tick = () => {
     if (paused) return;
     rafId = requestAnimationFrame(tick);
 
-    sunHalo.lookAt(camera.position);
-    earthHalo.lookAt(camera.position);
+    const now = performance.now();
+    elapsedSec += Math.min(0.05, (now - lastNow) / 1000);
+    lastNow = now;
+    realisticSun.update(elapsedSec);
+    realisticEarth.update(elapsedSec);
 
     if (camTransition > 0.01) {
       camera.position.lerp(targetCamPos, 0.12);
@@ -410,7 +433,10 @@ export function createOrbitalScene(container: HTMLElement) {
 
   const onVisibility = () => {
     paused = document.hidden;
-    if (!paused) tick();
+    if (!paused) {
+      lastNow = performance.now();
+      tick();
+    }
   };
   document.addEventListener('visibilitychange', onVisibility);
 
@@ -419,11 +445,14 @@ export function createOrbitalScene(container: HTMLElement) {
   tick();
 
   const dispose = () => {
+    disposed = true;
     paused = true;
     cancelAnimationFrame(rafId);
     document.removeEventListener('visibilitychange', onVisibility);
     observer.disconnect();
     controls.dispose();
+    realisticSun.dispose();
+    realisticEarth.dispose();
     scene.traverse((obj) => {
       if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
         obj.geometry.dispose();
@@ -431,8 +460,8 @@ export function createOrbitalScene(container: HTMLElement) {
         for (const m of mats) m.dispose();
       }
     });
-    moonMap.dispose();
-    moonBump.dispose();
+    activeMoonMap.dispose();
+    activeMoonBump.dispose();
     renderer.dispose();
     if (renderer.domElement.parentNode === container) {
       container.removeChild(renderer.domElement);

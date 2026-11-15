@@ -9,6 +9,7 @@ import {
   sampleLocalElevationOffset,
 } from './demGeometry';
 import { createLanderMesh } from './landerMesh';
+import { createRealisticEarth, createRealisticSun } from './celestialBodies';
 import {
   azElToSkyVector,
   clamp01,
@@ -93,6 +94,20 @@ function buildStars(count = 700): THREE.Points {
   return new THREE.Points(geom, mat);
 }
 
+function disposeMaterial(mat: THREE.Material): void {
+  if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshBasicMaterial) {
+    mat.map?.dispose();
+  }
+  if (mat instanceof THREE.MeshStandardMaterial) {
+    mat.bumpMap?.dispose();
+    mat.roughnessMap?.dispose();
+  }
+  if (mat instanceof THREE.SpriteMaterial) {
+    mat.map?.dispose();
+  }
+  mat.dispose();
+}
+
 function disposeGroupChildren(group: THREE.Group): void {
   while (group.children.length > 0) {
     const child = group.children[0];
@@ -101,10 +116,9 @@ function disposeGroupChildren(group: THREE.Group): void {
       if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
         obj.geometry.dispose();
         const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-        for (const m of mats) m.dispose();
+        for (const m of mats) disposeMaterial(m);
       } else if (obj instanceof THREE.Sprite) {
-        obj.material.map?.dispose();
-        obj.material.dispose();
+        disposeMaterial(obj.material);
       }
     });
   }
@@ -126,12 +140,14 @@ export function createSurfaceScene(container: HTMLElement) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  controls.maxPolarAngle = Math.PI * 0.56;
+  controls.minPolarAngle = 0.03;
+  controls.maxPolarAngle = Math.PI * 0.85;
 
-  // Iluminacion lunar real + luz tenue de ceniza terrestre / instrumentos
-  const ambientLight = new THREE.AmbientLight(0x334155, 0.38);
-  const sunLight = new THREE.DirectionalLight(0xfffbeb, 2.4);
-  scene.add(ambientLight, sunLight);
+  // Iluminacion lunar contrastada + luz tenue de ceniza terrestre / instrumentos
+  const ambientLight = new THREE.AmbientLight(0x334155, 0.36);
+  const hemisphereLight = new THREE.HemisphereLight(0x64748b, 0x0b1120, 0.22);
+  const sunLight = new THREE.DirectionalLight(0xfffbeb, 2.65);
+  scene.add(ambientLight, hemisphereLight, sunLight);
 
   scene.add(buildStars());
 
@@ -166,16 +182,10 @@ export function createSurfaceScene(container: HTMLElement) {
   const lander = createLanderMesh();
   scene.add(lander.group);
 
-  // Sol y Tierra en boveda celeste (profundidad real ocluida por montanas)
-  const sunMesh = new THREE.Mesh(
-    new THREE.SphereGeometry(850, 24, 18),
-    new THREE.MeshBasicMaterial({ color: BODIES.sun.color }),
-  );
-  const earthMesh = new THREE.Mesh(
-    new THREE.SphereGeometry(1350, 24, 18),
-    new THREE.MeshBasicMaterial({ color: BODIES.earth.color }),
-  );
-  scene.add(sunMesh, earthMesh);
+  // Sol y Tierra realistas en boveda celeste (mas alla de la cresta de 26 km, con profundidad real)
+  const realisticSun = createRealisticSun(920, { depthTestHalo: true });
+  const realisticEarth = createRealisticEarth(1450, { depthTestHalo: true });
+  scene.add(realisticSun.group, realisticEarth.group);
 
   // Anillos fantasma (depthTest: false) para diagnosticar cuerpos bloqueados por relieve
   const sunGhost = makeGhostRing(BODIES.sun.color);
@@ -207,16 +217,24 @@ export function createSurfaceScene(container: HTMLElement) {
   const applyCameraRig = (mode: SurfaceCameraMode, landerPos: THREE.Vector3, isTransition = true) => {
     cameraMode = mode;
     if (mode === 'first_person') {
-      const eye = landerPos.clone().add(new THREE.Vector3(0, 3.68, 0));
-      controls.minDistance = 0.1;
-      controls.maxDistance = 0.8;
+      const eye = landerPos.clone().add(new THREE.Vector3(0, 3.85, 0));
+      controls.minDistance = 0.12;
+      controls.maxDistance = 0.12;
+      controls.minPolarAngle = Math.PI * 0.35;
+      controls.maxPolarAngle = Math.PI * 0.998;
+      controls.rotateSpeed = -0.55;
+      controls.enablePan = false;
       if (isTransition) {
         controls.target.copy(eye);
-        camera.position.copy(eye).add(new THREE.Vector3(0, 0.02, 0.25));
+        camera.position.copy(eye).add(new THREE.Vector3(0, -0.01, 0.12));
       }
     } else if (mode === 'third_person') {
       controls.minDistance = 6;
       controls.maxDistance = 2600;
+      controls.minPolarAngle = 0.03;
+      controls.maxPolarAngle = Math.PI * 0.85;
+      controls.rotateSpeed = 0.85;
+      controls.enablePan = true;
       if (isTransition) {
         controls.target.copy(landerPos).add(new THREE.Vector3(0, 2.2, 0));
         camera.position.copy(landerPos).add(new THREE.Vector3(14, 7.5, 16));
@@ -224,6 +242,10 @@ export function createSurfaceScene(container: HTMLElement) {
     } else {
       controls.minDistance = 12;
       controls.maxDistance = 8500;
+      controls.minPolarAngle = 0.03;
+      controls.maxPolarAngle = Math.PI * 0.85;
+      controls.rotateSpeed = 0.85;
+      controls.enablePan = true;
       if (isTransition) {
         controls.target.copy(landerPos);
         camera.position.copy(landerPos).add(new THREE.Vector3(-420, 260, 520));
@@ -307,37 +329,53 @@ export function createSurfaceScene(container: HTMLElement) {
 
     // Actualizar desplazamiento relativo de camara al animar el descenso
     const delta = latestLanderPos.clone().sub(prevLanderPos);
-    if (delta.lengthSq() > 1e-6 && focusTransition <= 0.01) {
-      controls.target.add(delta);
-      camera.position.add(delta);
+    if (delta.lengthSq() > 1e-6) {
+      if (focusTransition <= 0.01) {
+        controls.target.add(delta);
+        camera.position.add(delta);
+      } else {
+        focusLookTarget.add(delta);
+        focusCamTarget.add(delta);
+      }
     }
 
-    // Posicionar Sol, Tierra y luz solar
+    // Posicionar Sol, Tierra y luz solar (cuerpos celestes a 32 km > cresta de 26 km)
     const [sx, sy, sz] = skyPositionAtRadius(
+      params.current.sun.azimuth,
+      params.current.sun.elevation,
+      32_000,
+    );
+    const [ex, ey, ez] = skyPositionAtRadius(
+      params.current.earth.azimuth,
+      params.current.earth.elevation,
+      32_000,
+    );
+
+    realisticSun.group.position.set(sx, sy, sz);
+    realisticEarth.group.position.set(ex, ey, ez);
+
+    const [gsx, gsy, gsz] = skyPositionAtRadius(
       params.current.sun.azimuth,
       params.current.sun.elevation,
       SKY_DOME_RADIUS_M,
     );
-    const [ex, ey, ez] = skyPositionAtRadius(
+    const [gex, gey, gez] = skyPositionAtRadius(
       params.current.earth.azimuth,
       params.current.earth.elevation,
       SKY_DOME_RADIUS_M,
     );
 
-    sunMesh.position.set(sx, sy, sz);
-    earthMesh.position.set(ex, ey, ez);
-
-    sunGhost.position.set(sx, sy, sz);
+    sunGhost.position.set(gsx, gsy, gsz);
     sunGhost.lookAt(camera.position);
     sunGhost.visible = params.current.sun.interference;
 
-    earthGhost.position.set(ex, ey, ez);
+    earthGhost.position.set(gex, gey, gez);
     earthGhost.lookAt(camera.position);
     earthGhost.visible = params.current.earth.interference;
 
     const [lx, ly, lz] = azElToSkyVector(params.current.sun.azimuth, Math.max(3, params.current.sun.elevation));
     sunLight.position.set(lx * 30000, ly * 30000, lz * 30000);
-    sunLight.intensity = params.current.sun.visible ? 2.5 : 0.45;
+    sunLight.intensity = params.current.sun.visible ? 2.65 : 0.45;
   };
 
   const setCameraMode = (mode: SurfaceCameraMode) => {
@@ -349,12 +387,21 @@ export function createSurfaceScene(container: HTMLElement) {
     const [vx, vy, vz] = azElToSkyVector(azDeg, elDeg);
     const dir = new THREE.Vector3(vx, vy, vz).normalize();
     if (cameraMode === 'first_person') {
-      const eye = latestLanderPos.clone().add(new THREE.Vector3(0, 3.68, 0));
+      const eye = latestLanderPos.clone().add(new THREE.Vector3(0, 3.85, 0));
       focusLookTarget.copy(eye);
-      focusCamTarget.copy(eye).sub(dir.multiplyScalar(0.25));
+      focusCamTarget.copy(eye).sub(dir.multiplyScalar(0.12));
     } else {
       focusLookTarget.copy(latestLanderPos).add(dir.clone().multiplyScalar(220));
       focusCamTarget.copy(latestLanderPos).add(new THREE.Vector3(0, 4.5, 0)).sub(dir.multiplyScalar(18));
+      if (latestParams) {
+        const groundAtFocusCam = sampleLocalElevationOffset(
+          latestParams.horizon.localDem,
+          focusCamTarget.x,
+          -focusCamTarget.z,
+          latestParams.verticalScale,
+        );
+        focusCamTarget.y = Math.max(focusCamTarget.y, groundAtFocusCam + 2.0);
+      }
     }
     focusTransition = 1;
   };
@@ -373,6 +420,20 @@ export function createSurfaceScene(container: HTMLElement) {
   let lastNow = performance.now();
   let paused = document.hidden;
 
+  const clampCameraAboveTerrain = () => {
+    if (!latestParams) return;
+    const camGroundY = sampleLocalElevationOffset(
+      latestParams.horizon.localDem,
+      camera.position.x,
+      -camera.position.z,
+      latestParams.verticalScale,
+    );
+    const minCamY = camGroundY + (cameraMode === 'first_person' ? 1.5 : 1.8);
+    if (camera.position.y < minCamY) {
+      camera.position.y = minCamY;
+    }
+  };
+
   const tick = () => {
     if (paused) return;
     rafId = requestAnimationFrame(tick);
@@ -380,6 +441,9 @@ export function createSurfaceScene(container: HTMLElement) {
     const dt = Math.min(0.05, (now - lastNow) / 1000);
     lastNow = now;
     clock += dt;
+
+    realisticSun.update(clock);
+    realisticEarth.update(clock);
 
     if (latestParams) {
       const d = computeDescentState(clamp01(latestParams.descentProgress));
@@ -399,10 +463,12 @@ export function createSurfaceScene(container: HTMLElement) {
       focusTransition *= 0.86;
     }
 
+    controls.update();
+    clampCameraAboveTerrain();
+
     if (sunGhost.visible) sunGhost.lookAt(camera.position);
     if (earthGhost.visible) earthGhost.lookAt(camera.position);
 
-    controls.update();
     renderer.render(scene, camera);
   };
 
@@ -425,14 +491,16 @@ export function createSurfaceScene(container: HTMLElement) {
     document.removeEventListener('visibilitychange', onVisibility);
     observer.disconnect();
     controls.dispose();
+    scene.remove(realisticSun.group, realisticEarth.group);
+    realisticSun.dispose();
+    realisticEarth.dispose();
     scene.traverse((obj) => {
       if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
         obj.geometry.dispose();
         const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-        for (const m of mats) m.dispose();
+        for (const m of mats) disposeMaterial(m);
       } else if (obj instanceof THREE.Sprite) {
-        obj.material.map?.dispose();
-        obj.material.dispose();
+        disposeMaterial(obj.material);
       }
     });
     renderer.dispose();
