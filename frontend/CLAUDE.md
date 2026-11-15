@@ -80,6 +80,9 @@ Volumen: 30 dias con paso de 60 min = 721 muestras (~0.3 s en backend).
 | Backend real (recomendado) | `VITE_USE_MOCK=false` | Backend arrancado: `uvicorn api:app --reload --port 8000` dentro de `backend/` |
 | Mock | `VITE_USE_MOCK=true` (o sin archivo) | Nada |
 
+**Sin `.env.local` la app corre con el mock** (posiciones inventadas). Para la demo: copiar `.env.example` a
+`.env.local` con `VITE_USE_MOCK=false` y reiniciar Vite. Si la UI muestra el aviso de datos sinteticos, es el mock.
+
 El front llama a `/api/...` y Vite lo reenvia a `localhost:8000` (`vite.config.ts`): no importa el puerto del front.
 
 - `src/services/lunarApi.ts`: unica puerta a los datos (mock o backend).
@@ -131,8 +134,10 @@ src/
   mocks/                   Solo los importa services/.
   shared/
     types/lunar.ts         Modelo de datos del front (el contrato con backend esta en docs/contrato-api.md).
-    lib/                   Funciones puras sin React (coords.ts, dates.ts, escalas del panorama...).
-    ui/                    Componentes genericos sin logica de negocio (Button, TextField, DataField, Coordinates, RegionBadge, DataSourceBadge...).
+    lib/                   Funciones puras sin React (coords.ts, dates.ts, ephemeris.ts, eventLabels.ts...).
+                           Unica excepcion: hooks genericos sin negocio (useElementSize.ts).
+    ui/                    Componentes genericos sin logica de negocio (Button, TextField, DataField, Coordinates,
+                           RegionBadge, DataSourceBadge, ChartTooltip...).
       icons/               Iconos SVG como componentes (CompassIcon...), siempre con aria-hidden.
 ```
 
@@ -142,11 +147,11 @@ src/
 | 1 | Selector de sitio: lista por categoria + buscador + lat/lon personalizadas | Elegir sitio cambia el escenario activo | Hecho |
 | 2 | Fecha y carga: inicio, duracion (1/7/14/30 dias); `useEphemeris` con loading/error | Se ve el estado de carga | Hecho |
 | F-int | Conexion al backend real: adaptador en `lunarApi.ts`, proxy de Vite | Con `VITE_USE_MOCK=false` llegan catalogo y efemerides reales | Hecho |
-| 3a | Efemerides al store (`ephemeris` + `loadEphemeris`); avisos de `source === 'mock'` y `terrain === false` | Un solo estado compartido | 45 min |
-| 3 | **Panorama del horizonte** (corazon del reto): SVG azimut vs elevacion, silueta del terreno, Sol y Tierra con su tamano, recorrido | Cambiar sitio/fecha mueve todo | 2-3 h |
-| 4 | Veredicto y metricas: CANDIDATO o no con motivos, "se pone en...", tarjetas con `metrics` | Los numeros coinciden con `/docs` de backend | 1-1.5 h |
+| 3a | Efemerides al store (`ephemeris` + `loadEphemeris`); avisos de `source === 'mock'` y `terrain === false` | Un solo estado compartido | Hecho |
+| 3 | **Panorama del horizonte** (corazon del reto): SVG azimut vs elevacion, silueta del terreno, Sol y Tierra con su tamano, recorrido; cursor con iman sobre discos y recorrido (clic = ir a ese instante) | Cambiar sitio/fecha mueve todo | Hecho |
+| 4 | Veredicto y metricas: CANDIDATO o no con motivos, "se pone en...", tarjetas con `metrics` | Los numeros coinciden con `/docs` de backend | Hecho |
 | 5 | **Comparador**: 2-4 escenarios lado a lado, mejor valor resaltado; "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo | Hecho |
-| 6 | Linea de tiempo: elevacion Sol/Tierra vs tiempo, bandas de visibilidad, `events`, slider que mueve el panorama; play | Arrastrar el slider anima el panorama | 1.5-2 h |
+| 6 | Linea de tiempo: elevacion Sol/Tierra vs tiempo, bandas de visibilidad, `events` (con lista "Ver en el panorama"), slider que mueve el panorama; play | Arrastrar el slider anima el panorama | Hecho |
 | 7 | Extras: fechas alternativas (`/api/mission`), 3D, modo educativo, URL compartible | - | lo que sobre |
 
 Detalle, dependencias y guion de la demo: `docs/plan-equipos.md`.
@@ -188,7 +193,8 @@ app  ->  features  ->  shared
   feature: solo de su `index.ts` (`import { SitePicker } from '../features/site-picker'`).
 - `app/layout/` **no importa features**. Recibe el contenido por `children` o props, para poder mover
   piezas cambiando solo `App.tsx`.
-- `shared/` **nunca** importa de `app/`, `features/` ni `services/`. `shared/lib/` no importa React.
+- `shared/` **nunca** importa de `app/`, `features/` ni `services/`. `shared/lib/` no importa React, salvo hooks
+  genericos sin negocio (`useElementSize.ts`).
 - Los componentes **nunca** importan de `mocks/`. Todo pasa por `services/lunarApi.ts`.
 
 ### Componentes
@@ -234,6 +240,12 @@ app  ->  features  ->  shared
 - Sol y Tierra tienen **un color fijo cada uno en toda la app** (panorama, timeline, comparador). Se definen
   una sola vez en `shared/lib/` en el slice 3 y todos lo importan de ahi.
 - Para graficas seguir la skill `dataviz`: un solo eje Y, leyenda + etiqueta directa, nunca solo color.
+- **Nada cambia de tamano al mover el instante.** Todo texto que dependa de `currentTime` (fechas, estados como
+  "parcialmente visible") lleva ancho fijo o no se parte (`whitespace-nowrap`, `w-[Nch]`). Si cambia de alto o de
+  ancho, a ciertos anchos de pantalla algo baja de linea y la pagina brinca al arrastrar la linea de tiempo.
+  Al probarlo, barrer anchos cada 10 px: el problema aparece solo en franjas angostas.
+- **Todo contenedor con scroll lleva `relative`.** Si no, lo que va en `position: absolute` adentro (los `sr-only`
+  de los labels) se mide contra la pagina, alarga el documento y se puede escrollear toda la pagina.
 
 ### Nombres e idioma
 
