@@ -17,6 +17,8 @@ function newId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
 }
 
+export type ScenarioWindowPatch = Partial<Pick<Scenario, 'start' | 'durationDays' | 'stepMinutes'>>;
+
 interface AppState {
   /** Sitios con coordenadas personalizadas que agrego el usuario. */
   customSites: LandingSite[];
@@ -34,6 +36,11 @@ interface AppState {
   selectSite: (site: LandingSite) => void;
   /** Agrega un sitio personalizado y lo deja como activo. */
   addCustomSite: (site: Omit<LandingSite, 'id' | 'category'>) => LandingSite;
+  /**
+   * Cambia la ventana de tiempo del escenario activo (inicio, duracion, paso).
+   * Conserva el sitio, para que "mismo sitio, otra fecha" sea solo cambiar la fecha.
+   */
+  updateScenario: (patch: ScenarioWindowPatch) => void;
   setCurrentTime: (time: string | null) => void;
 }
 
@@ -62,6 +69,13 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set((state) => ({ customSites: [...state.customSites, site] }));
     get().selectSite(site);
     return site;
+  },
+
+  updateScenario: (patch) => {
+    const prev = get().activeScenario;
+    if (!prev) return;
+    // El instante elegido puede quedar fuera de la nueva ventana: se reinicia.
+    set({ activeScenario: { ...prev, ...patch }, currentTime: null });
   },
 
   setCurrentTime: (time) => set({ currentTime: time }),
