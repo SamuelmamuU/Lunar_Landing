@@ -1,0 +1,31 @@
+# Entornos virtuales
+.venv/
+env/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Backend: salidas y datos pesados (el DEM de LOLA pesa 189 MB: nunca va a git)
+backend/output/
+backend/data/dem/
+
+# Node (el detalle esta en frontend/.gitignore)
+node_modules/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
