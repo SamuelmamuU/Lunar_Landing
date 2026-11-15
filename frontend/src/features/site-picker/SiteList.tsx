@@ -11,6 +11,8 @@ interface Props {
   query: string;
   activeSiteId: string | undefined;
   onSelect: (site: LandingSite) => void;
+  /** Quitar un sitio propio (categoria custom). */
+  onRemove: (site: LandingSite) => void;
 }
 
 // Entrada escalonada: cada fila espera STAGGER_MS mas que la anterior, hasta MAX_STAGGERED filas
@@ -34,7 +36,7 @@ function groupStartRows(groups: SiteGroup[]): number[] {
 }
 
 /** Lista agrupada por categoria, con estados de carga, error y "sin resultados". */
-export function SiteList({ state, groups, query, activeSiteId, onSelect }: Props) {
+export function SiteList({ state, groups, query, activeSiteId, onSelect, onRemove }: Props) {
   const startRows = groupStartRows(groups);
 
   // relative: lo absolute de adentro se queda en este scroll y no alarga la pagina (ver MainContent).
@@ -67,7 +69,12 @@ export function SiteList({ state, groups, query, activeSiteId, onSelect }: Props
           <ul className="mt-1 space-y-1">
             {group.sites.map((site, i) => (
               <li key={site.id} className={ENTER_CLASS} style={enterDelay(startRows[g] + 1 + i)}>
-                <SiteOption site={site} active={site.id === activeSiteId} onSelect={() => onSelect(site)} />
+                <SiteOption
+                  site={site}
+                  active={site.id === activeSiteId}
+                  onSelect={() => onSelect(site)}
+                  onRemove={site.category === 'custom' ? () => onRemove(site) : undefined}
+                />
               </li>
             ))}
           </ul>

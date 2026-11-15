@@ -218,6 +218,10 @@ app  ->  features  ->  shared
 - Leer el store con selector: `useAppStore((s) => s.activeScenario)`, nunca `useAppStore()` completo
   (re-renderiza todo).
 - Las acciones del store (`selectSite`, `addCustomSite`...) viven en `store.ts`, no en los componentes.
+- Los sitios propios ("+ Nuevo", se quitan con su X) y los escenarios del comparador se guardan en `localStorage`
+  (`persist` de zustand, clave `lunar-landing:compare`): solo sitio + fechas, nunca las efemerides (se vuelven a
+  pedir al abrir). Si cambia la forma de `Scenario`, subir
+  `PERSIST_VERSION` en `store.ts` para descartar lo guardado.
 
 ### Estilos
 

@@ -22,6 +22,7 @@ export function SitePicker() {
   const customSites = useAppStore((s) => s.customSites);
   const activeSiteId = useAppStore((s) => s.activeScenario?.site.id);
   const selectSite = useAppStore((s) => s.selectSite);
+  const removeCustomSite = useAppStore((s) => s.removeCustomSite);
   const setSidebarCollapsed = useAppStore((s) => s.setSidebarCollapsed);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const collapseRef = useRef<HTMLButtonElement>(null);
@@ -80,6 +81,7 @@ export function SitePicker() {
         query={query}
         activeSiteId={activeSiteId}
         onSelect={selectSite}
+        onRemove={(site) => removeCustomSite(site.id)}
       />
     </section>
   );
