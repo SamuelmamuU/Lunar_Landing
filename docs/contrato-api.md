@@ -78,6 +78,10 @@ Petición:
   Si llegan ambos, **gana `site_id`**: se usa el sitio del catálogo (con su horizonte precalculado) y se
   ignoran `x`/`y`. Lo mismo aplica a `POST /api/mission`.
 - Opcionales: `eps_sun_deg`, `eps_earth_deg` (0.5), `min_light_hours` (72), `min_comm_hours` (24), `h_obs_m` (2).
+- `start` y `end` aceptan fecha y hora (`2025-03-06T17:29:00Z`, `2025-03-06T17:29`, con zona horaria
+  `2025-03-06T11:29-06:00`) o solo fecha (`2025-03-06` = medianoche UTC). `end` es la salida de la Luna.
+- Muestreo: `t_utc[i] = start + i × step_min`. La última muestra es la última que **no pasa de `end`**; si `end` no
+  cae justo en un paso, queda menos de un paso antes de `end` (con duraciones de días completos y 60 min, coincide).
 - Límites: rango máximo 366 días; `step_min` entre 1 y 360; sin `step_min` el backend elige el paso
   (mínimo 10 min, máximo ~6000 muestras). El frontend usa siempre 60 min.
 

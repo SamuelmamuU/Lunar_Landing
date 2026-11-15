@@ -74,7 +74,7 @@ def mission(site: Site, landing_utc: str, duration_days: float, rules: MissionRu
     earth_clear = np.array(sr["earth_clear"])
     sun_blk = np.array(sr["sun_interference"])
     earth_blk = np.array(sr["earth_interference"])
-    n_dur = int(round(duration_days * DAY / step_s))
+    n_dur = int(np.floor(duration_days * DAY / step_s + 1e-9))   # la ventana no pasa de la salida
     i_land = int(round((et_land - et0) / step_s))
     step_h = step_min / 60.0
 
