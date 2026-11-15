@@ -22,11 +22,15 @@
     "category": "CLPS",
     "verified": true,
     "source": "https://en.wikipedia.org/wiki/IM-2",
-    "note": "Punto de aterrizaje real del 6 de marzo de 2025."
+    "note": "Punto de aterrizaje real del 6 de marzo de 2025.",
+    "category_id": "clps",
+    "agency": "Intuitive Machines / NASA CLPS",
+    "mission": "IM-2",
+    "landed_utc": "2025-03-06T17:28:50Z"
   },
   "horizon": {
     "terrain": true,
-    "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)"],
+    "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)", "LDEM_64_global.tif (~474 m/px)"],
     "z_m": 5321.501553305148,
     "h_obs_m": 2,
     "az_step_deg": 0.25,
@@ -189,6 +193,7 @@
     "sun_clear": [true, true, true, true, true],
     "earth_az": [335.846, 336.005, 336.145, 336.268, 336.373],
     "earth_el": [11.1924, 11.263, 11.3083, 11.3286, 11.3241],
+    "earth_frac": [1.0, 1.0, 1.0, 1.0, 1.0],
     "earth_clearance": [12.3085, 12.3754, 12.4027, 12.4062, 12.3824],
     "earth_visible": [true, true, true, true, true],
     "earth_interference": [false, false, false, false, false],

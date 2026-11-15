@@ -2,7 +2,8 @@
 
 Ejemplos:
   python main.py validate                      (modelo vs. 7 misiones reales)
-  python main.py mission  --x 29.1957 --y -84.7906 --landing 2025-03-06T17:29:00Z --duration 10
+  python main.py mission  --x 29.1957 --y -84.7906 --landing 2025-03-06T17:29:00Z --departure 2025-03-16T17:29:00Z
+  python main.py mission  --site mons-mouton-im2 --landing 2025-03-06T17:29:00Z --departure 2025-03-16T05:00:00Z
   python main.py evaluate --x -136.6667 --y -89.4667 --start 2026-11-14 --end 2026-12-14
   python main.py sites
   python main.py sky      --site connecting-ridge --utc 2026-11-14T18:00:00Z
@@ -15,6 +16,7 @@ Ejemplos:
   python main.py horizon  --all --dem data/dem/ldem_87s_5m.tif --dem data/dem/LDEM_80S_80MPP_ADJ.TIF
   python main.py export   --out-dir frontend/public/data
   python main.py download --kernels            (DE440 oficial; DE421 ya viene incluido)
+  python main.py download --global-dem         (LOLA LDEM_64 global, para relieve fuera del polo sur)
 
 Todas las fechas en UTC. Usa --out para guardar el JSON además de imprimirlo.
 """
@@ -98,7 +100,7 @@ def cmd_mission(args):
     site = get_site(args.site, args.y, args.x)
     rules = MissionRules(args.eps_sun, args.eps_earth, args.battery, args.max_comm_gap, args.h_obs)
     try:
-        emit(mission(site, args.landing, args.duration, rules, args.search_days, include_series=args.series), args)
+        emit(mission(site, args.landing, args.departure, rules, args.search_days, include_series=args.series), args)
     except ValueError as e:
         raise SystemExit(str(e))
 
@@ -205,8 +207,10 @@ def cmd_download(args):
         out["dems_available"] = dl.list_dems()
     if args.dem_url:
         out["dems"] = [dl.get_dem(u) for u in args.dem_url]
+    if args.global_dem:
+        out["global_dem"] = dl.get_global_dem()
     if not out:
-        raise SystemExit("Usa --kernels, --list-dems o --dem-url URL")
+        raise SystemExit("Usa --kernels, --list-dems, --dem-url URL o --global-dem")
     emit(out, args)
 
 
@@ -254,12 +258,13 @@ def build_parser() -> argparse.ArgumentParser:
     ev.add_argument("--step", type=float, default=None, help="Paso en minutos (default automático)")
     ev.add_argument("--series", action="store_true", help="Incluir la serie completa")
     ev.set_defaults(fn=cmd_evaluate)
-    mi = sub.add_parser("mission", parents=[common], help="Aterrizar en una fecha y operar N días: ¿CANDIDATO?")
+    mi = sub.add_parser("mission", parents=[common], help="Aterrizar y salir de la Luna en fechas dadas: ¿CANDIDATO?")
     mi.add_argument("--x", type=float, help="Longitud (°)")
     mi.add_argument("--y", type=float, help="Latitud (°)")
     mi.add_argument("--site", help="Alternativa a --x/--y")
     mi.add_argument("--landing", required=True, help="Fecha de aterrizaje UTC, ej. 2025-03-06T17:29:00Z")
-    mi.add_argument("--duration", type=float, required=True, help="Duración en días")
+    mi.add_argument("--departure", required=True,
+                    help="Salida de la Luna UTC, ej. 2025-03-16T05:00:00Z (la duración se calcula sola)")
     mi.add_argument("--battery", type=float, default=12, help="Horas que aguanta sin Sol")
     mi.add_argument("--max-comm-gap", type=float, default=24, help="Horas máximas sin Tierra")
     mi.add_argument("--search-days", type=float, default=15, help="Días para buscar alternativas")
@@ -292,6 +297,8 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--kernels", action="store_true")
     d.add_argument("--list-dems", action="store_true")
     d.add_argument("--dem-url", action="append", default=[])
+    d.add_argument("--global-dem", action="store_true",
+                   help="LOLA LDEM_64 global (~474 m/px, 507 MB) convertido a data/dem/LDEM_64_global.tif")
     d.set_defaults(fn=cmd_download)
 
     e = sub.add_parser("export", parents=[common], help="Datos para el frontend")

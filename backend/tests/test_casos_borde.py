@@ -3,6 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api import app
+from fechas import salida
 from lunar.analysis import Calc
 from lunar.geometry import utc_to_et
 from lunar.report import Settings, make_calc
@@ -24,8 +25,8 @@ def _sky(lat, lon, h=2.0, t=T):
 
 # ---------------------------------------------------------------- geometría
 def test_longitud_200_igual_a_menos_160(client):
-    a = client.get("/api/mission", params={"x": 200, "y": -85, "landing": "2026-11-20", "duration_days": 1}).json()
-    b = client.get("/api/mission", params={"x": -160, "y": -85, "landing": "2026-11-20", "duration_days": 1}).json()
+    a = client.get("/api/mission", params={"x": 200, "y": -85, "landing": "2026-11-20", "departure": "2026-11-21"}).json()
+    b = client.get("/api/mission", params={"x": -160, "y": -85, "landing": "2026-11-20", "departure": "2026-11-21"}).json()
     assert a["at_landing"]["sun"]["elevation_deg"] == b["at_landing"]["sun"]["elevation_deg"]
 
 
@@ -99,25 +100,25 @@ def test_dia_lunar_ecuador_dura_un_mes_sinodico():
 # ---------------------------------------------------------------- misión y API
 def test_mision_mas_larga_que_el_maximo_no_es_candidata(client):
     d = client.get("/api/mission", params={"x": 29.1957, "y": -84.7906,
-                                           "landing": "2025-03-06T17:29:00Z", "duration_days": 10}).json()
+                                           "landing": "2025-03-06T17:29:00Z", "departure": "2025-03-16T17:29:00Z"}).json()
     mx = d["result"]["max_feasible_duration_days"]
     d2 = client.get("/api/mission", params={"x": 29.1957, "y": -84.7906, "landing": "2025-03-06T17:29:00Z",
-                                            "duration_days": mx + 1}).json()
+                                            "departure": salida("2025-03-06T17:29:00Z", mx + 1)}).json()
     assert d2["result"]["label"] == "NO CANDIDATO"
 
 
 def test_alternativa_sugerida_si_es_candidata(client):
     d = client.get("/api/mission", params={"x": 29.1957, "y": -84.7906, "landing": "2025-03-01",
-                                           "duration_days": 5}).json()
+                                           "departure": "2025-03-06"}).json()
     alt = d["result"]["alternatives"]["after"]
     assert alt is not None
     d2 = client.get("/api/mission", params={"x": 29.1957, "y": -84.7906, "landing": alt["landing_utc"],
-                                            "duration_days": 5}).json()
+                                            "departure": salida(alt["landing_utc"], 5)}).json()
     assert d2["result"]["label"] == "CANDIDATO"
 
 
 def test_bateria_grande_relaja_energia(client):
-    base = {"x": 29.1957, "y": -84.7906, "landing": "2025-03-06T17:29:00Z", "duration_days": 20,
+    base = {"x": 29.1957, "y": -84.7906, "landing": "2025-03-06T17:29:00Z", "departure": "2025-03-26T17:29:00Z",
             "max_comm_gap_hours": 1000}
     a = client.get("/api/mission", params={**base, "battery_hours": 12}).json()
     b = client.get("/api/mission", params={**base, "battery_hours": 1000}).json()
@@ -126,15 +127,16 @@ def test_bateria_grande_relaja_energia(client):
 
 @pytest.mark.parametrize("landing", ["2025-03-06", "2025-03-06T17:29", "2025-03-06T17:29:00Z", "2025-03-06T11:29:00-06:00"])
 def test_formatos_de_fecha(client, landing):
-    r = client.get("/api/mission", params={"x": 29.1957, "y": -84.7906, "landing": landing, "duration_days": 1})
+    r = client.get("/api/mission", params={"x": 29.1957, "y": -84.7906, "landing": landing, "departure": salida(landing, 1)})
     assert r.status_code == 200
 
 
 @pytest.mark.parametrize("params", [
-    {"x": 0, "y": 95, "landing": "2026-01-01", "duration_days": 1},        # latitud imposible
-    {"x": 0, "y": 0, "landing": "2026-01-01", "duration_days": 0},         # duración 0
-    {"x": 0, "y": 0, "landing": "14/11/2026", "duration_days": 1},         # formato de fecha inválido
-    {"x": 0, "y": 0, "landing": "2070-01-01", "duration_days": 1},         # fuera de cobertura
+    {"x": 0, "y": 95, "landing": "2026-01-01", "departure": "2026-01-02"},     # latitud imposible
+    {"x": 0, "y": 0, "landing": "2026-01-01", "departure": "2026-01-01"},      # salida = aterrizaje
+    {"x": 0, "y": 0, "landing": "14/11/2026", "departure": "2026-11-15"},      # formato de fecha inválido
+    {"x": 0, "y": 0, "landing": "2070-01-01", "departure": "2070-01-02"},      # fuera de cobertura
+    {"x": 0, "y": 0, "landing": "2026-01-01"},                             # sin salida
 ])
 def test_entradas_invalidas(client, params):
     assert client.get("/api/mission", params=params).status_code == 422

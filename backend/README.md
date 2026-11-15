@@ -197,16 +197,17 @@ así que el puerto del front no importa. El CORS de `api.py` solo hace falta si 
 Si hay DEMs de LOLA en `data/dem/`, cualquier coordenada nueva usa relieve real automáticamente
 (se calcula al vuelo, ~1–3 s la primera vez por punto).
 
-## 7. Misión: fecha de aterrizaje + duración (endpoint principal)
+## 7. Misión: fecha de aterrizaje + fecha de salida de la Luna (endpoint principal)
 
-El usuario indica **dónde** (x, y), **cuándo aterriza** y **cuántos días opera**. La API dice si es CANDIDATO.
+El usuario indica **dónde** (x, y), **cuándo aterriza** y **cuándo sale de la Luna** (fecha y hora). La duración se
+calcula sola (`input.duration_days`). La API dice si es CANDIDATO.
 
 `POST /api/mission`
 ```json
 {
   "x": 29.1957, "y": -84.7906,
   "landing": "2025-03-06T17:29:00Z",
-  "duration_days": 10,
+  "departure": "2025-03-16T05:00:00Z",   // salida de la Luna (obligatoria)
   "eps_sun_deg": 0.5,          // opcionales
   "eps_earth_deg": 0.5,
   "battery_hours": 12,         // horas que aguanta sin Sol
@@ -215,7 +216,7 @@ El usuario indica **dónde** (x, y), **cuándo aterriza** y **cuántos días ope
   "search_days": 15            // ± días para buscar fechas alternativas
 }
 ```
-Navegador: `http://127.0.0.1:8000/api/mission?x=29.1957&y=-84.7906&landing=2025-03-06T17:29:00Z&duration_days=10`
+Navegador: `http://127.0.0.1:8000/api/mission?x=29.1957&y=-84.7906&landing=2025-03-06T17:29:00Z&departure=2025-03-16T05:00:00Z`
 
 **Reglas de CANDIDATO** (`result.checks`):
 1. Al aterrizar, Sol despejado (≥ ε_sol sobre el terreno)
@@ -229,7 +230,7 @@ Navegador: `http://127.0.0.1:8000/api/mission?x=29.1957&y=-84.7906&landing=2025-
   "label": "CANDIDATO | NO CANDIDATO",
   "reasons": ["..."],
   "checks": [{"id", "ok", "value", "threshold"}],
-  "alternatives": {"before": {"landing_utc", "shift_days"}, "after": {...}},   // fechas cercanas que sí cumplen
+  "alternatives": {"before": {"landing_utc", "departure_utc", "shift_days"}, "after": {...}},  // misma duración
   "max_feasible_duration_days": 11.11    // cuánto se puede operar si aterrizas en esa fecha
 },
 "at_landing":     { sun, earth, next, candidate },      // condiciones en el momento del aterrizaje
@@ -240,7 +241,7 @@ Navegador: `http://127.0.0.1:8000/api/mission?x=29.1957&y=-84.7906&landing=2025-
 Si no hay alternativas y `max_feasible_duration_days` es menor que la duración pedida, la misión es más larga de lo
 que el sitio permite: acorten la misión, suban `battery_hours` o acepten huecos de comunicación más largos.
 
-Terminal: `python main.py mission --x 29.1957 --y -84.7906 --landing 2025-03-06T17:29:00Z --duration 10`
+Terminal: `python main.py mission --x 29.1957 --y -84.7906 --landing 2025-03-06T17:29:00Z --departure 2025-03-16T05:00:00Z`
 
 `/api/evaluate` (rango de fechas) sigue disponible para buscar ventanas sin fecha fija.
 

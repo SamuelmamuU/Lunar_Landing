@@ -1,0 +1,110 @@
+"""Fecha y hora de salida de la Luna (slice B7): `end` en /api/evaluate y `departure` (obligatoria) en /api/mission."""
+from datetime import datetime, timedelta
+
+import pytest
+from fastapi.testclient import TestClient
+
+from api import app
+
+IM2 = "mons-mouton-im2"
+LANDING = "2025-03-06T17:29:00Z"
+
+
+@pytest.fixture(scope="module")
+def client():
+    with TestClient(app) as c:
+        yield c
+
+
+def _t(s: str) -> datetime:
+    return datetime.fromisoformat(s.replace("Z", "+00:00"))
+
+
+# ------------------------------------------------------------------ /api/evaluate: la serie no pasa de `end`
+@pytest.mark.parametrize("end,step", [
+    ("2025-03-08T08:15:00Z", 60),   # antes la última muestra quedaba 14 min después del fin
+    ("2025-03-08T08:45:00Z", 60),
+    ("2025-03-06T19:10:00Z", 60),   # antes: 19 min después del fin
+    ("2025-03-07T17:29:00Z", 60),   # alineado: la última muestra es el fin exacto
+    ("2025-03-09T03:07:00Z", 45),
+])
+def test_evaluate_ultima_muestra_no_pasa_del_fin(client, end, step):
+    d = client.post("/api/evaluate", json={"site_id": IM2, "start": LANDING, "end": end, "step_min": step,
+                                           "include_series": True}).json()
+    sr, fin = d["series"], _t(d["input"]["end_utc"])
+    last = _t(sr["t_utc"][-1])
+    assert last <= fin < last + timedelta(minutes=step)
+    assert sr["count"] == len(sr["t_utc"]) == len(sr["earth_frac"]) == len(sr["candidate"])
+    for w in d["result"]["landing_windows"]:
+        assert _t(w["end_utc"]) <= fin
+
+
+def test_evaluate_dias_completos_igual_que_antes(client):
+    """Lo que manda hoy el front (inicio + N días, 60 min): misma cantidad de muestras, de inicio a fin exactos."""
+    d = client.post("/api/evaluate", json={"site_id": IM2, "start": "2025-03-06T17:28:50.000Z",
+                                           "end": "2025-03-13T17:28:50.000Z", "step_min": 60,
+                                           "include_series": True}).json()
+    assert d["series"]["count"] == 7 * 24 + 1
+    assert d["series"]["t_utc"][-1] == d["input"]["end_utc"] == "2025-03-13T17:28:50Z"
+
+
+@pytest.mark.parametrize("start,end,esperado", [
+    ("2025-03-06T17:29", "2025-03-07T17:29", ("2025-03-06T17:29:00Z", "2025-03-07T17:29:00Z")),
+    ("2025-03-06T11:29-06:00", "2025-03-07T05:00-06:00", ("2025-03-06T17:29:00Z", "2025-03-07T11:00:00Z")),
+    ("2025-03-06", "2025-03-07", ("2025-03-06T00:00:00Z", "2025-03-07T00:00:00Z")),
+])
+def test_evaluate_formatos_de_fecha_y_hora(client, start, end, esperado):
+    d = client.post("/api/evaluate", json={"site_id": IM2, "start": start, "end": end, "step_min": 360}).json()
+    assert (d["input"]["start_utc"], d["input"]["end_utc"]) == esperado
+
+
+# ------------------------------------------------------------------ /api/mission: aterrizaje + salida
+def _mission(client, **body):
+    return client.post("/api/mission", json={"site_id": IM2, "landing": LANDING, **body})
+
+
+def test_duracion_se_calcula_de_la_salida(client):
+    d = _mission(client, departure="2025-03-16T17:29:00Z").json()
+    assert d["input"]["duration_days"] == pytest.approx(10)
+    assert d["input"]["end_utc"] == "2025-03-16T17:29:00Z"
+    assert d["result"]["label"] == "CANDIDATO"
+
+
+def test_salida_con_hora_arbitraria(client):
+    d = _mission(client, departure="2025-03-16T05:00:00Z", include_series=True).json()
+    horas = (_t("2025-03-16T05:00:00Z") - _t(LANDING)).total_seconds() / 3600
+    assert d["input"]["duration_days"] == pytest.approx(horas / 24, abs=1e-6)
+    assert d["input"]["end_utc"] == "2025-03-16T05:00:00Z"
+    assert _t(d["series"]["t_utc"][-1]) <= _t("2025-03-16T05:00:00Z")
+    assert all(_t(e["utc"]) <= _t("2025-03-16T05:00:00Z") for e in d["during_mission"]["events"])
+
+
+def test_salida_por_get(client):
+    r = client.get("/api/mission", params={"x": 29.1957, "y": -84.7906, "landing": LANDING,
+                                           "departure": "2025-03-10T00:00:00Z"})
+    assert r.status_code == 200 and r.json()["input"]["end_utc"] == "2025-03-10T00:00:00Z"
+
+
+def test_alternativas_traen_salida_con_la_misma_duracion(client):
+    """Dos semanas después del aterrizaje real no cumple: la alternativa mueve aterrizaje y salida juntos."""
+    d = client.post("/api/mission", json={"site_id": IM2, "landing": "2025-03-20T17:29:00Z",
+                                          "departure": "2025-03-30T17:29:00Z"}).json()
+    alts = [a for a in (d["result"]["alternatives"]["before"], d["result"]["alternatives"]["after"]) if a]
+    assert d["result"]["label"] == "NO CANDIDATO"
+    assert alts, "este caso debe sugerir al menos una fecha"
+    for a in alts:
+        assert (_t(a["departure_utc"]) - _t(a["landing_utc"])) == timedelta(days=10)
+
+
+@pytest.mark.parametrize("body", [
+    {},                                                                # sin salida
+    {"duration_days": 10},                                             # la duración ya no es una entrada
+    {"departure": "2025-03-06T17:29:00Z"},                             # salida = aterrizaje
+    {"departure": "2025-03-01T00:00:00Z"},                             # salida antes del aterrizaje
+    {"departure": "2026-03-07T00:00:00Z"},                             # más de 365 días
+    {"departure": "no-es-fecha"},
+])
+def test_salida_invalida_da_422(client, body):
+    r = _mission(client, **body)
+    assert r.status_code == 422
+    assert r.json()["detail"]

@@ -8,7 +8,9 @@
       "category": "Polo sur · candidato Artemis",
       "verified": true,
       "source": "https://searchworks.jioinstitute.edu.in/articles/asx__79186103",
-      "note": "89°28'S, 136°40'W según estudio ESA de sitio de aterrizaje."
+      "note": "89°28'S, 136°40'W según estudio ESA de sitio de aterrizaje.",
+      "category_id": "artemis",
+      "agency": "NASA"
     },
     {
       "id": "south-pole-rim",
@@ -18,7 +20,8 @@
       "category": "Polo sur",
       "verified": true,
       "source": "https://www.lroc.asu.edu/images/1276",
-      "note": "El polo (90°S) cae en el borde de Shackleton. Se usa 89.98°S para evitar la singularidad del norte local."
+      "note": "El polo (90°S) cae en el borde de Shackleton. Se usa 89.98°S para evitar la singularidad del norte local.",
+      "category_id": "reference"
     },
     {
       "id": "mons-mouton-im2",
@@ -28,7 +31,11 @@
       "category": "CLPS",
       "verified": true,
       "source": "https://en.wikipedia.org/wiki/IM-2",
-      "note": "Punto de aterrizaje real del 6 de marzo de 2025."
+      "note": "Punto de aterrizaje real del 6 de marzo de 2025.",
+      "category_id": "clps",
+      "agency": "Intuitive Machines / NASA CLPS",
+      "mission": "IM-2",
+      "landed_utc": "2025-03-06T17:28:50Z"
     },
     {
       "id": "mons-mouton-summit",
@@ -38,7 +45,9 @@
       "category": "Polo sur · candidato Artemis",
       "verified": true,
       "source": "https://planetarynames.wr.usgs.gov/",
-      "note": "Coordenada del nomenclátor IAU/USGS (84.6°S, 31.0°E)."
+      "note": "Coordenada del nomenclátor IAU/USGS (84.6°S, 31.0°E).",
+      "category_id": "artemis",
+      "agency": "NASA"
     },
     {
       "id": "malapert-a-im1",
@@ -48,7 +57,11 @@
       "category": "CLPS",
       "verified": true,
       "source": "https://www.nasa.gov/?p=620655",
-      "note": "Punto real de aterrizaje de Odysseus (LRO), 22 feb 2024."
+      "note": "Punto real de aterrizaje de Odysseus (LRO), 22 feb 2024.",
+      "category_id": "clps",
+      "agency": "Intuitive Machines / NASA CLPS",
+      "mission": "IM-1",
+      "landed_utc": "2024-02-22T23:23:00Z"
     },
     {
       "id": "chandrayaan3",
@@ -58,7 +71,11 @@
       "category": "ISRO",
       "verified": true,
       "source": "https://planetarynames.wr.usgs.gov/Feature/16272",
-      "note": "IAU: 69.37°S, 32.32°E."
+      "note": "IAU: 69.37°S, 32.32°E.",
+      "category_id": "international",
+      "agency": "ISRO",
+      "mission": "Chandrayaan-3",
+      "landed_utc": "2023-08-23T12:33:00Z"
     },
     {
       "id": "change6",
@@ -68,7 +85,11 @@
       "category": "CNSA",
       "verified": true,
       "source": "https://lroc.im-ldi.com/images/1374",
-      "note": "LROC: 41.6385°S, 206.0148°E (±30 m). Lado oculto: la Tierra nunca es visible."
+      "note": "LROC: 41.6385°S, 206.0148°E (±30 m). Lado oculto: la Tierra nunca es visible.",
+      "category_id": "international",
+      "agency": "CNSA",
+      "mission": "Chang'e 6",
+      "landed_utc": "2024-06-01T22:23:16Z"
     },
     {
       "id": "slim",
@@ -78,7 +99,11 @@
       "category": "JAXA",
       "verified": true,
       "source": "https://lroc.im-ldi.com/images/1358",
-      "note": "LROC: 13.3160°S, 25.2510°E."
+      "note": "LROC: 13.3160°S, 25.2510°E.",
+      "category_id": "international",
+      "agency": "JAXA",
+      "mission": "SLIM",
+      "landed_utc": "2024-01-19T15:20:00Z"
     },
     {
       "id": "blue-ghost-1",
@@ -88,7 +113,11 @@
       "category": "CLPS",
       "verified": true,
       "source": "https://lroc.im-ldi.com/images/1400",
-      "note": "18.56°N, 61.81°E, cerca de Mons Latreille."
+      "note": "18.56°N, 61.81°E, cerca de Mons Latreille.",
+      "category_id": "clps",
+      "agency": "Firefly Aerospace / NASA CLPS",
+      "mission": "Blue Ghost M1",
+      "landed_utc": "2025-03-02T08:34:00Z"
     },
     {
       "id": "apollo11",
@@ -98,7 +127,11 @@
       "category": "Apollo",
       "verified": true,
       "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
-      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC).",
+      "category_id": "apollo",
+      "agency": "NASA",
+      "mission": "Apollo 11",
+      "landed_utc": "1969-07-20T20:17:40Z"
     },
     {
       "id": "apollo17",
@@ -108,7 +141,11 @@
       "category": "Apollo",
       "verified": true,
       "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
-      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC).",
+      "category_id": "apollo",
+      "agency": "NASA",
+      "mission": "Apollo 17",
+      "landed_utc": "1972-12-11T19:54:57Z"
     },
     {
       "id": "apollo12",
@@ -118,7 +155,11 @@
       "category": "Apollo",
       "verified": true,
       "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
-      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC).",
+      "category_id": "apollo",
+      "agency": "NASA",
+      "mission": "Apollo 12",
+      "landed_utc": "1969-11-19T06:54:35Z"
     },
     {
       "id": "apollo14",
@@ -128,7 +169,11 @@
       "category": "Apollo",
       "verified": true,
       "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
-      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC).",
+      "category_id": "apollo",
+      "agency": "NASA",
+      "mission": "Apollo 14",
+      "landed_utc": "1971-02-05T09:18:11Z"
     },
     {
       "id": "apollo15",
@@ -138,7 +183,11 @@
       "category": "Apollo",
       "verified": true,
       "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
-      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC).",
+      "category_id": "apollo",
+      "agency": "NASA",
+      "mission": "Apollo 15",
+      "landed_utc": "1971-07-30T22:16:29Z"
     },
     {
       "id": "apollo16",
@@ -148,7 +197,69 @@
       "category": "Apollo",
       "verified": true,
       "source": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
-      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC)."
+      "note": "Módulo lunar, marco MOON_ME DE421 (NSSDC).",
+      "category_id": "apollo",
+      "agency": "NASA",
+      "mission": "Apollo 16",
+      "landed_utc": "1972-04-21T02:23:35Z"
+    },
+    {
+      "id": "shackleton-floor",
+      "name": "Cráter Shackleton (centro)",
+      "lat": -89.67,
+      "lon": 129.78,
+      "category": "Polo sur · referencia (centro IAU)",
+      "verified": true,
+      "source": "https://planetarynames.wr.usgs.gov/Feature/5450",
+      "note": "Centro según el gazetteer IAU/USGS (89.67°S, 129.78°E; 20.92 km). La ficha lista además 89.63°S, 132.32°E y 89.90°S, 0.00°E.",
+      "category_id": "reference"
+    },
+    {
+      "id": "mons-malapert",
+      "name": "Mons Malapert (centro)",
+      "lat": -85.98,
+      "lon": -1.67,
+      "category": "Polo sur · referencia (centro IAU)",
+      "verified": true,
+      "source": "https://planetarynames.wr.usgs.gov/Feature/16338",
+      "note": "Centro según el gazetteer IAU/USGS (85.98°S, 1.67°W; 67 km), red de control LOLA 2011.",
+      "category_id": "reference"
+    },
+    {
+      "id": "haworth",
+      "name": "Cráter Haworth (centro)",
+      "lat": -86.9,
+      "lon": -4.0,
+      "category": "Polo sur · referencia (centro IAU)",
+      "verified": true,
+      "source": "https://planetarynames.wr.usgs.gov/Feature/14502",
+      "note": "Centro según el gazetteer IAU/USGS (86.90°S, 4.00°W; 35 km). La ficha lista además 87.20°S, 7.49°W y 87.45°S, 5.17°W (51.42 km).",
+      "category_id": "reference"
+    },
+    {
+      "id": "nobile",
+      "name": "Cráter Nobile (centro)",
+      "lat": -85.28,
+      "lon": 53.27,
+      "category": "Polo sur · referencia (centro IAU)",
+      "verified": true,
+      "source": "https://planetarynames.wr.usgs.gov/Feature/4321",
+      "note": "Centro según el gazetteer IAU/USGS (85.28°S, 53.27°E; 79.27 km). La ficha lista además 85.20°S, 53.50°E y 85.24°S, 53.65°E.",
+      "category_id": "reference"
+    },
+    {
+      "id": "change4",
+      "name": "Chang'e 4 (cráter Von Kármán, lado oculto)",
+      "lat": -45.457,
+      "lon": 177.589,
+      "category": "CNSA",
+      "verified": true,
+      "source": "https://lroc.im-ldi.com/images/1087",
+      "note": "LROC: 45.457°S, 177.589°E (±20 m). Alunizaje el 3 ene 2019 a las 02:26 UTC (sin segundos en la fuente). Lado oculto: la Tierra nunca es visible.",
+      "category_id": "international",
+      "agency": "CNSA",
+      "mission": "Chang'e 4",
+      "landed_utc": "2019-01-03T02:26:00Z"
     }
   ]
 }

@@ -54,7 +54,7 @@ Base en desarrollo: `http://localhost:8000`. El frontend usa rutas relativas `/a
                "category": "CLPS", "verified": true, "source": "https://...", "note": "..." } ] }
 ```
 
-Campos que el backend va a agregar (slice B3; el front ya los lee si existen):
+Campos opcionales (agregados en el slice B2; si un sitio no tiene el dato, el campo no aparece):
 `category_id` (`artemis | clps | international | apollo | reference`), `agency`, `mission`, `landed_utc`.
 
 ### 3.2 `POST /api/evaluate` — **endpoint principal del frontend**
@@ -75,9 +75,13 @@ Petición:
 ```
 
 - Sitio del catálogo: mandar **solo `site_id`**. Sitio personalizado: mandar **solo `x` (lon) y `y` (lat)**.
-  **No mandar ambos:** si vienen `x`/`y`, el backend ignora `site_id` y no usa el horizonte precalculado
-  (se pierde el relieve real).
+  Si llegan ambos, **gana `site_id`**: se usa el sitio del catálogo (con su horizonte precalculado) y se
+  ignoran `x`/`y`. Lo mismo aplica a `POST /api/mission`.
 - Opcionales: `eps_sun_deg`, `eps_earth_deg` (0.5), `min_light_hours` (72), `min_comm_hours` (24), `h_obs_m` (2).
+- `start` y `end` aceptan fecha y hora (`2025-03-06T17:29:00Z`, `2025-03-06T17:29`, con zona horaria
+  `2025-03-06T11:29-06:00`) o solo fecha (`2025-03-06` = medianoche UTC). `end` es la salida de la Luna.
+- Muestreo: `t_utc[i] = start + i × step_min`. La última muestra es la última que **no pasa de `end`**; si `end` no
+  cae justo en un paso, queda menos de un paso antes de `end` (con duraciones de días completos y 60 min, coincide).
 - Límites: rango máximo 366 días; `step_min` entre 1 y 360; sin `step_min` el backend elige el paso
   (mínimo 10 min, máximo ~6000 muestras). El frontend usa siempre 60 min.
 
@@ -88,7 +92,8 @@ Respuesta (resumen; completo en `docs/ejemplos/evaluate-im2-1dia.json`):
   "meta":    { "schema": "1.0", "kernels": "DE421", "frame": "MOON_ME", "abcorr": "LT+S" },
   "input":   { "x_lon": 29.1957, "y_lat": -84.7906, "start_utc": "...", "end_utc": "...", "days": 30.0, "step_min": 60 },
   "site":    { "id": "mons-mouton-im2", "name": "...", "lat": -84.7906, "lon": 29.1957, "category": "CLPS" },
-  "horizon": { "terrain": true, "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)"], "z_m": 5321.5, "h_obs_m": 2.0,
+  "horizon": { "terrain": true, "dem": ["LDEM_80S_80MPP_ADJ.TIF (~80 m/px)", "LDEM_64_global.tif (~474 m/px)"],
+               "z_m": 5321.5, "h_obs_m": 2.0,
                "az_step_deg": 0.25, "max_deg": 4.061, "min_deg": -1.47, "profile_deg": [ "...1440 valores..." ] },
   "result":  { "is_candidate": true, "label": "CANDIDATO", "first_landing_utc": "...",
                "best_window": { "start_utc": "...", "end_utc": "...", "duration_h": 296.0 },
@@ -114,7 +119,7 @@ Respuesta (resumen; completo en `docs/ejemplos/evaluate-im2-1dia.json`):
   "events":  [ { "utc": "2025-03-19T04:06:39Z", "type": "earthset" } ],
   "series":  { "start_utc": "...", "step_min": 60, "count": 721, "t_utc": ["..."],
                "sun_az": [], "sun_el": [], "sun_frac": [], "sun_clearance": [], "sun_interference": [], "sun_clear": [],
-               "earth_az": [], "earth_el": [], "earth_clearance": [], "earth_visible": [], "earth_interference": [],
+               "earth_az": [], "earth_el": [], "earth_frac": [], "earth_clearance": [], "earth_visible": [], "earth_interference": [],
                "earth_clear": [], "candidate": [] }
 }
 ```
@@ -125,17 +130,24 @@ Notas:
 - `next.*` es `null` si no hay cambio en los próximos 60 días (p. ej. Sol continuo, o lado oculto sin Tierra).
 - `events[].type`: `sunrise | sunset | earthrise | earthset`, con precisión de ~1 s.
 - `horizon.terrain: false` = no hay relieve para ese punto (esfera lisa). **El front debe avisarlo.**
-- Pendiente (slice B2): agregar `earth_frac` a la serie. Mientras no exista, el front usa 1 / 0 según `earth_visible`.
+- `earth_frac[i]` (slice B4): fracción visible del disco de la Tierra (0..1), igual que `sun_frac`.
+  `earth_visible[i]` sigue siendo "el centro está sobre el terreno", que equivale a `earth_frac[i] > 0.5`.
 
-### 3.3 `POST /api/mission` — "aterrizo en esta fecha y opero N días" (extra F7)
+### 3.3 `POST /api/mission` — "aterrizo en esta fecha y opero hasta la salida" (extra F7)
 
 ```json
-{ "site_id": "mons-mouton-im2", "landing": "2025-03-06T17:29:00Z", "duration_days": 10,
+{ "site_id": "mons-mouton-im2", "landing": "2025-03-06T17:29:00Z", "departure": "2025-03-16T05:00:00Z",
   "battery_hours": 12, "max_comm_gap_hours": 24 }
 ```
 
-Devuelve `result` (`label`, `reasons`, `checks`, `alternatives.before/after` con fechas cercanas que sí cumplen,
-`max_feasible_duration_days`), `at_landing` (igual que `at_start`) y `during_mission` (porcentajes, noche más larga,
+- Obligatorios: `landing` (fecha y hora de aterrizaje) y `departure` (fecha y hora en que la misión sale de la
+  Luna), con los mismos formatos que `start`/`end`. **No hay campo de duración**: se calcula sola
+  (`departure − landing`) y se devuelve en `input.duration_days`; `input.end_utc` es la salida.
+- `departure` debe ser posterior a `landing` y como máximo 365 días después (si no → 422).
+- La ventana de la misión no pasa de la salida (misma regla de muestreo que `/api/evaluate`).
+
+Devuelve `result` (`label`, `reasons`, `checks`, `alternatives.before/after` con fechas cercanas que sí cumplen:
+`landing_utc` y `departure_utc`, manteniendo la misma duración; `max_feasible_duration_days`), `at_landing` (igual que `at_start`) y `during_mission` (porcentajes, noche más larga,
 hueco de comunicación más largo). Ejemplo completo: `docs/ejemplos/mission-im2-10dias.json`.
 Sirve para "se retrasó el lanzamiento: ¿qué fecha cercana sí funciona?".
 
@@ -149,24 +161,27 @@ Sirve para "se retrasó el lanzamiento: ¿qué fecha cercana sí funciona?".
 |---|---|---|
 | 404 | `site_id` no existe | `{ "detail": "Sitio 'x' no existe. ..." }` |
 | 422 | Regla de negocio (fechas al revés, rango > 366 días, fecha sin efemérides) | `{ "detail": "mensaje en español" }` |
-| 422 | Validación de campos (Pydantic) | `{ "detail": [ { "loc": ["body","x"], "msg": "..." } ] }` |
+| 422 | Validación de campos (Pydantic) | `{ "detail": [ { "loc": ["body","y"], "msg": "y: debe ser menor o igual a 90", "type": "less_than_equal" } ] }` (`msg` en español) |
 
 El front muestra `detail` si es texto; si es lista, une los `msg`.
 
 ## 5. Fuentes de datos (`source`)
 
 - Posiciones: **SPICE** (`spiceypy.azlcpo`), kernels DE421 → `meta.kernels`.
-- Terreno: **LOLA** `LDEM_80S_80MPP_ADJ.TIF` (polo sur, 80°S a 90°S, 80 m/px), rayos hasta 200 km →
-  `horizon.dem` y `horizon.terrain`.
+- Terreno: **LOLA**, rayos hasta 200 km → `horizon.dem` (lista de DEM usados, del más fino al más grueso) y
+  `horizon.terrain`. En cada punto se usa el DEM más fino que tenga dato:
+  - `LDEM_80S_80MPP_ADJ.TIF`: polo sur, 80°S a 90°S, 80 m/px.
+  - `LDEM_64_global.tif`: **toda la Luna**, ~474 m/px (LOLA LDEM_64 de la PDS, convertido con
+    `python main.py download --global-dem`; en la API al vuelo se usa a ~1.4 km/px para no ocupar 2 GB de RAM).
 - En el front: `source: 'spice'` con backend real, `source: 'mock'` con datos sintéticos (aviso visible).
 
 Cobertura del terreno:
 
 | Caso | Horizonte |
 |---|---|
-| Sitio del catálogo con horizonte precalculado en `data/horizons.json` (hoy 5: connecting-ridge, south-pole-rim, mons-mouton-im2, mons-mouton-summit, malapert-a-im1) | Relieve real, en cualquier máquina |
-| Coordenadas personalizadas al sur de 80°S **y** con el `.TIF` en `backend/data/dem/` | Relieve real, calculado al vuelo (1–3 s la primera vez) |
-| Cualquier otro caso (norte de 80°S, o sin el `.TIF`) | Esfera lisa (`terrain: false`) |
+| Sitio del catálogo (los 20 tienen horizonte precalculado en `data/horizons.json`) | Relieve real, en cualquier máquina |
+| Coordenadas personalizadas, en cualquier punto de la Luna, con los DEM en `backend/data/dem/` | Relieve real, calculado al vuelo (< 1 s) |
+| Coordenadas personalizadas en una máquina sin los DEM | Esfera lisa (`terrain: false`) |
 
 ## 6. Modelo interno del frontend (referencia)
 

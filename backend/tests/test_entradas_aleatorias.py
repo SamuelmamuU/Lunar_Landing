@@ -15,7 +15,7 @@ for _ in range(40):
         "x": round(rng.uniform(-180, 180), 4),
         "y": round(rng.uniform(-90, 90), 4),
         "landing": fecha.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "duration_days": round(rng.uniform(0.5, 40), 1),
+        "departure": (fecha + timedelta(days=round(rng.uniform(0.5, 40), 1))).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "eps_sun_deg": round(rng.uniform(0, 3), 2),
         "eps_earth_deg": round(rng.uniform(0, 3), 2),
         "battery_hours": rng.choice([0, 12, 48, 200]),

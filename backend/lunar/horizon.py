@@ -11,6 +11,7 @@ Las máscaras calculadas se guardan en data/horizons.json para no recalcular.
 """
 import json
 import math
+import threading
 
 import numpy as np
 
@@ -66,16 +67,23 @@ def _stored() -> dict:
 
 
 _dem_cache: "DemStack | None | bool" = False   # False = aún no buscado
+_dem_lock = threading.Lock()   # la API precarga en un hilo; una petición simultánea espera esa misma carga
 _mask_cache: dict = {}
 
 
 def auto_dems() -> "DemStack | None":
-    """DEMs en data/dem/ (GeoTIFF o IMG), del más fino al más grueso. Se cargan una sola vez."""
+    """DEMs en data/dem/ (GeoTIFF o IMG), del más fino al más grueso. Se cargan una sola vez (~4 s el de 80 m/px)."""
+    with _dem_lock:
+        return _load_dems()
+
+
+def _load_dems() -> "DemStack | None":
     global _dem_cache
     if _dem_cache is False:
         from .config import DEM_DIR
 
-        files = sorted([*DEM_DIR.glob("*.tif"), *DEM_DIR.glob("*.TIF"), *DEM_DIR.glob("*.img"), *DEM_DIR.glob("*.IMG")])
+        # Un solo patrón por extensión: en Windows glob no distingue mayúsculas y "*.tif" + "*.TIF" duplicaba el DEM
+        files = sorted(f for f in DEM_DIR.glob("*") if f.is_file() and f.suffix.lower() in (".tif", ".img"))
         if not files:
             _dem_cache = None
         else:
