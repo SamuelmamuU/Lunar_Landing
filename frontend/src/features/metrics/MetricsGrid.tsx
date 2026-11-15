@@ -1,14 +1,12 @@
 
+import { formatDegrees } from '../../shared/lib/angles';
+import { formatDuration, formatPercent } from '../../shared/lib/format';
 import type { ScenarioMetrics } from '../../shared/types/lunar';
 import { MetricCard } from './MetricCard';
 
 interface Props {
   metrics: ScenarioMetrics;
 }
-
-const formatPercent = (value: number) => `${value.toFixed(1)}%`;
-const formatHours = (value: number) => `${value.toFixed(1)} h`;
-const formatDegrees = (value: number) => `${value.toFixed(1)}°`;
 
 export function MetricsGrid({ metrics }: Props) {
   const items = [
@@ -34,17 +32,17 @@ export function MetricsGrid({ metrics }: Props) {
     },
     {
       label: 'Periodo más largo de luz',
-      value: formatHours(metrics.longestLightHours),
+      value: formatDuration(metrics.longestLightHours),
       description: 'Mayor periodo continuo de iluminación',
     },
     {
       label: 'Noche más larga',
-      value: formatHours(metrics.longestDarkHours),
+      value: formatDuration(metrics.longestDarkHours),
       description: 'Mayor periodo continuo sin luz solar',
     },
     {
       label: 'Mayor interrupción de comunicación',
-      value: formatHours(metrics.longestEarthGapHours),
+      value: formatDuration(metrics.longestEarthGapHours),
       description: 'Mayor periodo continuo sin visibilidad terrestre',
     },
     {

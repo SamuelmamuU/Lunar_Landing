@@ -1,4 +1,6 @@
 
+import { formatUtcDateTime } from '../../shared/lib/dates';
+import { formatDuration } from '../../shared/lib/format';
 import type { NextEvents } from '../../shared/types/lunar';
 
 interface Props {
@@ -20,32 +22,6 @@ function getEventLabel(event: NextEvents['sunEvent'] | NextEvents['earthEvent'])
   }
 }
 
-function formatDate(value: string | null) {
-  if (!value) return null;
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat('es-MX', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date);
-}
-
-function formatRemaining(hours: number | null) {
-  if (hours === null) return null;
-
-  const totalMinutes = Math.max(0, Math.round(hours * 60));
-  const wholeHours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-
-  if (wholeHours === 0) return `${minutes} min`;
-  if (minutes === 0) return `${wholeHours} h`;
-
-  return `${wholeHours} h ${minutes} min`;
-}
-
 interface EventItemProps {
   title: string;
   event: NextEvents['sunEvent'] | NextEvents['earthEvent'];
@@ -55,8 +31,8 @@ interface EventItemProps {
 
 function EventItem({ title, event, time, hours }: EventItemProps) {
   const label = getEventLabel(event);
-  const date = formatDate(time);
-  const remaining = formatRemaining(hours);
+  const date = time ? `${formatUtcDateTime(time)} UTC` : null;
+  const remaining = hours === null ? null : formatDuration(hours);
 
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4">

@@ -1,19 +1,10 @@
 
+import { formatUtcDateTime } from '../../shared/lib/dates';
+import { formatDuration } from '../../shared/lib/format';
 import type { Verdict } from '../../shared/types/lunar';
 
 interface Props {
   verdict: Verdict;
-}
-
-function formatDate(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat('es-MX', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date);
 }
 
 export function VerdictCard({ verdict }: Props) {
@@ -68,10 +59,10 @@ export function VerdictCard({ verdict }: Props) {
             Mejor ventana de aterrizaje
           </h3>
           <p className="mt-1 text-sm text-slate-700">
-            {formatDate(bestWindow.start)} – {formatDate(bestWindow.end)}
+            {formatUtcDateTime(bestWindow.start)} – {formatUtcDateTime(bestWindow.end)} UTC
           </p>
           <p className="mt-1 text-sm font-medium text-slate-800">
-            Duración: {bestWindow.durationHours.toFixed(1)} h
+            Duración: {formatDuration(bestWindow.durationHours)}
           </p>
         </div>
       )}
