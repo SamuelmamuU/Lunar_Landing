@@ -8,6 +8,9 @@ import type {
   EphemerisSample,
   LandingSite,
   LandingWindow,
+  MissionAlternative,
+  MissionAlternatives,
+  MissionRequest,
   SiteCategory,
   SkyEventType,
 } from '../shared/types/lunar';
@@ -240,9 +243,10 @@ export async function getSites(): Promise<LandingSite[]> {
 }
 
 /**
- * Cola de /api/evaluate: una peticion a la vez. SPICE no es thread-safe y backend atiende cada peticion en un
- * hilo: dos calculos simultaneos (p. ej. el comparador cargando 3 escenarios) tumban el proceso con
- * SPICE(BADSUBSCRIPT). Cada calculo tarda ~0.3 s, asi que en serie apenas se nota.
+ * Cola de calculos con SPICE (/api/evaluate y /api/mission): una peticion a la vez. SPICE no es thread-safe y
+ * backend atiende cada peticion en un hilo: dos calculos simultaneos (p. ej. el comparador cargando 3
+ * escenarios) tumban el proceso con SPICE(BADSUBSCRIPT). Cada calculo tarda ~0.3 s, asi que en serie apenas
+ * se nota (la busqueda de fechas alternativas, ~1.5 s: por eso solo se pide con un boton).
  */
 let evaluateQueue: Promise<unknown> = Promise.resolve();
 
@@ -268,4 +272,81 @@ export async function getEphemeris(req: EphemerisRequest): Promise<EphemerisResp
     include_series: true,
   }));
   return toEphemeris(api);
+}
+
+/** Cuantos dias antes y despues se buscan fechas alternativas: un dia lunar (el maximo de backend es 60). */
+const MISSION_SEARCH_DAYS = 30;
+
+interface ApiMissionAlternative {
+  landing_utc: string;
+  departure_utc: string;
+  shift_days: number;
+}
+
+interface ApiMission {
+  result: {
+    is_candidate: boolean;
+    alternatives: {
+      before: ApiMissionAlternative | null;
+      after: ApiMissionAlternative | null;
+      search_days: number;
+    };
+  };
+}
+
+function toAlternative(api: ApiMissionAlternative | null): MissionAlternative | null {
+  return api && { landing: api.landing_utc, departure: api.departure_utc, shiftDays: api.shift_days };
+}
+
+/**
+ * Mock: prueba fechas cada medio dia hacia atras y hacia adelante con el generador sintetico y se queda con la
+ * primera que sale CANDIDATO. Las reglas de mision de backend (bateria, hueco sin Tierra) no existen aqui.
+ */
+function mockMissionAlternatives(req: MissionRequest): MissionAlternatives {
+  const durationMs = Date.parse(req.departure) - Date.parse(req.landing);
+  const tryShift = (days: number): MissionAlternative | null => {
+    const landing = new Date(Date.parse(req.landing) + days * 86_400_000).toISOString();
+    const departure = new Date(Date.parse(landing) + durationMs).toISOString();
+    const { verdict } = generateEphemeris({ ...req, start: landing, end: departure, stepMinutes: 60 });
+    return verdict.isCandidate ? { landing, departure, shiftDays: days } : null;
+  };
+  const search = (sign: 1 | -1) => {
+    for (let days = 0.5; days <= MISSION_SEARCH_DAYS; days += 0.5) {
+      const found = tryShift(sign * days);
+      if (found) return found;
+    }
+    return null;
+  };
+  return {
+    isCandidate: tryShift(0) !== null,
+    before: search(-1),
+    after: search(1),
+    searchDays: MISSION_SEARCH_DAYS,
+  };
+}
+
+/**
+ * Fechas cercanas (antes y despues) en que una mision con la misma duracion si cumple. Para "se retraso el
+ * lanzamiento: que fecha cercana sirve?". Va por la misma cola que /api/evaluate.
+ */
+export async function getMissionAlternatives(req: MissionRequest): Promise<MissionAlternatives> {
+  if (USE_MOCK) {
+    await delay(MOCK_DELAY_MS);
+    return mockMissionAlternatives(req);
+  }
+  const api = await enqueueEvaluate(() =>
+    request<ApiMission>('/api/mission', {
+      ...(req.siteId ? { site_id: req.siteId } : { x: req.lon, y: req.lat }),
+      landing: req.landing,
+      departure: req.departure,
+      search_days: MISSION_SEARCH_DAYS,
+    }),
+  );
+  const { is_candidate, alternatives } = api.result;
+  return {
+    isCandidate: is_candidate,
+    before: toAlternative(alternatives.before),
+    after: toAlternative(alternatives.after),
+    searchDays: alternatives.search_days,
+  };
 }

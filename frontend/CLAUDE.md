@@ -39,7 +39,8 @@ Si el contrato cambia, se cambia primero ahi.
   `src/services/lunarApi.ts` traduce la respuesta al modelo del front (`src/shared/types/lunar.ts`, `camelCase`).
   Si backend cambia un campo, solo se toca `lunarApi.ts`.
 - Endpoints que usa el front: `GET /api/sites` y `POST /api/evaluate` (con `include_series: true`, paso 60 min).
-  Extra: `POST /api/mission` (fechas alternativas). Recibe **fechas**, no duracion: `landing` (aterrizaje) y
+  Extra: `POST /api/mission` (fechas alternativas, `search_days: 30`; solo se pide con un boton porque tarda ~1.5 s
+  y va por la misma cola de SPICE). Recibe **fechas**, no duracion: `landing` (aterrizaje) y
   `departure` (salida de la Luna); la duracion la calcula backend.
 - `start` y `end` de `/api/evaluate` tambien son fechas. Los botones 1/7/14/30 dias solo son una forma comoda de
   elegir `end`: el front manda `end = start + dias` (`scenarioToRequest`), nunca un numero de dias.
@@ -152,7 +153,8 @@ src/
 | 4 | Veredicto y metricas: CANDIDATO o no con motivos, "se pone en...", tarjetas con `metrics` | Los numeros coinciden con `/docs` de backend | Hecho |
 | 5 | **Comparador**: 2-4 escenarios lado a lado, mejor valor resaltado; "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo | Hecho |
 | 6 | Linea de tiempo: elevacion Sol/Tierra vs tiempo, bandas de visibilidad, `events` (con lista "Ver en el panorama"), slider que mueve el panorama; play | Arrastrar el slider anima el panorama | Hecho |
-| 7 | Extras: fechas alternativas (`/api/mission`), 3D, modo educativo, URL compartible | - | lo que sobre |
+| 7a | Fechas alternativas: en el veredicto NO CANDIDATO, "Buscar fechas cercanas" (`/api/mission`, ±30 dias, misma duracion) y "Probar N d antes/despues" | Un clic aplica la fecha sugerida | Hecho |
+| 7b | Extras: 3D, modo educativo, URL compartible | - | lo que sobre |
 
 Detalle, dependencias y guion de la demo: `docs/plan-equipos.md`.
 

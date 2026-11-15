@@ -137,6 +137,34 @@ export interface EphemerisResponse {
   source: 'mock' | 'spice';
 }
 
+/** Peticion de fechas alternativas (/api/mission): aterrizaje y salida de la Luna; la duracion la saca backend. */
+export interface MissionRequest {
+  lat: number;
+  lon: number;
+  landing: string;
+  departure: string;
+  /** Opcional: si el sitio es del catalogo. */
+  siteId?: string;
+}
+
+/** Una fecha cercana que si cumple, con la misma duracion de mision. */
+export interface MissionAlternative {
+  landing: string;
+  departure: string;
+  /** Dias de diferencia con el aterrizaje pedido (negativo = antes). */
+  shiftDays: number;
+}
+
+/** Fechas alternativas para una mision que no cumple (extra F7a). */
+export interface MissionAlternatives {
+  /** La mision tal como se pidio cumple las reglas de mision de backend. */
+  isCandidate: boolean;
+  before: MissionAlternative | null;
+  after: MissionAlternative | null;
+  /** Hasta cuantos dias antes y despues se busco. */
+  searchDays: number;
+}
+
 /** Un escenario = sitio + ventana de fechas. Es la unidad que se compara. */
 export interface Scenario {
   id: string;

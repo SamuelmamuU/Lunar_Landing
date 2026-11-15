@@ -1,6 +1,6 @@
 // Ventana de tiempo de un escenario: opciones, validaciones y armado de la peticion (sin React).
 
-import type { EphemerisRequest, Scenario } from '../types/lunar';
+import type { EphemerisRequest, MissionRequest, Scenario } from '../types/lunar';
 import { addDays, dateTimeInputToIso } from './dates';
 
 /** Duraciones que ofrece el formulario, en dias. 30 cubre un dia lunar completo (~29.5 dias). */
@@ -31,6 +31,12 @@ export function scenarioToRequest(scenario: Scenario): EphemerisRequest {
     // Los sitios personalizados no existen en el catalogo del backend.
     ...(site.category === 'custom' ? {} : { siteId: site.id }),
   };
+}
+
+/** Escenario -> peticion de fechas alternativas: aterriza al inicio de la ventana y sale al final. */
+export function scenarioToMissionRequest(scenario: Scenario): MissionRequest {
+  const { lat, lon, start, end, siteId } = scenarioToRequest(scenario);
+  return { lat, lon, landing: start, departure: end, ...(siteId ? { siteId } : {}) };
 }
 
 /**

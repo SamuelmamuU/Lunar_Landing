@@ -37,12 +37,15 @@ Dudas del briefing que quedaron resueltas leyendo y ejecutando el código:
 |---|---|---|---|---|
 | 1 | 0:00–0:25 | La app abierta. Se elige **IM-2 Athena (Mons Mouton)** y "Usar alunizaje" (6 mar 2025) | "En el polo sur el Sol no sube: da vueltas rozando el horizonte. Un cerro decide si hay energía" | F1–F2 ✔ |
 | 2 | 0:25–1:05 | **Panorama**: silueta real del terreno (LOLA), Sol a 2.5° y Tierra a 11°. Textos: "Sol visible, 1.6° sobre el terreno · se pone en 13 d 5 h", "Tierra visible · se oculta en 12 d 10 h". Veredicto **CANDIDATO** | "Esto es lo que vio Athena al aterrizar. Datos SPICE de NASA y relieve real" | F3, F4 ✔ |
-| 3 | 1:05–1:40 | Se cambia la fecha dos semanas: el veredicto pasa a **NO CANDIDATO** con el motivo en texto | "Se retrasó el lanzamiento. La herramienta responde en un segundo qué cambia" | F4 ✔ (+F7a: fechas alternativas) |
+| 3 | 1:05–1:40 | Se cambia la fecha dos semanas (20 mar) con **7 días**: el veredicto pasa a **NO CANDIDATO** con el motivo en texto. "Buscar fechas cercanas que sí sirvan" → "Probar 15 d 9 h después" (5 abr) → **CANDIDATO** | "Se retrasó el lanzamiento. La herramienta responde en un segundo qué cambia y qué fecha cercana sí sirve" | F4 ✔, F7a ✔ |
 | 4 | 1:40–2:20 | **Comparador**: IM-2 vs Connecting Ridge vs Chang'e 6 en la misma fecha. Chang'e 6: Tierra 0 % | "Misma fecha, tres sitios: se ve de un vistazo quién tiene luz y quién comunicación" | F5 ✔ |
 | 5 | 2:20–2:50 | **Línea de tiempo**: se arrastra el slider y el Sol recorre el horizonte y se esconde tras el cerro | "Un día lunar dura 29.5 días terrestres" | F6 ✔ |
 | 6 | 2:50–3:00 | Cierre | "Validado contra 7 misiones reales. Sirve a planificadores y a un salón de clases" | B5 |
 
 **Demo mínima viable:** pasos 1 a 4 (F3, F4, F5). El paso 5 es lo primero que se recorta si falta tiempo.
+
+Paso 3 con **7 días**, no 14: en IM-2 lo máximo viable seguido son ~13.4 días, así que con 14 no hay ninguna
+fecha alternativa. Con 30 días el veredicto sigue en CANDIDATO (entra la ventana del 5 abr).
 
 ## 4. Slices de backend
 
@@ -70,7 +73,7 @@ Rama por slice: `UI/vertical-slice-N` → PR a `develop`.
 | F4 | **Veredicto y métricas** (pasos 2 y 3) ✔ hecho | F3a | `features/metrics/`: CANDIDATO / NO CANDIDATO con motivos (`verdict`), "se pone en…" (`next`), tarjetas (`metrics`): % Sol, % Tierra, % ambos, noche más larga, apagón más largo, elevación solar máxima | Los números coinciden con `/docs` del backend para el mismo sitio y fecha | 1–1.5 h |
 | F5 | **Comparador** (paso 4) ✔ hecho | F4 | `features/compare/`: 2–4 escenarios lado a lado (una llamada a `getEphemeris` por escenario, **en fila**: SPICE no aguanta dos cálculos a la vez), mejor valor resaltado, "misma fecha, otro sitio" y "mismo sitio, otra fecha" | Se ve el trade-off de un vistazo con 3 sitios | 2 h |
 | F6 | **Línea de tiempo** (paso 5) ✔ hecho | F3 | `features/timeline/`: elevación de Sol y Tierra vs tiempo, bandas de visibilidad, marcas de `events`, slider que mueve `currentTime`, play | Arrastrar el slider anima el panorama | 1.5–2 h |
-| F7a | Extra: fechas alternativas | F4 | `getMission()` en `lunarApi.ts` contra `/api/mission` con **fechas** `landing` y `departure` (ya no `duration_days`); botones "probar 3 días antes / después" con `alternatives` (`landing_utc` / `departure_utc`) | Un clic aplica la fecha sugerida | 1 h |
+| F7a | Extra: fechas alternativas ✔ hecho | F4 | `getMission()` en `lunarApi.ts` contra `/api/mission` con **fechas** `landing` y `departure` (ya no `duration_days`); botones "probar 3 días antes / después" con `alternatives` (`landing_utc` / `departure_utc`) | Un clic aplica la fecha sugerida | 1 h |
 | F7b | Extra: 3D, modo educativo, URL compartible | F6 | Vista Three.js con `vectors_3d` (guía en `docs/archivo/api-output-3d.md`) | — | lo que sobre |
 
 ## 6. Orden y reparto sugerido (4 personas)
