@@ -161,7 +161,7 @@ Sirve para "se retrasó el lanzamiento: ¿qué fecha cercana sí funciona?".
 |---|---|---|
 | 404 | `site_id` no existe | `{ "detail": "Sitio 'x' no existe. ..." }` |
 | 422 | Regla de negocio (fechas al revés, rango > 366 días, fecha sin efemérides) | `{ "detail": "mensaje en español" }` |
-| 422 | Validación de campos (Pydantic) | `{ "detail": [ { "loc": ["body","x"], "msg": "..." } ] }` |
+| 422 | Validación de campos (Pydantic) | `{ "detail": [ { "loc": ["body","y"], "msg": "y: debe ser menor o igual a 90", "type": "less_than_equal" } ] }` (`msg` en español) |
 
 El front muestra `detail` si es texto; si es lista, une los `msg`.
 

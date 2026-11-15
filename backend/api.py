@@ -21,9 +21,10 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 import spiceypy as sp
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from lunar import kernels
@@ -103,9 +104,52 @@ def _run(body: EvaluateIn) -> dict:
         raise HTTPException(422, f"Fecha fuera de la cobertura de las efemérides: {e.short}")
 
 
+# ------------------------------------------------------------------ errores de validación en español
+_MSG_ES = {
+    "missing": "falta el campo obligatorio",
+    "float_parsing": "debe ser un número", "float_type": "debe ser un número",
+    "int_parsing": "debe ser un número entero", "int_type": "debe ser un número entero",
+    "string_type": "debe ser texto",
+    "bool_parsing": "debe ser true o false", "bool_type": "debe ser true o false",
+    "finite_number": "debe ser un número finito",
+    "json_invalid": "el cuerpo de la petición no es JSON válido",
+    "model_attributes_type": "el cuerpo debe ser un objeto JSON", "dict_type": "el cuerpo debe ser un objeto JSON",
+}
+_LIMITES_ES = {"greater_than_equal": ("ge", "mayor o igual a"), "greater_than": ("gt", "mayor que"),
+               "less_than_equal": ("le", "menor o igual a"), "less_than": ("lt", "menor que")}
+
+
+def _campo(loc) -> str:
+    """('body', 'departure') -> 'departure'; ('query', 'x') -> 'x'; ('body',) -> ''."""
+    return ".".join(str(x) for x in loc if x not in ("body", "query", "path"))
+
+
+def _msg_es(err: dict) -> str:
+    """Mensaje de Pydantic traducido al español; si el tipo no está en la tabla, se deja el original."""
+    t, ctx, campo = err.get("type", ""), err.get("ctx") or {}, _campo(err.get("loc", ()))
+    if t == "value_error":   # nuestros model_validator: el texto ya está en español
+        return str(ctx.get("error", err["msg"])).removeprefix("Value error, ")
+    if t in _LIMITES_ES:
+        key, txt = _LIMITES_ES[t]
+        lim = ctx.get(key)
+        base = f"debe ser {txt} {lim:g}" if isinstance(lim, (int, float)) else f"debe ser {txt} {lim}"
+    else:
+        base = _MSG_ES.get(t)
+        if base is None:
+            return err["msg"]
+    return f"{campo}: {base}" if campo else base[0].upper() + base[1:]
+
+
 def _errors(e: ValidationError) -> list[dict]:
-    """Errores de validación legibles: [{campo, mensaje}]."""
-    return [{"campo": ".".join(str(x) for x in err["loc"]), "mensaje": err["msg"]} for err in e.errors()]
+    """Errores de validación legibles para los GET: [{campo, mensaje}]."""
+    return [{"campo": _campo(err["loc"]), "mensaje": _msg_es(err)} for err in e.errors()]
+
+
+@app.exception_handler(RequestValidationError)
+async def _validation_es(_request: Request, exc: RequestValidationError):
+    """Misma forma que FastAPI ({detail: [{loc, msg, type}]}) con `msg` en español."""
+    return JSONResponse(status_code=422, content={"detail": [
+        {"loc": list(err.get("loc", ())), "msg": _msg_es(err), "type": err.get("type", "")} for err in exc.errors()]})
 
 
 @app.get("/", include_in_schema=False)
