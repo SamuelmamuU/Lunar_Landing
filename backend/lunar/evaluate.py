@@ -105,15 +105,15 @@ def evaluate(site: Site, start_utc: str, end_utc: str, s: Settings,
     else:
         reasons = []
         if not np.any(np.array(rng["sun_clear"])):
-            reasons.append("El Sol nunca está despejado (≥ ε) en el rango")
+            reasons.append("The Sun is never clear (≥ ε) in the range")
         if not np.any(np.array(rng["earth_clear"])):
-            reasons.append("La Tierra nunca está despejada (≥ ε) en el rango")
+            reasons.append("The Earth is never clear (≥ ε) in the range")
         if not reasons:
-            reasons.append("Sol y Tierra no coinciden despejados con suficiente luz y comunicación por delante")
+            reasons.append("The Sun and Earth are not both clear with sufficient light and communication ahead")
         if m["pct_sun_blocked_by_terrain"] > 0:
-            reasons.append(f"El terreno tapa el Sol el {m['pct_sun_blocked_by_terrain']}% del tiempo")
+            reasons.append(f"The terrain blocks the Sun {m['pct_sun_blocked_by_terrain']}% of the time")
         if m["pct_earth_blocked_by_terrain"] > 0:
-            reasons.append(f"El terreno tapa la Tierra el {m['pct_earth_blocked_by_terrain']}% del tiempo")
+            reasons.append(f"The terrain blocks the Earth {m['pct_earth_blocked_by_terrain']}% of the time")
 
     out = {
         "meta": meta(),

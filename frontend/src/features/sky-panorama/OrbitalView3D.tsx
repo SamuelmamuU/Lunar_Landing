@@ -57,7 +57,7 @@ export function OrbitalView3D({
       <div className="pointer-events-none absolute inset-x-3 top-3 flex flex-wrap items-start justify-between gap-2">
         <div className="rounded-md border border-slate-700/70 bg-slate-950/75 px-2.5 py-1.5 backdrop-blur-sm">
           <p className="text-xs font-medium text-slate-200">
-            Vista espacial · {vectors3d?.frame ?? 'MOON_ME'}
+            Space View · {vectors3d?.frame ?? 'MOON_ME'}
           </p>
           <p className="text-[11px] text-slate-400">
             R = {(vectors3d?.moonRadiusKm ?? 1737.4).toFixed(1)} km · Terminador solar en tiempo real

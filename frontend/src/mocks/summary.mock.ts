@@ -101,10 +101,10 @@ export function summarize(samples: EphemerisSample[], stepMinutes: number): Summ
 
   const reasons: string[] = [];
   if (landingWindows.length === 0) {
-    if (!sunClear.some(Boolean)) reasons.push('El Sol nunca esta despejado en el rango');
-    if (!earthClear.some(Boolean)) reasons.push('La Tierra nunca esta despejada en el rango');
+    if (!sunClear.some(Boolean)) reasons.push('The Sun is never clear (≥ ε) in the range');
+    if (!earthClear.some(Boolean)) reasons.push('The Earth is never clear (≥ ε) in the range');
     if (reasons.length === 0) {
-      reasons.push('Sol y Tierra no coinciden despejados con suficiente luz y comunicacion por delante');
+      reasons.push('The Sun and Earth are not both clear with sufficient light and communication ahead');
     }
   }
 
