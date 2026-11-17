@@ -11,6 +11,7 @@ Las máscaras calculadas se guardan en data/horizons.json para no recalcular.
 """
 import json
 import math
+import os
 import threading
 
 import numpy as np
@@ -19,6 +20,7 @@ from .config import DEFAULT_H_OBS_M, HORIZONS_FILE, R_MOON_KM
 from .sites import Site
 
 R_M = R_MOON_KM * 1000.0
+DEFAULT_MAX_PX = int(os.environ.get("DEM_MAX_PX", "8000"))
 
 
 class Mask:
@@ -141,10 +143,19 @@ class _Dem:
         with rasterio.open(path) as ds:
             f = max(1, math.ceil(max(ds.width, ds.height) / max_px))
             shape = (ds.height // f, ds.width // f)
-            arr = ds.read(1, out_shape=shape, masked=True).astype("float64")
-            scale = (ds.scales or [1.0])[0] or 1.0
-            offset = (ds.offsets or [0.0])[0] or 0.0
-            self.z = np.where(arr.mask, np.nan, arr.data * scale + offset)
+            raw = ds.read(1, out_shape=shape, masked=False)
+            nodata = ds.nodata
+            scale = float((ds.scales or [1.0])[0] or 1.0)
+            offset = float((ds.offsets or [0.0])[0] or 0.0)
+            z = raw if raw.dtype == np.float32 else raw.astype(np.float32)
+            if nodata is not None and not math.isnan(float(nodata)):
+                z[raw == nodata] = np.nan
+            del raw
+            if scale != 1.0:
+                z *= np.float32(scale)
+            if offset != 0.0:
+                z += np.float32(offset)
+            self.z = z
             self.transform = ds.transform * ds.transform.scale(ds.width / shape[1], ds.height / shape[0])
             crs = ds.crs
         self.inv = ~self.transform
@@ -164,7 +175,7 @@ class _Dem:
 class DemStack:
     """DEMs ordenados del más fino al más grueso."""
 
-    def __init__(self, paths: list[str], max_px: int = 8000):
+    def __init__(self, paths: list[str], max_px: int = DEFAULT_MAX_PX):
         self.dems = [_Dem(p, max_px) for p in paths]
 
     def sample(self, lat, lon):

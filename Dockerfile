@@ -12,7 +12,9 @@ FROM python:3.11-slim
 WORKDIR /app/backend
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    DEM_MAX_PX=3800 \
+    GDAL_CACHEMAX=32
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libexpat1 \
