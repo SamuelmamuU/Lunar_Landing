@@ -5,6 +5,12 @@ NASA Space Apps 2026 · equipo Bosón de Quásar.
 Eliges **sitio + fecha** de alunizaje y ves dónde están el Sol y la Tierra respecto al horizonte real del
 terreno, para juzgar energía solar y comunicación directa, y comparar escenarios cuando la misión cambia.
 
+## Demo en vivo (Live Demo)
+
+- **Aplicación Web Interactiva (ALBA — 2D + Simuladores 3D):** https://alba-web-production.up.railway.app
+- **Documentación interactiva de la API (Swagger `/docs`):** https://alba-web-production.up.railway.app/docs
+- **Estado del servidor y efemérides (`/api/health`):** https://alba-web-production.up.railway.app/api/health
+
 ## Estructura
 
 ```
