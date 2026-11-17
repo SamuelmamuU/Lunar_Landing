@@ -34,11 +34,17 @@ from lunar.mission import MissionRules, mission
 from lunar.report import Settings, meta
 from lunar.sites import Site, load_sites
 
+def _preload_dems() -> None:
+    from lunar.download import ensure_south_pole_dem
+    ensure_south_pole_dem()
+    auto_dems()
+
+
 @asynccontextmanager
 async def lifespan(_app):
     kernels.load()  # cargar SPICE una sola vez al arrancar
-    # Precargar el DEM (~4 s) en segundo plano: la primera coordenada personalizada ya no paga esa espera
-    threading.Thread(target=auto_dems, name="precarga-dem", daemon=True).start()
+    # Garantizar y precargar el DEM (~4 s) en segundo plano: la primera coordenada personalizada ya no paga esa espera
+    threading.Thread(target=_preload_dems, name="precarga-dem", daemon=True).start()
     yield
 
 
@@ -46,7 +52,7 @@ app = FastAPI(title="Lunar Landing Site Navigator API", version="1.0", lifespan=
               description="Sol, Tierra e interferencia del terreno para un punto lunar en un rango de fechas.")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # Vite dev server
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -152,11 +158,6 @@ async def _validation_es(_request: Request, exc: RequestValidationError):
         {"loc": list(err.get("loc", ())), "msg": _msg_es(err), "type": err.get("type", "")} for err in exc.errors()]})
 
 
-@app.get("/", include_in_schema=False)
-def root():
-    return RedirectResponse("/docs")
-
-
 @app.get("/api/health")
 def health():
     return {"status": "ok", **meta()}
@@ -248,3 +249,14 @@ def mission_get(
     except ValidationError as e:
         raise HTTPException(422, _errors(e))
     return _run_mission(body)
+
+
+FRONTEND_DIST = BACKEND_DIR.parent / "frontend" / "dist"
+if (FRONTEND_DIST / "index.html").is_file():
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
+else:
+    @app.get("/", include_in_schema=False)
+    def root():
+        return RedirectResponse("/docs")

@@ -148,3 +148,24 @@ def convert_global_dem(img: Path, lbl: Path, out: Path) -> Path:
         dst.scales = (scale,)
         dst.offsets = (0.0,)
     return out
+
+
+SOUTH_POLE_DEM_TIF = "LDEM_80S_80MPP_ADJ.TIF"
+SOUTH_POLE_DEM_FALLBACK_URL = "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_80S_80MPP_ADJ.TIF"
+
+
+def ensure_south_pole_dem() -> str | None:
+    """Garantiza que LDEM_80S_80MPP_ADJ.TIF exista en data/dem/; si no está, lo descarga desde NASA PGDA."""
+    dest = DEM_DIR / SOUTH_POLE_DEM_TIF
+    if dest.exists():
+        return str(dest)
+    try:
+        hits = _links(
+            "https://pgda.gsfc.nasa.gov/products/90",
+            r"ldem_80s_80mpp_adj\.tif$",
+        )
+        url = hits[0] if hits else SOUTH_POLE_DEM_FALLBACK_URL
+        return str(download(url, dest))
+    except Exception as exc:  # noqa: BLE001
+        print(f"Aviso: no se pudo descargar {SOUTH_POLE_DEM_TIF}: {exc}")
+        return None
