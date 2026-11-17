@@ -104,8 +104,9 @@ def _load_dems() -> "DemStack | None":
                 stack = DemStack([str(f) for f in files])
                 stack.dems.sort(key=lambda d: d.px_m)
                 _dem_cache = stack
-            except ImportError:
-                _dem_cache = None  # falta rasterio/pyproj/scipy
+            except Exception as exc:  # noqa: BLE001
+                print(f"Error cargando DEMs {files}: {exc}")
+                _dem_cache = None
     return _dem_cache
 
 

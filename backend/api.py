@@ -160,7 +160,8 @@ async def _validation_es(_request: Request, exc: RequestValidationError):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", **meta()}
+    dems = auto_dems()
+    return {"status": "ok", **meta(), "dems": dems.describe() if dems else []}
 
 
 @app.get("/api/sites")
