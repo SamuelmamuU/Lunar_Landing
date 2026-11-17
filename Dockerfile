@@ -29,6 +29,9 @@ COPY backend/ ./
 # Download NASA LOLA South Pole DEM (LDEM_80S_80MPP_ADJ.TIF, 189 MB) into /app/backend/data/dem/ and verify load + raycast
 RUN python -c "from lunar.download import ensure_south_pole_dem; from lunar.horizon import auto_dems, compute_mask; from lunar.sites import Site; p = ensure_south_pole_dem(); assert p, 'DEM download failed'; d = auto_dems(); assert d and len(d.dems) > 0, 'auto_dems failed'; m = compute_mask(Site(id='test', name='test', lat=-85.0, lon=10.0), d); assert m.terrain and m.z_m is not None, 'compute_mask failed'; print('DEM VERIFIED OK:', d.describe(), 'z_m=', m.z_m)"
 
+# Download NASA LOLA global DEM (LDEM_64_global.tif) so custom coordinates anywhere on the Moon (-90 to +90) have real relief
+RUN python -c "import shutil; from pathlib import Path; from lunar.download import get_global_dem; from lunar.horizon import auto_dems, compute_mask; from lunar.sites import Site; g = get_global_dem(); shutil.rmtree(Path('data/dem/raw'), ignore_errors=True); d = auto_dems(); assert d and len(d.dems) >= 2, 'global DEM failed'; m = compute_mask(Site(id='eq', name='eq', lat=-20.0, lon=10.0), d); assert m.terrain and m.z_m is not None, 'global compute_mask failed'; print('GLOBAL DEM VERIFIED OK:', d.describe(), 'z_m=', m.z_m)"
+
 # Copy compiled frontend bundle so FastAPI serves it at /
 COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 
