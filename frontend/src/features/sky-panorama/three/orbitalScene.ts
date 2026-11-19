@@ -104,6 +104,37 @@ function createMoonTextures(): { map: THREE.CanvasTexture; bumpMap: THREE.Canvas
   return { map, bumpMap };
 }
 
+interface MoonImages {
+  color: HTMLImageElement;
+  bump: HTMLImageElement;
+}
+
+// Cache a nivel de modulo: las imagenes se descargan una sola vez por sesion aunque la vista 3D se monte varias veces.
+// Se guardan las imagenes (no las texturas) porque cada escena tiene su propio renderer y libera sus texturas.
+let cachedMoonImages: MoonImages | null = null;
+let moonImagesPromise: Promise<MoonImages> | null = null;
+
+function loadMoonImages(): Promise<MoonImages> {
+  if (!moonImagesPromise) {
+    const baseUrl = import.meta.env.BASE_URL ?? '/';
+    const loader = new THREE.ImageLoader();
+    moonImagesPromise = Promise.all([
+      loader.loadAsync(`${baseUrl}textures/moon_color.jpg`),
+      loader.loadAsync(`${baseUrl}textures/moon_bump.jpg`),
+    ])
+      .then(([color, bump]) => {
+        cachedMoonImages = { color, bump };
+        return cachedMoonImages;
+      })
+      .catch((err: unknown) => {
+        // Permite reintentar en el siguiente montaje
+        moonImagesPromise = null;
+        throw err;
+      });
+  }
+  return moonImagesPromise;
+}
+
 function buildLatRingGeometry(latDeg: number, radius: number, segments = 96): THREE.BufferGeometry {
   const lat = THREE.MathUtils.degToRad(latDeg);
   const r = Math.cos(lat) * radius;
@@ -209,15 +240,12 @@ export function createOrbitalScene(container: HTMLElement) {
 
   scene.add(buildStarfield());
 
-  // Globo lunar: arranque inmediato con fallback y carga asincrona de mapas reales NASA SVS 4720 (LROC/LOLA)
-  const fallbackMoon = createMoonTextures();
-  let activeMoonMap: THREE.Texture = fallbackMoon.map;
-  let activeMoonBump: THREE.Texture = fallbackMoon.bumpMap;
+  // Globo lunar con mapas reales NASA SVS 4720 (LROC/LOLA). La escena se oculta hasta tener color y relieve
+  // juntos, para no mostrar primero la luna lisa y luego cambiarla. El procedural queda solo si falla la carga.
+  let activeMoonMap: THREE.Texture | null = null;
+  let activeMoonBump: THREE.Texture | null = null;
   const moonGeom = new THREE.SphereGeometry(MOON_WORLD_RADIUS, 72, 54);
   const moonMat = new THREE.MeshStandardMaterial({
-    map: activeMoonMap,
-    bumpMap: activeMoonBump,
-    bumpScale: 0.22,
     roughness: 0.94,
     metalness: 0.02,
   });
@@ -227,37 +255,44 @@ export function createOrbitalScene(container: HTMLElement) {
   scene.add(moonMesh);
 
   let disposed = false;
-  const texLoader = new THREE.TextureLoader();
   const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-  const baseUrl = import.meta.env.BASE_URL ?? '/';
 
-  texLoader.load(`${baseUrl}textures/moon_color.jpg`, (loadedMap) => {
-    if (disposed) {
-      loadedMap.dispose();
-      return;
-    }
-    loadedMap.colorSpace = THREE.SRGBColorSpace;
-    loadedMap.anisotropy = maxAniso;
-    const prev = activeMoonMap;
-    activeMoonMap = loadedMap;
-    moonMat.map = loadedMap;
+  const applyMoonTextures = (map: THREE.Texture, bump: THREE.Texture, bumpScale: number) => {
+    activeMoonMap = map;
+    activeMoonBump = bump;
+    moonMat.map = map;
+    moonMat.bumpMap = bump;
+    moonMat.bumpScale = bumpScale;
     moonMat.needsUpdate = true;
-    prev.dispose();
-  });
+    scene.visible = true;
+  };
 
-  texLoader.load(`${baseUrl}textures/moon_bump.jpg`, (loadedBump) => {
-    if (disposed) {
-      loadedBump.dispose();
-      return;
-    }
-    loadedBump.anisotropy = maxAniso;
-    const prev = activeMoonBump;
-    activeMoonBump = loadedBump;
-    moonMat.bumpMap = loadedBump;
-    moonMat.bumpScale = 0.26;
-    moonMat.needsUpdate = true;
-    prev.dispose();
-  });
+  const applyRealMoon = (images: MoonImages) => {
+    const map = new THREE.Texture(images.color);
+    map.colorSpace = THREE.SRGBColorSpace;
+    map.anisotropy = maxAniso;
+    map.needsUpdate = true;
+    const bump = new THREE.Texture(images.bump);
+    bump.anisotropy = maxAniso;
+    bump.needsUpdate = true;
+    applyMoonTextures(map, bump, 0.26);
+  };
+
+  if (cachedMoonImages) {
+    // Ya se descargaron en un montaje anterior: se aplican sin parpadeo
+    applyRealMoon(cachedMoonImages);
+  } else {
+    scene.visible = false;
+    loadMoonImages()
+      .then((images) => {
+        if (!disposed) applyRealMoon(images);
+      })
+      .catch(() => {
+        if (disposed) return;
+        const fallback = createMoonTextures();
+        applyMoonTextures(fallback.map, fallback.bumpMap, 0.22);
+      });
+  }
 
   // Graticula sutil: ecuador y paralelo -80S (cobertura LOLA polo sur)
   const eqGeom = buildLatRingGeometry(0, MOON_WORLD_RADIUS + 0.025);
@@ -460,8 +495,8 @@ export function createOrbitalScene(container: HTMLElement) {
         for (const m of mats) m.dispose();
       }
     });
-    activeMoonMap.dispose();
-    activeMoonBump.dispose();
+    activeMoonMap?.dispose();
+    activeMoonBump?.dispose();
     renderer.dispose();
     if (renderer.domElement.parentNode === container) {
       container.removeChild(renderer.domElement);
