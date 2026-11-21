@@ -312,7 +312,7 @@ def compute_mask(site: Site, dems: DemStack, h_obs_m=DEFAULT_H_OBS_M, az_step=0.
     r_o = R_M + z0 + h_obs_m
     r_t = R_M + zt
     alpha = np.degrees(np.arctan2(r_t * np.cos(theta) - r_o, r_t * np.sin(theta)))
-    sphere = np.degrees(np.arctan2(R_M * np.cos(theta) - r_o, R_M * np.sin(theta))).max()
+    sphere = -math.degrees(math.acos(R_M / (R_M + h_obs_m)))
     H = np.nanmax(np.where(np.isnan(alpha), sphere, alpha), axis=1)
     return Mask(H, True, z0, h_obs_m, dems.describe())
 
